@@ -1,32 +1,57 @@
-# HotelNova Frontend (TanStack Start)
+# HotelNova Frontend (Next.js App Router)
 
 ## Stack
-TanStack Start · TypeScript · Tailwind CSS · shadcn/ui · TanStack Query · Zustand
+Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · shadcn/ui · TanStack Query · Zustand · React Hook Form · Zod
 
-## Route Structure
+## Route Structure (App Router)
 app/
   (public)/        # No auth: homepage, rooms, about
-  (auth)/          # Login, signup
-  dashboard/       # Guest-only (protected)
-  admin/           # Admin-only (protected)
+  (auth)/          # Login, signup pages
+  dashboard/       # Guest-only (protected via middleware)
+  admin/           # Admin-only (protected via middleware)
+  api/             # Next.js Route Handlers (server-side calls to NestJS)
 
 ## Commands
-npm run dev        # Start dev server
+npm run dev        # Start dev server (port 3000)
 npm run build      # Production build
-npm run typecheck  # Type check
+npm run lint       # ESLint
 
 ## Conventions
 - Use shadcn/ui for all UI components — don't build primitives from scratch
-- TanStack Query for ALL server state — no raw fetch in components
+- All screens must be responsive across all screen sizes (mobile-first)
+- Add appropriate smooth animations and transitions
+- TanStack Query for ALL server state — no raw fetch in client components
 - Zustand only for client state (auth user, booking wizard state)
-- Booking wizard state lives in booking-store.ts
+- Booking wizard state lives in stores/booking-store.ts
 - Socket.io client initialized in lib/socket.ts
+- Next.js Route Handlers (`app/api/**`) proxy calls to NestJS backend
+- React Hook Form + Zod for ALL forms — no uncontrolled inputs, no manual validation
+
+## Forms
+- Use `react-hook-form` with `useForm()` for every form
+- Use `zod` for schema validation and `@hookform/resolvers/zod` for the resolver
+- Pattern:
+  ```ts
+  const schema = z.object({ email: z.string().email(), ... })
+  const form = useForm({ resolver: zodResolver(schema) })
+  ```
+- Display field errors via `form.formState.errors`
+- Use shadcn/ui Form components (FormField, FormItem, FormMessage) built on top of react-hook-form
+
+## Data Fetching
+- Server Components fetch data directly (no useEffect, no TanStack Query)
+- Client Components use TanStack Query (`useQuery`, `useMutation`)
+- All API calls from Client Components go through Next.js Route Handlers — never directly to NestJS
 
 ## Auth Rules
-- Auth state managed in auth-store.ts (Zustand)
+- Auth state managed in stores/auth-store.ts (Zustand)
+- Route protection via Next.js middleware (`middleware.ts`)
 - Protected routes check role before rendering
 - On 401 from API → clear store and redirect to /login
+- JWT stored in HttpOnly cookies only — managed server-side
 
 ## Do Not
 - Do NOT store JWT in localStorage or JS variables
-- Do NOT call backend directly from components — use TanStack Query hooks
+- Do NOT call the NestJS backend directly from client components
+- Do NOT use uncontrolled inputs or manual form state — always use React Hook Form
+- Do NOT use `useEffect` for data fetching — use Server Components or TanStack Query

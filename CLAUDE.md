@@ -6,21 +6,22 @@ portfolio project for Terra Nova under Terra Management.
 Goal: production-grade, portfolio-ready fullstack app to impress employers in 2026.
 
 ## Monorepo Structure
-- /frontend — TanStack Start (SSR), TypeScript, Tailwind, shadcn/ui
-- /backend  — NestJS, TypeScript, JWT Auth, Prisma ORM
-- /shared   — (optional) shared types/constants
+- /hotel-nova-frontend — Next.js 16 (App Router), TypeScript, Tailwind CSS v4, shadcn/ui
+- /hotel-nova-backend  — NestJS, TypeScript, JWT Auth, Prisma ORM
+- /shared              — (optional) shared types/constants
 
 ## Tech Stack
-| Layer      | Tech                                      |
-|------------|-------------------------------------------|
-| Frontend   | TanStack Start, TanStack Query, Zustand   |
-| Backend    | NestJS, JWT (HttpOnly cookies), Swagger   |
-| Database   | Neon Postgres (serverless) + Prisma ORM   |
-| Payments   | Paystack                                  |
-| Real-time  | Socket.io                                 |
-| PDF        | react-pdf or pdf-lib                      |
-| Charts     | Recharts                                  |
-| Deploy     | Vercel (FE), Railway/Render (BE), Neon    |
+| Layer      | Tech                                                        |
+|------------|-------------------------------------------------------------|
+| Frontend   | Next.js 16 (App Router), React 19, TanStack Query, Zustand |
+| Forms      | React Hook Form + Zod + @hookform/resolvers                 |
+| Backend    | NestJS, JWT (HttpOnly cookies), Swagger                     |
+| Database   | Neon Postgres (serverless) + Prisma ORM                     |
+| Payments   | Paystack                                                    |
+| Real-time  | Socket.io                                                   |
+| PDF        | react-pdf or pdf-lib                                        |
+| Charts     | Recharts                                                    |
+| Deploy     | Vercel (FE), Railway/Render (BE), Neon                      |
 
 ## User Roles
 - Guest — can browse, book rooms, manage own bookings

@@ -74,11 +74,12 @@ A beautiful public-facing hotel website where anyone can browse and book rooms o
 
 | Layer | Technology | Notes |
 |---|---|---|
-| **Frontend** | TanStack Start | SSR, file-based routing |
-| **Frontend UI** | Tailwind CSS + shadcn/ui | Component library |
-| **Frontend Server State** | TanStack Query | Wraps `createServerFn` calls for caching + loading states |
+| **Frontend** | Next.js 16 (App Router) | SSR + RSC, file-based routing |
+| **Frontend UI** | Tailwind CSS v4 + shadcn/ui | Component library |
+| **Frontend Server State** | TanStack Query | Client-side caching + mutations |
 | **Frontend Client State** | Zustand | Auth user, booking wizard, UI-only state |
-| **API Layer** | TanStack `createServerFn` + native `fetch` | Server functions call NestJS; no Axios on the client |
+| **Forms** | React Hook Form + Zod + @hookform/resolvers | All forms — no manual validation |
+| **API Layer** | Next.js Route Handlers (`app/api/**`) | Proxy layer between client and NestJS backend |
 | **Backend** | NestJS + TypeScript | Modular architecture |
 | **Auth** | JWT (HttpOnly cookies) + class-validator | Role-based guards |
 | **Database** | Neon Postgres (serverless) | Cloud Postgres |
@@ -102,9 +103,10 @@ A beautiful public-facing hotel website where anyone can browse and book rooms o
 hotel-nova/
 ├── PLAN.md                      ← This file (agent reads + updates)
 ├── CLAUDE.md                    ← Ambient project context for agent
+├── GUIDE.md                     ← Design system reference
 ├── policy.md                    ← Security policies (read before every coding session)
 ├── API.md / AUTH.md / SECURITY.md / ACCESSIBILITY.md
-├── hotel-nova-frontend/         ← TanStack Start project
+├── hotel-nova-frontend/         ← Next.js 16 App Router project
 ├── hotel-nova-backend/          ← NestJS project
 └── README.md                    ← Public-facing project documentation
 ```
@@ -131,86 +133,92 @@ Each module must contain: `*.module.ts`, `*.controller.ts`, `*.service.ts`, `*.d
 
 ### Frontend (TanStack Start)
 
+### Frontend (Next.js App Router)
+
 > **Routing conventions:**
-> - Routes live in `src/routes/` — this is non-negotiable in TanStack Start
-> - `__root.tsx` is the top-level layout (document shell: `<html>`, `<body>`, global providers)
-> - `index.tsx` = the `/` index of its parent directory
-> - `route.tsx` inside a directory = layout wrapper for all sibling routes in that directory
-> - Pathless layout routes use `_name/` prefix — they wrap child routes with auth guards/layouts **without adding a URL segment**
-> - Dynamic params use `$` prefix (e.g. `rooms/$roomId.tsx` → `/rooms/:roomId`)
-> - `routeTree.gen.ts` is auto-generated — **never edit it manually**
+> - Routes live in `app/` directory — this is the Next.js 16 App Router
+> - `layout.tsx` = persistent shell layout for a route segment
+> - `page.tsx` = the renderable UI for a route
+> - Route groups use `(name)/` prefix — group routes without affecting the URL
+> - Dynamic segments use `[param]` (e.g. `rooms/[roomId]/page.tsx` → `/rooms/:roomId`)
+> - Protected routes enforced via `middleware.ts` at the root
+> - `app/api/**` = Next.js Route Handlers (proxy calls to NestJS)
 >
 > **Data fetching conventions:**
-> - Use `createServerFn` for all calls to the NestJS backend — runs on the TanStack Start server, not the browser
-> - Wrap `createServerFn` calls with TanStack Query (`useQuery`, `useMutation`) for caching, loading, and error states
-> - Route loaders (`loader:`) use `createServerFn` directly for SSR data
-> - Never call the NestJS API directly from client components (no client-side `fetch` to NestJS)
+> - **Server Components** fetch data directly using native `fetch` or calling NestJS — no hooks needed
+> - **Client Components** (`'use client'`) use TanStack Query (`useQuery`, `useMutation`) for caching + reactivity
+> - All client-side API calls go through Next.js Route Handlers (`app/api/**`) — never directly to NestJS from the browser
+> - Cookies (JWT) are forwarded automatically in Server Components and Route Handlers
+>
+> **Form conventions:**
+> - Every form uses **React Hook Form** with `useForm()` + **Zod** schema + `zodResolver`
+> - Use shadcn/ui `Form`, `FormField`, `FormItem`, `FormMessage` components (built on react-hook-form)
+> - Never write manual `onChange` handlers or form state — always use `register` / `Controller`
 
 ```
-frontend/
-└── src/
-    ├── routes/
-    │   ├── __root.tsx                        # Document shell, global providers
-    │   ├── index.tsx                         # / Homepage
-    │   │
-    │   ├── about.tsx                         # /about
-    │   │
+hotel-nova-frontend/
+└── app/
+    ├── layout.tsx                        # Root layout (html, body, providers)
+    ├── page.tsx                          # / Homepage
+    ├── globals.css                       # Global styles + Tailwind imports
+    ├── favicon.ico
+    │
+    ├── (public)/                         # Route group: no auth required
+    │   ├── about/page.tsx                # /about
     │   ├── rooms/
-    │   │   ├── index.tsx                     # /rooms — Room listing page
-    │   │   └── $roomId.tsx                   # /rooms/:roomId — Room detail page
-    │   │
-    │   ├── _auth/                            # Pathless layout: auth pages wrapper
-    │   │   ├── route.tsx                     # Auth layout (redirect if already logged in)
-    │   │   ├── login.tsx                     # /login
-    │   │   └── signup.tsx                    # /signup
-    │   │
-    │   ├── _guest/                           # Pathless layout: Guest-only guard
-    │   │   ├── route.tsx                     # Guard: redirect to /login if not GUEST
-    │   │   └── dashboard/
-    │   │       ├── route.tsx                 # /dashboard layout + sidebar
-    │   │       ├── index.tsx                 # /dashboard (redirect to my-bookings)
-    │   │       ├── my-bookings.tsx           # /dashboard/my-bookings
-    │   │       └── profile.tsx               # /dashboard/profile
-    │   │
-    │   └── _admin/                           # Pathless layout: Admin-only guard
-    │       ├── route.tsx                     # Guard: redirect to /login if not ADMIN
-    │       └── admin/
-    │           ├── route.tsx                 # /admin layout + sidebar
-    │           ├── index.tsx                 # /admin (redirect to overview)
-    │           ├── overview.tsx              # /admin/overview
-    │           ├── rooms/
-    │           │   ├── index.tsx             # /admin/rooms — room list + CRUD table
-    │           │   └── $roomId.edit.tsx      # /admin/rooms/:roomId/edit
-    │           ├── bookings/
-    │           │   ├── index.tsx             # /admin/bookings — all bookings table
-    │           │   └── $bookingId.tsx        # /admin/bookings/:bookingId — detail
-    │           ├── analytics.tsx             # /admin/analytics
-    │           ├── reviews.tsx               # /admin/reviews
-    │           └── settings.tsx              # /admin/settings
+    │   │   ├── page.tsx              # /rooms — Room listing
+    │   │   └── [roomId]/page.tsx     # /rooms/:roomId — Room detail
     │
-    ├── routeTree.gen.ts                      # Auto-generated — DO NOT EDIT
-    ├── router.tsx                            # Router config (createRouter)
+    ├── (auth)/                           # Route group: redirect if logged in
+    │   ├── login/page.tsx                # /login
+    │   └── signup/page.tsx               # /signup
     │
-    ├── components/
-    │   ├── booking-wizard/                   # Multi-step booking flow
-    │   ├── charts/                           # Recharts wrappers
-    │   ├── notifications/                    # Bell icon + toast components
-    │   └── ui/                               # shadcn/ui components
+    ├── dashboard/                        # Guest-only (middleware protected)
+    │   ├── layout.tsx                    # Dashboard shell + sidebar
+    │   ├── page.tsx                      # /dashboard (redirects to my-bookings)
+    │   ├── my-bookings/page.tsx          # /dashboard/my-bookings
+    │   └── profile/page.tsx              # /dashboard/profile
     │
-    ├── lib/
-    │   ├── server/                           # TanStack createServerFn definitions
-    │   │   ├── auth.server.ts                #   Server fns: login, signup, me, logout
-    │   │   ├── rooms.server.ts               #   Server fns: list, get, availability
-    │   │   ├── bookings.server.ts            #   Server fns: create, get, cancel
-    │   │   ├── reviews.server.ts             #   Server fns: submit, list
-    │   │   └── admin.server.ts               #   Server fns: admin-only operations
-    │   ├── query-client.ts                   # TanStack Query client config
-    │   ├── socket.ts                         # Socket.io client singleton
-    │   └── utils.ts                          # Shared helpers
+    ├── admin/                            # Admin-only (middleware protected)
+    │   ├── layout.tsx                    # Admin shell + sidebar
+    │   ├── page.tsx                      # /admin (redirects to overview)
+    │   ├── overview/page.tsx             # /admin/overview
+    │   ├── rooms/
+    │   │   ├── page.tsx              # /admin/rooms
+    │   │   └── [roomId]/edit/page.tsx # /admin/rooms/:roomId/edit
+    │   ├── bookings/
+    │   │   ├── page.tsx              # /admin/bookings
+    │   │   └── [bookingId]/page.tsx  # /admin/bookings/:bookingId
+    │   ├── analytics/page.tsx            # /admin/analytics
+    │   ├── reviews/page.tsx              # /admin/reviews
+    │   └── settings/page.tsx             # /admin/settings
     │
-    └── stores/
-        ├── auth-store.ts                     # Zustand: current user + auth state
-        └── booking-store.ts                  # Zustand: booking wizard state
+    └── api/                              # Next.js Route Handlers
+        ├── auth/
+        │   ├── login/route.ts            # POST /api/auth/login
+        │   ├── signup/route.ts           # POST /api/auth/signup
+        │   └── logout/route.ts           # POST /api/auth/logout
+        ├── rooms/route.ts                # GET /api/rooms
+        ├── bookings/route.ts             # GET/POST /api/bookings
+        └── payments/
+            └── webhook/route.ts          # POST /api/payments/webhook
+
+├── middleware.ts                         # JWT verification + route protection
+├── components/
+│   ├── booking-wizard/                   # Multi-step booking flow
+│   ├── charts/                           # Recharts wrappers
+│   ├── notifications/                    # Bell icon + toast components
+│   └── ui/                               # shadcn/ui components
+├── lib/
+│   ├── api.ts                            # Fetch wrapper for Route Handlers
+│   ├── socket.ts                         # Socket.io client singleton
+│   ├── utils.ts                          # Shared helpers
+│   └── validations/                      # Zod schemas (auth, booking, etc.)
+├── stores/
+│   ├── auth-store.ts                     # Zustand: current user + auth state
+│   └── booking-store.ts                  # Zustand: booking wizard state
+└── query/
+    └── query-client.ts                   # TanStack Query client config
 ```
 
 ---
@@ -461,13 +469,15 @@ frontend/
 - [ ] Test all Week 1 endpoints with Postman / Thunder Client
 
 **Frontend**
-- [x] Initialise TanStack Start project with TypeScript
-- [x] Set up Tailwind CSS
+- [x] Initialise Next.js 16 (App Router) project with TypeScript
+- [x] Set up Tailwind CSS v4
 - [ ] Install and configure shadcn/ui (`npx shadcn@latest init`)
-- [ ] Create `hotel-nova-frontend/.env` and `hotel-nova-frontend/.env.example`
-- [ ] Set up `lib/query-client.ts` (TanStack Query client)
-- [ ] Set up `lib/server/` folder and first `createServerFn` (e.g. `auth.server.ts`)
-- [ ] Set up Zustand `auth-store.ts`
+- [ ] Install React Hook Form, Zod, and @hookform/resolvers
+- [ ] Create `hotel-nova-frontend/.env.local` and `hotel-nova-frontend/.env.example`
+- [ ] Set up TanStack Query client (`query/query-client.ts`)
+- [ ] Create `lib/validations/` folder with first Zod schemas (auth)
+- [ ] Set up Zustand `stores/auth-store.ts`
+- [ ] Create `middleware.ts` for route protection
 
 ---
 
@@ -603,13 +613,17 @@ FRONTEND_URL=http://localhost:3000
 NODE_ENV=development
 ```
 
-### Frontend `.env` (TanStack Start / Vite)
+### Frontend `.env.local` (Next.js)
 
-> Vite exposes env vars to the browser only if prefixed with `VITE_`. These are public-safe values only.
+> Variables prefixed with `NEXT_PUBLIC_` are exposed to the browser. All others are server-only.
+> Never put secrets in `NEXT_PUBLIC_` variables.
 
 ```env
-VITE_API_URL=http://localhost:3001
-VITE_PAYSTACK_PUBLIC_KEY=
+# Public (safe for browser)
+NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=
+
+# Server-only (never exposed to browser)
+NEXT_PUBLIC_API_URL=http://localhost:3001
 ```
 
 ---
@@ -622,11 +636,12 @@ VITE_PAYSTACK_PUBLIC_KEY=
 
 | Date | Decision | Reason |
 |---|---|---|
-| March 2026 | Using TanStack Start for frontend | Owner's preference; modern SSR framework, aligns with TanStack ecosystem (TanStack Query already in stack) |
+| March 2026 | ~~TanStack Start~~ → **Next.js 16 App Router** | Switched for broader community support, more learning resources, and mature ecosystem. App Router (RSC) aligns with modern React patterns. |
 | March 2026 | JWT stored in HttpOnly cookies (not localStorage) | Prevents XSS attacks |
 | March 2026 | Prisma transactions for availability checks | Prevents race conditions / double bookings |
-| March 2026 | `createServerFn` + native `fetch` instead of Axios | Idiomatic TanStack Start pattern — API calls run on the server (no CORS issues, cookies forwarded automatically, no client-side API keys exposed). Learning goal: use the framework as intended. |
-| March 2026 | TanStack Query wraps all `createServerFn` calls | Provides caching, background refetch, loading/error states — avoids manual state management for server data |
+| March 2026 | ~~`createServerFn`~~ → **Next.js Route Handlers** (`app/api/**`) | Client-side API calls now go through Next.js Route Handlers which proxy to NestJS. Server Components fetch directly. No Axios on the client. |
+| March 2026 | **React Hook Form + Zod** for all forms | Eliminates manual form state, provides type-safe validation, integrates perfectly with shadcn/ui Form components. |
+| March 2026 | TanStack Query wraps all client-side data fetching | Provides caching, background refetch, loading/error states for Client Components |
 | March 2026 | Backend runs on port `3001`, frontend on `3000` | Prevents port conflict in local dev. Both were defaulting to `3000`. Documented in `main.ts` and `.env`. |
 
 ---
