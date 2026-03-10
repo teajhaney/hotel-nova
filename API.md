@@ -75,7 +75,7 @@ DELETE /api/resources/:id      -> delete
 - **Pagination**: List endpoints must support pagination. Default limit: 20-50. Max limit: 100.
 - **Filtering**: Validate filter params against an allowlist. Never pass raw filter values to queries.
 
-## Server Route Pattern (Next.js)
+<!-- ## Server Route Pattern (Next.js)
 
 Every API route should follow this structure:
 
@@ -96,7 +96,7 @@ export async function POST(request: Request) {
   // 4. Respond
   return Response.json(result, { status: 200 });
 }
-```
+``` -->
 
 ## Required Checks Before Merge
 
