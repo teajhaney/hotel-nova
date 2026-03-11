@@ -1,8 +1,7 @@
 # HotelNova — Monorepo Root
 
 ## Project Summary
-Single-hotel Property Management System (PMS) for Hotel Nova, built as a
-portfolio project for Terra Nova under Terra Management.
+Single-hotel Property Management System (PMS) for Hotel Nova
 Goal: production-grade, portfolio-ready fullstack app to impress employers in 2026.
 
 ## Monorepo Structure

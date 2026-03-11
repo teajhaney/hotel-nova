@@ -1,26 +1,315 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 @import "tailwindcss";
 
+/* ─── Design Tokens ──────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Brand Colors */
+  --color-primary:       #020887;
+  --color-primary-soft:  #38369A;
+  --color-accent:        #7CA5B8;
+  --color-surface-tint:  #A9DBBB;
+  --color-success-soft:  #C6EBBE;
+
+  /* Neutrals */
+  --color-white:         #FFFFFF;
+  --color-bg:            #F8FAFC;
+  --color-border:        #E2E8F0;
+
+  /* Text */
+  --color-text:          #0D0F2B;
+  --color-text-muted:    #64748B;
+  --color-text-placeholder: #94A3B8;
+  --color-text-inverse:  #FFFFFF;
+
+  /* Status */
+  --color-success:       #10B981;
+  --color-error:         #EF4444;
+  --color-warning:       #F97316;
+
+  /* Status Backgrounds */
+  --color-success-bg:    #D1FAE5;
+  --color-error-bg:      #FEE2E2;
+  --color-warning-bg:    #FFEDD5;
+  --color-accent-bg:     #DBEAFE;
+
+  /* Typography */
+  --font-sans:           'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  --text-display:        3rem;
+  --text-h2:             2.25rem;
+  --text-h3:             1.5rem;
+  --text-lg:             1.125rem;
+  --text-base:           1rem;
+  --text-sm:             0.875rem;
+
+  /* Spacing */
+  --space-xs:            0.25rem;
+  --space-sm:            0.5rem;
+  --space-base:          1rem;
+  --space-md:            1.5rem;
+  --space-lg:            2rem;
+  --space-xl:            3rem;
+  --space-2xl:           4rem;
+  --space-3xl:           5rem;
+  --space-mega:          7.5rem;
+
+  /* Layout */
+  --container-max:       1440px;
+  --container-px:        80px;
+  --container-px-mobile: 20px;
+  --grid-gutter:         24px;
+  --grid-gutter-mobile:  16px;
+
+  /* Borders & Radius */
+  --radius-sm:           4px;
+  --radius-md:           8px;
+  --radius-lg:           12px;
+  --radius-pill:         999px;
+
+  /* Shadows */
+  --shadow-card:         0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-md:           0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ─── Base Reset ─────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Focus Visible ──────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ─── Reduced Motion ─────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   REUSABLE UTILITY CLASSES
+   Single source of truth for repeated Tailwind patterns.
+   All classes are defined here via @apply so components
+   stay lean and class strings aren't duplicated.
+════════════════════════════════════════════════════════════ */
+@layer utilities {
+
+  /* ── Accessibility ───────────────────────────────────────── */
+
+  /** Skip-to-main navigation link — visually hidden until focused */
+  .skip-nav {
+    @apply sr-only focus:not-sr-only focus:absolute focus:z-50
+           focus:px-4 focus:py-2 focus:bg-white
+           focus:text-[#020887] focus:font-semibold;
+  }
+
+  /* ── Auth page shell (page-level layout) ─────────────────── */
+
+  /** Full-viewport split-panel wrapper used on login and signup */
+  .auth-page-shell {
+    @apply flex min-h-screen bg-white;
+  }
+
+  /** Left form column — responsive width + padding */
+  .auth-left-panel {
+    @apply flex flex-col w-full lg:w-[47%]
+           px-8 sm:px-12 lg:px-16
+           py-10 lg:py-12
+           overflow-y-auto;
+  }
+
+  /** Right image column  */
+  .auth-right-panel {
+    @apply hidden lg:block relative flex-1 overflow-hidden;
+  }
+
+  /** Absolutely-positioned text overlay at the bottom of the right panel */
+  .auth-panel-overlay {
+    @apply absolute bottom-0 left-0 right-0 p-10 text-white;
+  }
+
+  /** Large hero title inside the right image panel */
+  .auth-panel-title {
+    @apply text-[32px] sm:text-[38px] font-bold leading-tight;
+  }
+
+  /** Subtitle/description inside the right image panel */
+  .auth-panel-subtitle {
+    @apply text-[15px] text-white/80 max-w-90 leading-relaxed;
+  }
+
+  /* ── Logo ────────────────────────────────────────────────── */
+
+  /** Flex wrapper for logo mark + wordmark */
+  .logo-link {
+    @apply inline-flex items-center gap-2;
+  }
+
+  /** Brand wordmark text next to the logo mark */
+  .logo-text {
+    @apply text-[#020887] font-semibold text-lg tracking-tight;
+  }
+
+  /* ── Auth page typography ────────────────────────────────── */
+
+  /** Primary h1 on auth pages */
+  .auth-heading {
+    @apply text-[28px] sm:text-[32px] font-bold text-[#0D0F2B] leading-tight mb-2;
+  }
+
+  /** Subtitle/tagline beneath the auth heading */
+  .auth-subheading {
+    @apply text-[#64748B] text-[15px];
+  }
+
+  /** Small prompt text below the form (e.g. "Already have an account?") */
+  .auth-switch-text {
+    @apply text-center text-[14px] text-[#64748B];
+  }
+
+  /** Inline link used inside auth prompts and form labels */
+  .auth-link {
+    @apply font-semibold text-[#020887] hover:text-[#38369A] transition-colors;
+  }
+
+  /* ── Form layout ─────────────────────────────────────────── */
+
+  /** Login form — top margin + vertical field stack */
+  .login-form {
+    @apply mt-7 flex flex-col gap-5;
+  }
+
+  /** Signup form — tighter top margin + vertical field stack */
+  .signup-form {
+    @apply mt-6 flex flex-col gap-4;
+  }
+
+  /** Two-column password grid (Password + Confirm Password) */
+  .password-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 gap-4;
+  }
+
+  /* ── Form field primitives ───────────────────────────────── */
+
+  /** Vertical field wrapper: label → input → error */
+  .form-field {
+    @apply flex flex-col gap-1.5;
+  }
+
+  /** Label row: label text on the left, optional suffix (link) on the right */
+  .field-label-row {
+    @apply flex items-center justify-between;
+  }
+
+  /** Field label text */
+  .field-label {
+    @apply text-[14px] font-medium text-[#0D0F2B];
+  }
+
+  /** Base input styles shared by text, email, and password inputs */
+  .field-input {
+    @apply w-full h-11.5 px-4 rounded-sm border
+           text-[15px] text-[#0D0F2B]
+           placeholder:text-[#94A3B8]
+           outline-none transition-colors;
+  }
+
+  /** Valid / default input border + focus ring */
+  .field-input-valid {
+    @apply border-[#E2E8F0]
+           focus:border-[#020887]
+           focus:shadow-[0_0_0_3px_rgba(2,8,135,0.08)];
+  }
+
+  /** Error-state input border */
+  .field-input-error {
+    @apply border-[1.5px] border-[#EF4444] focus:border-[#EF4444];
+  }
+
+  /** Inline error message below a field */
+  .field-error-text {
+    @apply text-[13px] text-[#EF4444];
+  }
+
+  /** Show/hide password icon button */
+  .password-toggle-btn {
+    @apply absolute right-3 top-1/2 -translate-y-1/2
+           text-[#94A3B8] hover:text-[#64748B]
+           transition-colors p-1;
+  }
+
+  /* ── Terms & Conditions checkbox row ─────────────────────── */
+
+  /** Checkbox input inside the terms agreement row */
+  .terms-checkbox {
+    @apply mt-0.5 w-4 h-4 rounded-xs
+           border-[#E2E8F0] accent-[#020887] cursor-pointer;
+  }
+
+  /** Label text alongside the terms checkbox */
+  .terms-label {
+    @apply text-[14px] text-[#64748B] leading-5 cursor-pointer;
+  }
+
+  /* ── Primary CTA button ──────────────────────────────────── */
+
+  /**
+   * Full-width primary action button.
+   * Covers all four submit buttons across the auth forms.
+   * Add flex/icon utilities inline when you need an icon variant.
+   */
+  .btn-primary {
+    @apply w-full h-12 rounded-sm
+           bg-[#020887] text-white
+           text-[15px] font-semibold uppercase tracking-[0.08em]
+           hover:bg-[#38369A]
+           active:scale-[0.99]
+           transition-all duration-150
+           disabled:opacity-60 disabled:cursor-not-allowed;
+  }
+
+  /* ── Admin Auth ──────────────────────────────────────────── */
+
+  /** Admin auth body wrapper */
+  .admin-auth-page {
+    @apply min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center p-4;
+  }
+
+  /** Admin auth primary content card */
+  .admin-auth-card {
+    @apply w-full max-w-md bg-white rounded-lg shadow-md p-8 sm:p-10 border border-[#E2E8F0];
+  }
+
+  /** Admin auth flex header */
+  .admin-auth-header {
+    @apply flex flex-col items-center justify-center mb-8;
+  }
+
+  /** Admin auth large title */
+  .admin-auth-title {
+    @apply text-xl font-bold text-[#0D0F2B] mt-4;
+  }
+
+  /** Admin auth descriptive subtitle */
+  .admin-auth-subtitle {
+    @apply text-sm text-[#64748B] mt-1;
+  }
 }

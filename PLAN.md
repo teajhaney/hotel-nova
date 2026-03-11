@@ -31,7 +31,6 @@
 | **Project Name** | HotelNova |
 | **Type** | Single-Hotel Property Management System (PMS) |
 | **Owner** | Yusuf Tunde |
-| **Parent Company** | Terra Nova (under Terra Management) |
 | **Version** | 1.0 |
 | **Started** | March 2026 |
 | **Goal** | Production-grade, portfolio-ready fullstack project to impress employers in 2026 |
