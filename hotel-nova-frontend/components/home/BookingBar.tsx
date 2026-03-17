@@ -12,17 +12,17 @@ export function BookingBar() {
 
   return (
     <div
-      className="bg-white rounded-[12px] shadow-[0_4px_24px_rgba(0,0,0,0.10)] p-[24px] md:p-[20px]"
+      className="bg-white rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.10)] p-6 md:p-5"
       role="search"
       aria-label={BOOKING_BAR_MESSAGES.ariaLabel}
     >
-      <div className="flex flex-col lg:flex-row items-end gap-[16px]">
+      <div className="flex flex-col lg:flex-row items-end gap-4">
         {/* Check In */}
         <div className="flex-1 w-full">
-          <span className="booking-field-label block mb-[8px]">
+          <span className="booking-field-label block mb-2">
             {BOOKING_BAR_MESSAGES.checkInLabel}
           </span>
-          <label className="flex items-center gap-[10px] bg-[#F1F5F9] rounded-[8px] px-[16px] h-[48px] cursor-pointer">
+          <label className="flex items-center gap-2.5 bg-[#F1F5F9] rounded-lg px-4 h-12 cursor-pointer">
             <Calendar size={16} className="text-[#64748B] shrink-0" aria-hidden="true" />
             <input
               type="date"
@@ -37,10 +37,10 @@ export function BookingBar() {
 
         {/* Check Out */}
         <div className="flex-1 w-full">
-          <span className="booking-field-label block mb-[8px]">
+          <span className="booking-field-label block mb-2">
             {BOOKING_BAR_MESSAGES.checkOutLabel}
           </span>
-          <label className="flex items-center gap-[10px] bg-[#F1F5F9] rounded-[8px] px-[16px] h-[48px] cursor-pointer">
+          <label className="flex items-center gap-2.5 bg-[#F1F5F9] rounded-lg px-4 h-12 cursor-pointer">
             <Calendar size={16} className="text-[#64748B] shrink-0" aria-hidden="true" />
             <input
               type="date"
@@ -55,10 +55,10 @@ export function BookingBar() {
 
         {/* Guests */}
         <div className="flex-1 w-full">
-          <span className="booking-field-label block mb-[8px]">
+          <span className="booking-field-label block mb-2">
             {BOOKING_BAR_MESSAGES.guestsLabel}
           </span>
-          <label className="flex items-center gap-[10px] bg-[#F1F5F9] rounded-[8px] px-[16px] h-[48px] cursor-pointer">
+          <label className="flex items-center gap-2.5 bg-[#F1F5F9] rounded-lg px-4 h-12 cursor-pointer">
             <Users size={16} className="text-[#64748B] shrink-0" aria-hidden="true" />
             <select
               value={guests}
@@ -78,8 +78,8 @@ export function BookingBar() {
         {/* Search CTA */}
         <button
           type="button"
-          className="inline-flex items-center justify-center gap-[8px]
-                     px-[28px] h-[48px] rounded-[8px]
+          className="inline-flex items-center justify-center gap-2
+                     px-7 h-12 rounded-lg
                      bg-[#020887] text-white
                      text-[15px] font-semibold tracking-[0.04em]
                      hover:bg-[#38369A] transition-colors duration-150

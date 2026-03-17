@@ -21,7 +21,7 @@ export function MobileBottomNav() {
                  lg:hidden"
       aria-label="Mobile bottom navigation"
     >
-      <div className="flex items-stretch h-[60px]">
+      <div className="flex items-stretch h-15">
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
           const isActive = pathname === href;
           return (
@@ -29,8 +29,8 @@ export function MobileBottomNav() {
               key={href}
               href={href}
               className={`flex flex-col items-center justify-center flex-1
-                         gap-[3px] text-[11px] font-medium
-                         transition-colors duration-150 min-h-[44px]
+                          gap-0.75 text-[11px] font-medium
+                         transition-colors duration-150 min-h-11
                          ${isActive ? 'text-[#020887]' : 'text-[#64748B] hover:text-[#020887]'}`}
               aria-current={isActive ? 'page' : undefined}
             >

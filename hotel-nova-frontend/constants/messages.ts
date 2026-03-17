@@ -212,6 +212,27 @@ export const FOOTER_MESSAGES = {
   companyName: 'HotelNova Hospitality Group',
 } as const;
 
+// ─── Rooms Listing Page ─────────────────────────────────────
+export const ROOMS_PAGE_MESSAGES = {
+  heading: 'Luxury Rooms & Suites',
+  subtitle:
+    'Experience the Grand Oasis branding with our handpicked suites.',
+  filtersHeading: 'Filters',
+  priceRangeLabel: 'Price Range',
+  roomTypeLabel: 'Room Type',
+  amenitiesLabel: 'Amenities',
+  clearFilters: 'Clear All Filters',
+  bookNow: 'Book Now',
+  lastNight: 'Last night',
+  perNight: '/per night',
+  reviewSuffix: 'Reviews',
+  badgeRecommended: 'Recommended',
+  badgePopular: 'Popular',
+  suitesAvailable: 'Suites Available',
+  searchPlaceholder: 'Search rooms...',
+  allRooms: 'All Rooms',
+} as const;
+
 // ─── Routes ───────────────────────────────────────────────────
 export const ROUTES = {
   home: '/',

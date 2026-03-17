@@ -5,7 +5,7 @@ import { TESTIMONIALS } from '@/constants/dummyData';
 function StarRating({ rating, max = 5 }: { rating: number; max?: number }) {
   return (
     <div
-      className="flex gap-[2px]"
+      className="flex gap-0.5"
       aria-label={`${rating} out of ${max} stars`}
     >
       {Array.from({ length: max }).map((_, i) => (
@@ -32,7 +32,7 @@ export function TestimonialsSection() {
     >
       <div className="page-container">
         {/* Section header */}
-        <div className="text-center mb-[56px] sm:mb-[36px]">
+        <div className="text-center mb-14 sm:mb-9">
           <span className="section-eyebrow">
             {TESTIMONIALS_MESSAGES.eyebrow}
           </span>
@@ -42,27 +42,27 @@ export function TestimonialsSection() {
         </div>
 
         {/* Review cards */}
-        <div className="grid  grid-cols-1 gap-[24px] md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid  grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {TESTIMONIALS.map(
             ({ id, name, role, rating, review, avatarColor }) => (
-              <article key={id} className="hotel-card p-[28px] flex flex-col">
+              <article key={id} className="hotel-card p-7 flex flex-col">
                 <StarRating rating={rating} />
 
-                <blockquote className="mt-[14px] text-[15px] text-[#64748B] leading-relaxed flex-1">
+                <blockquote className="mt-3.5 text-[15px] text-[#64748B] leading-relaxed flex-1">
                   &ldquo;{review}&rdquo;
                 </blockquote>
 
                 {/* Author */}
-                <div className="flex items-center gap-[12px] mt-[20px]">
+                <div className="flex items-center gap-3 mt-5">
                   <div
-                    className={`w-[40px] h-[40px] rounded-[999px] ${avatarColor} shrink-0`}
+                    className={`w-10 h-10 rounded-[999px] ${avatarColor} shrink-0`}
                     aria-hidden="true"
                   />
                   <div>
                     <p className="text-[15px] font-semibold text-[#0D0F2B] leading-tight">
                       {name}
                     </p>
-                    <p className="text-[13px] text-[#64748B] mt-[2px]">
+                    <p className="text-[13px] text-[#64748B] mt-0.5">
                       {role}
                     </p>
                   </div>
