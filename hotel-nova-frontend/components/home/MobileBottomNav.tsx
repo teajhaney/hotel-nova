@@ -1,0 +1,49 @@
+'use client';
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { Home, BedDouble, UtensilsCrossed, User } from 'lucide-react';
+
+const NAV_ITEMS = [
+  { href: '/', label: 'HOME', icon: Home },
+  { href: '/rooms', label: 'ROOMS', icon: BedDouble },
+  { href: '/#dining', label: 'DINING', icon: UtensilsCrossed },
+  { href: '/profile', label: 'PROFILE', icon: User },
+];
+
+export function MobileBottomNav() {
+  const pathname = usePathname();
+
+  return (
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-50
+                 bg-white border-t border-[#E2E8F0]
+                 lg:hidden"
+      aria-label="Mobile bottom navigation"
+    >
+      <div className="flex items-stretch h-[60px]">
+        {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+          const isActive = pathname === href;
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={`flex flex-col items-center justify-center flex-1
+                         gap-[3px] text-[11px] font-medium
+                         transition-colors duration-150 min-h-[44px]
+                         ${isActive ? 'text-[#020887]' : 'text-[#64748B] hover:text-[#020887]'}`}
+              aria-current={isActive ? 'page' : undefined}
+            >
+              <Icon
+                size={20}
+                strokeWidth={isActive ? 2.2 : 1.8}
+                aria-hidden="true"
+              />
+              <span>{label}</span>
+            </Link>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}

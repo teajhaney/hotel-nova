@@ -110,6 +110,108 @@ export const VALIDATION_MESSAGES = {
   },
 } as const;
 
+// ─── Homepage — Hero ─────────────────────────────────────────
+export const HERO_MESSAGES = {
+  titleLine1: 'The Grand Oasis',
+  titleLine2: 'Abuja',
+  subtitle:
+    "Experience unparalleled luxury and sophisticated comfort in the heart of Nigeria's capital. Your sanctuary of elegance awaits.",
+  ctaPrimary: 'Book Your Stay',
+  ctaSecondary: 'View Gallery',
+  ariaLabel: 'Hotel hero — The Grand Oasis Abuja',
+} as const;
+
+// ─── Homepage — Booking Bar ─────────────────────────────────
+export const BOOKING_BAR_MESSAGES = {
+  checkInLabel: 'Check-In',
+  checkOutLabel: 'Check-Out',
+  guestsLabel: 'Guests',
+  searchButton: 'Search Availability',
+  ariaLabel: 'Room availability search',
+  guestOptions: [
+    '1 Adult, 0 Children',
+    '2 Adults, 0 Children',
+    '2 Adults, 1 Child',
+    '2 Adults, 2 Children',
+    '3 Adults, 0 Children',
+    '3 Adults, 1 Child',
+    '4 Adults, 0 Children',
+  ],
+  defaultGuests: '2 Adults, 0 Children',
+} as const;
+
+// ─── Homepage — Featured Rooms ──────────────────────────────
+export const FEATURED_ROOMS_MESSAGES = {
+  eyebrow: 'Our Accommodations',
+  heading: 'Featured Rooms & Suites',
+  viewAll: 'View All Rooms',
+  bookNow: 'Book Now',
+  pricePrefix: 'From',
+  priceSuffix: '/night',
+} as const;
+
+// ─── Homepage — Amenities ───────────────────────────────────
+export const AMENITIES_MESSAGES = {
+  eyebrow: 'World-Class Experience',
+  heading: 'Premier Amenities',
+} as const;
+
+// ─── Homepage — Legacy / Our Story ──────────────────────────
+export const LEGACY_MESSAGES = {
+  eyebrow: 'Our Story',
+  heading: 'A Legacy of Excellence in Abuja',
+  body1:
+    'Founded on the principles of refined hospitality and architectural grandeur, The Grand Oasis Abuja has been the preferred destination for global leaders and discerning travellers for over two decades.',
+  body2:
+    'Every detail — from our hand-selected art collection to our personalised guest services — is designed to offer an experience that transcends ordinary travel.',
+  cta: 'Learn More About Us',
+  badgeNumber: '25+',
+  badgeLabel: 'Years of Luxury',
+  imageAlt:
+    'The Grand Oasis Abuja grand lobby — warm timber accents and elegant staircase',
+} as const;
+
+// ─── Homepage — Promo / Offer ───────────────────────────────
+export const PROMO_MESSAGES = {
+  eyebrow: 'Exclusive Offer',
+  heading: 'Romantic Getaway Package',
+  description:
+    "Enjoy complimentary champagne, a 3-course dinner, and late checkout for your special escape.",
+  ctaPrimary: 'Claim Offer',
+  ctaSecondary: 'Learn More',
+} as const;
+
+// ─── Homepage — Testimonials ────────────────────────────────
+export const TESTIMONIALS_MESSAGES = {
+  eyebrow: 'Guest Feedback',
+  heading: 'Voices of Grand Oasis',
+} as const;
+
+// ─── Homepage — Newsletter ──────────────────────────────────
+export const NEWSLETTER_MESSAGES = {
+  heading: 'Join Our Exclusive Circle',
+  subtitle:
+    'Subscribe to our newsletter and receive private offers, event invitations, and seasonal updates directly to your inbox.',
+  placeholder: 'Your email address',
+  submitButton: 'Subscribe',
+  successMessage: "Thank you! You're now part of the Oasis Club.",
+  disclaimer: 'No spam, ever. Unsubscribe at any time.',
+} as const;
+
+// ─── Footer ─────────────────────────────────────────────────
+export const FOOTER_MESSAGES = {
+  tagline:
+    'Defining luxury in Abuja since 1998. Your premier destination for business and leisure.',
+  quickLinksHeading: 'Quick Links',
+  policiesHeading: 'Policies',
+  contactHeading: 'Contact Us',
+  address: '123 Maitama District, Abuja, Nigeria',
+  phone: '+234 800 GRAND OASIS',
+  email: 'stay@grandoasisabuja.com',
+  copyright: '© 2026 The Grand Oasis Abuja. All rights reserved.',
+  companyName: 'HotelNova Hospitality Group',
+} as const;
+
 // ─── Routes ───────────────────────────────────────────────────
 export const ROUTES = {
   home: '/',
