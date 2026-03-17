@@ -1,6 +1,6 @@
 import { Facebook, Instagram, Twitter, Youtube } from "lucide-react";
-import { HOME_IMAGES, ROOM_LISTING_IMAGES } from "./images";
-import type { Testimonial, RoomListing } from "@/type/type";
+import { HOME_IMAGES, ROOM_LISTING_IMAGES, OFFER_IMAGES, ABOUT_IMAGES } from "./images";
+import type { Testimonial, RoomListing, Offer, TeamMember } from "@/type/type";
 
 export const FEATURED_ROOMS = [
   {
@@ -9,7 +9,7 @@ export const FEATURED_ROOMS = [
     name: 'Deluxe Oasis King',
     description:
       'King Bed · City Views. A restful and rejuvenating atmosphere with premium furnishings and panoramic windows.',
-    priceFrom: 229,
+    priceFrom: 350000,
     badge: null,
   },
   {
@@ -18,7 +18,7 @@ export const FEATURED_ROOMS = [
     name: 'Executive Grand Suite',
     description:
       'Spacious living area, floor-to-ceiling windows, and exclusive lounge access for the modern professional.',
-    priceFrom: 499,
+    priceFrom: 750000,
     badge: null,
   },
   {
@@ -27,7 +27,7 @@ export const FEATURED_ROOMS = [
     name: 'Presidential Penthouse',
     description:
       'The pinnacle of luxury — private terrace, butler service, and bespoke experiences crafted exclusively for you.',
-    priceFrom: 889,
+    priceFrom: 1350000,
     badge: 'All Inclusive',
   },
 ] as const;
@@ -59,9 +59,9 @@ export const SOCIAL_LINKS = [
 export const NAV_LINKS = [
   { href: '/', label: 'Home' },
   { href: '/rooms', label: 'Rooms' },
-  { href: '/#offers', label: 'Offers' },
-  { href: '/#about', label: 'About Us' },
-  { href: '/#contact', label: 'Contact' },
+  { href: '/offers', label: 'Offers' },
+  { href: '/about', label: 'About Us' },
+  { href: '/contact', label: 'Contact' },
 ];
 
 
@@ -70,7 +70,7 @@ export const ROOM_LISTINGS: RoomListing[] = [
     id: 'executive-suite',
     image: ROOM_LISTING_IMAGES.executiveSuite,
     name: 'Executive Suite',
-    price: 450,
+    price: 680000,
     rating: 4.9,
     reviewCount: 128,
     badge: 'recommended',
@@ -83,7 +83,7 @@ export const ROOM_LISTINGS: RoomListing[] = [
     id: 'deluxe-terrace',
     image: ROOM_LISTING_IMAGES.deluxeTerrace,
     name: 'Deluxe Terrace',
-    price: 320,
+    price: 480000,
     rating: 4.7,
     reviewCount: 95,
     badge: 'popular',
@@ -96,7 +96,7 @@ export const ROOM_LISTINGS: RoomListing[] = [
     id: 'presidential-suite',
     image: ROOM_LISTING_IMAGES.presidentialSuite,
     name: 'Presidential Suite',
-    price: 1250,
+    price: 1875000,
     rating: 5.0,
     reviewCount: 42,
     badge: 'recommended',
@@ -109,7 +109,7 @@ export const ROOM_LISTINGS: RoomListing[] = [
     id: 'panoramic-king',
     image: ROOM_LISTING_IMAGES.panoramicKing,
     name: 'Panoramic King',
-    price: 380,
+    price: 570000,
     rating: 4.8,
     reviewCount: 76,
     badge: null,
@@ -122,7 +122,7 @@ export const ROOM_LISTINGS: RoomListing[] = [
     id: 'deluxe-king-garden',
     image: ROOM_LISTING_IMAGES.deluxeKingGarden,
     name: 'Deluxe King Garden View',
-    price: 210,
+    price: 315000,
     rating: 4.6,
     reviewCount: 112,
     badge: null,
@@ -135,7 +135,7 @@ export const ROOM_LISTINGS: RoomListing[] = [
     id: 'oceanfront-executive',
     image: ROOM_LISTING_IMAGES.oceanfrontExecutive,
     name: 'Oceanfront Executive Suite',
-    price: 385,
+    price: 580000,
     rating: 4.8,
     reviewCount: 64,
     badge: 'popular',
@@ -148,7 +148,7 @@ export const ROOM_LISTINGS: RoomListing[] = [
     id: 'superior-studio',
     image: ROOM_LISTING_IMAGES.superiorStudio,
     name: 'Superior Single Studio',
-    price: 145,
+    price: 220000,
     rating: 4.5,
     reviewCount: 203,
     badge: null,
@@ -161,7 +161,7 @@ export const ROOM_LISTINGS: RoomListing[] = [
     id: 'grand-deluxe',
     image: ROOM_LISTING_IMAGES.grandDeluxe,
     name: 'Grand Deluxe Suite',
-    price: 520,
+    price: 780000,
     rating: 4.9,
     reviewCount: 58,
     badge: null,
@@ -211,5 +211,114 @@ export const TESTIMONIALS: Testimonial[] = [
     review:
       'Perfect for our corporate retreat. The conference facilities are modern and the team was incredibly helpful throughout our event.',
     avatarColor: 'bg-[#A9DBBB]',
+  },
+];
+
+export const OFFERS: Offer[] = [
+  {
+    id: 'romantic-getaway',
+    image: OFFER_IMAGES.romanticGetaway,
+    title: 'Romantic Getaway Package',
+    description:
+      'Escape into luxury with our signature romantic experience. Includes a stay in our Royal Suite, a three-course dinner under the stars at The Palm court, a bottle of vintage champagne, and a private 90-minute couples massage.',
+    category: ['all', 'romantic'],
+    discountText: 'SAVE 25% TODAY',
+    originalPrice: 675000,
+    price: 505000,
+    priceLabel: '/night',
+    terms: ['Min. 2 nights stay', '48h cancellation', 'Subject to availability'],
+    isFeatured: true,
+  },
+  {
+    id: 'business-traveler-special',
+    image: OFFER_IMAGES.businessTraveler,
+    title: 'Business Traveler Special',
+    description:
+      'Seamless stays for the modern professional. Includes high-speed Wi-Fi, executive lounge access, complimentary laundry for 2 items, and late check-out at 4:00 PM.',
+    category: ['all', 'business'],
+    badge: 'business',
+    discountText: '15% OFF',
+    price: 0,
+    priceLabel: '',
+    terms: [],
+    disclaimer: 'Valid for Sunday-Thursday stays only. Requires valid corporate ID.',
+  },
+  {
+    id: 'weekend-spa-retreat',
+    image: OFFER_IMAGES.spaRetreat,
+    title: 'Weekend Spa Retreat',
+    description:
+      'Rejuvenate your spirit with our wellness weekend. Includes Deluxe Room, organic breakfast buffet, and unlimited access to thermal pools and sauna facilities.',
+    category: ['all', 'seasonal'],
+    badge: 'leisure',
+    price: 315000,
+    priceLabel: 'Fixed',
+    terms: [],
+    disclaimer: 'Saturday night stay required. Spa treatments must be booked 24h in advance.',
+  },
+  {
+    id: 'summer-escape',
+    image: OFFER_IMAGES.summerEscape,
+    title: 'Summer Escape',
+    description:
+      'Make the most of the season with poolside luxury. Includes daily breakfast, two complimentary cocktails, and late checkout.',
+    category: ['all', 'seasonal', 'lastMinute'],
+    price: 285000,
+    priceLabel: '/night',
+    terms: ['Valid June - August', 'Min. 3 nights'],
+  },
+  {
+    id: 'family-fun-package',
+    image: OFFER_IMAGES.familyFun,
+    title: 'Family Fun Package',
+    description:
+      'Create lasting memories with your loved ones. Includes connecting rooms, kids eat free, access to our game room, and complimentary airport transfer.',
+    category: ['all', 'seasonal'],
+    price: 640000,
+    priceLabel: '/night',
+    terms: ['Valid for families with 2+ children', 'Weekend stays'],
+  },
+  {
+    id: 'midweek-special',
+    image: OFFER_IMAGES.midweekSpecial,
+    title: 'Midweek Special',
+    description:
+      'Enjoy midweek tranquility at a special rate. Perfect for a quick getaway with complimentary room upgrade based on availability.',
+    category: ['all', 'lastMinute'],
+    discountText: '20% OFF',
+    price: 240000,
+    priceLabel: '/night',
+    terms: ['Mon-Wed stays only', 'Book 48h in advance'],
+  },
+];
+
+export const TEAM_MEMBERS: TeamMember[] = [
+  {
+    id: '1',
+    name: 'Amara Okafor',
+    role: 'General Manager',
+    image: ABOUT_IMAGES.team.member1,
+    bgColor: 'bg-[#5F9EA0]',
+  },
+  {
+    id: '2',
+    name: 'Fatima Bello',
+    role: 'Head of Concierge',
+    image: ABOUT_IMAGES.team.member2,
+    bgColor: 'bg-[#8B7355]',
+  },
+  {
+    id: '3',
+    name: 'David Mensah',
+    role: 'Executive Chef',
+    image: ABOUT_IMAGES.team.member3,
+    bgColor: 'bg-[#B8A99A]',
+  },
+  {
+    id: '4',
+    name: 'Zainab Yusuf',
+    role: 'Operations Director',
+    image: ABOUT_IMAGES.team.member4,
+    bgColor: 'bg-[#4A5568]',
   },
 ];

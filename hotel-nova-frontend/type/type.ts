@@ -20,3 +20,31 @@ export type RoomListing = {
   sqft: number;
   amenities: string[];
 };
+
+export type OfferCategory = 'all' | 'seasonal' | 'business' | 'romantic' | 'lastMinute';
+
+export type OfferBadge = 'business' | 'leisure' | null;
+
+export type Offer = {
+  id: string;
+  image: string;
+  title: string;
+  description: string;
+  category: OfferCategory[];
+  badge?: OfferBadge;
+  discountText?: string;
+  originalPrice?: number;
+  price: number;
+  priceLabel: string;
+  terms: string[];
+  disclaimer?: string;
+  isFeatured?: boolean;
+};
+
+export type TeamMember = {
+  id: string;
+  name: string;
+  role: string;
+  image: string;
+  bgColor?: string;
+};

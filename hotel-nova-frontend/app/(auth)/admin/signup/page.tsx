@@ -6,7 +6,11 @@ import { z } from 'zod';
 import { ArrowRight } from 'lucide-react';
 import { FormInput } from '@/components/auth/FormInput';
 import { PasswordInput } from '@/components/auth/PasswordInput';
-import { SIGNUP_MESSAGES, VALIDATION_MESSAGES, ROUTES } from '@/constants/messages';
+import {
+  SIGNUP_MESSAGES,
+  VALIDATION_MESSAGES,
+
+} from '@/constants/messages';
 import { HotelNovaLogo } from '@/components/auth/HotelNovaLogo';
 
 const adminSignupSchema = z
@@ -20,7 +24,9 @@ const adminSignupSchema = z
       .email(VALIDATION_MESSAGES.email.invalid)
       .min(1, VALIDATION_MESSAGES.email.required),
     password: z.string().min(8, VALIDATION_MESSAGES.password.minLength),
-    confirmPassword: z.string().min(1, VALIDATION_MESSAGES.confirmPassword.required),
+    confirmPassword: z
+      .string()
+      .min(1, VALIDATION_MESSAGES.confirmPassword.required),
   })
   .refine(d => d.password === d.confirmPassword, {
     message: VALIDATION_MESSAGES.confirmPassword.mismatch,
@@ -38,8 +44,7 @@ export default function AdminSignupPage() {
 
   const onSubmit = async (data: AdminSignupValues) => {
     /** TODO: POST /api/auth/signup { role: 'ADMIN' } → router.push(ROUTES.adminOverview) */
-    const { confirmPassword: _, ...payload } = data;
-    console.log('[AdminSignup]', { role: 'ADMIN', ...payload });
+   console.log('[AdminSignup]', { role: 'ADMIN', ...data });
   };
 
   return (
@@ -51,7 +56,11 @@ export default function AdminSignupPage() {
           <p className="admin-auth-subtitle">Create a new management account</p>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
+          className="flex flex-col gap-4"
+        >
           <FormInput
             id="admin-signup-name"
             label={SIGNUP_MESSAGES.nameLabel}

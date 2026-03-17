@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -38,6 +39,7 @@ const guestSignupSchema = z
 type GuestSignupValues = z.infer<typeof guestSignupSchema>;
 
 export function GuestSignupForm() {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -45,9 +47,14 @@ export function GuestSignupForm() {
   } = useForm<GuestSignupValues>({ resolver: zodResolver(guestSignupSchema) });
 
   const onSubmit = async (data: GuestSignupValues) => {
-    /** TODO: POST /api/auth/signup { role: 'GUEST' } → router.push(ROUTES.home) */
-    const { confirmPassword: _, terms: __, ...payload } = data;
-    console.log('[GuestSignup]', { role: 'GUEST', ...payload });
+    /** TODO: POST /api/auth/signup { role: 'GUEST' } */
+    console.log('[GuestSignup]', { role: 'GUEST', ...data });
+
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // Redirect to homepage
+    router.push(ROUTES.home);
   };
 
   return (
@@ -137,7 +144,7 @@ export function GuestSignupForm() {
         id="guest-signup-submit"
         type="submit"
         disabled={isSubmitting}
-        className="btn-primary mt-1 flex items-center justify-center gap-2"
+        className="btn-primary mt-1 flex items-center justify-center gap-2 cursor-pointer"
       >
         {isSubmitting ? (
           SIGNUP_MESSAGES.submittingButton

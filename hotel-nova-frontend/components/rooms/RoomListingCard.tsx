@@ -54,7 +54,7 @@ export function RoomListingCard({
             {name}
           </h3>
           <div className="text-right shrink-0">
-            <span className="text-[22px] font-bold text-[#0D0F2B]">${price}</span>
+            <span className="text-[22px] font-bold text-[#0D0F2B]">₦{price.toLocaleString()}</span>
             <span className="block text-[12px] text-[#64748B]">
               {ROOMS_PAGE_MESSAGES.lastNight}
             </span>

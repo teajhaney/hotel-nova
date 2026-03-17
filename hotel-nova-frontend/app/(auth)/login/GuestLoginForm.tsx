@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -18,6 +19,7 @@ const guestLoginSchema = z.object({
 type GuestLoginValues = z.infer<typeof guestLoginSchema>;
 
 export function GuestLoginForm() {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -25,8 +27,14 @@ export function GuestLoginForm() {
   } = useForm<GuestLoginValues>({ resolver: zodResolver(guestLoginSchema) });
 
   const onSubmit = async (data: GuestLoginValues) => {
-    /** TODO: POST /api/auth/login { role: 'GUEST' } → router.push(ROUTES.home) */
+    /** TODO: POST /api/auth/login { role: 'GUEST' } */
     console.log('[GuestLogin]', { role: 'GUEST', ...data });
+
+    // Simulate API call delay
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // Redirect to homepage
+    router.push(ROUTES.home);
   };
 
   return (
@@ -55,7 +63,7 @@ export function GuestLoginForm() {
         {...register('password')}
       />
 
-      <button id="guest-login-submit" type="submit" disabled={isSubmitting} className="btn-primary mt-1">
+      <button id="guest-login-submit" type="submit" disabled={isSubmitting} className="btn-primary mt-1 cursor-pointer">
         {isSubmitting ? LOGIN_MESSAGES.submittingButton : LOGIN_MESSAGES.submitButton}
       </button>
     </form>

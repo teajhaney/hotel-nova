@@ -53,17 +53,17 @@ export function RoomFilters({
         </div>
         <input
           type="range"
-          min={100}
-          max={1500}
-          step={50}
+          min={150000}
+          max={2500000}
+          step={50000}
           value={priceRange[1]}
           onChange={(e) => onPriceChange([priceRange[0], Number(e.target.value)])}
           className="w-full accent-[#020887] cursor-pointer"
           aria-label="Maximum price"
         />
         <div className="flex justify-between mt-2">
-          <span className="text-[13px] font-medium text-[#020887]">${priceRange[0]}</span>
-          <span className="text-[13px] font-medium text-[#020887]">${priceRange[1]}</span>
+          <span className="text-[13px] font-medium text-[#020887]">₦{priceRange[0].toLocaleString()}</span>
+          <span className="text-[13px] font-medium text-[#020887]">₦{priceRange[1].toLocaleString()}</span>
         </div>
       </div>
 

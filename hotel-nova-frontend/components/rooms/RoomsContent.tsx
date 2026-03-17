@@ -11,7 +11,8 @@ import { ROOMS_PAGE_MESSAGES } from '@/constants/messages';
 const ROOMS_PER_PAGE = 4;
 
 export function RoomsContent() {
-  const [priceRange, setPriceRange] = useState<[number, number]>([150, 1200]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [priceRange, setPriceRange] = useState<[number, number]>([200000, 2000000]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -32,7 +33,8 @@ export function RoomsContent() {
   };
 
   const handleClear = () => {
-    setPriceRange([150, 1200]);
+    setSearchQuery('');
+    setPriceRange([200000, 2000000]);
     setSelectedTypes([]);
     setSelectedAmenities([]);
     setCurrentPage(1);
@@ -40,10 +42,20 @@ export function RoomsContent() {
 
   const filteredRooms = useMemo(() => {
     return ROOM_LISTINGS.filter((room) => {
+      // Search filter
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase();
+        const matchesName = room.name.toLowerCase().includes(query);
+		  if (!matchesName) return false;
+		  
+      }
+
+      // Price filter
       if (room.price < priceRange[0] || room.price > priceRange[1]) return false;
+
       return true;
     });
-  }, [priceRange, selectedTypes, selectedAmenities]);
+  }, [searchQuery, priceRange]);
 
   const totalPages = Math.ceil(filteredRooms.length / ROOMS_PER_PAGE);
   const paginatedRooms = filteredRooms.slice(
@@ -70,7 +82,7 @@ export function RoomsContent() {
         {/* Main content */}
         <div className="flex-1 min-w-0">
           {/* Header */}
-          <div className="mb-8">
+          <div className="mb-6">
             <h1 className="text-[28px] md:text-[32px] lg:text-[36px] font-bold text-[#0D0F2B] leading-tight">
               {ROOMS_PAGE_MESSAGES.heading}
             </h1>
@@ -79,7 +91,32 @@ export function RoomsContent() {
             </p>
           </div>
 
-          {/* Mobile filter toggle + search */}
+          {/* Search field */}
+          <div className="mb-6">
+            <div className="relative">
+              <Search
+                size={18}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-[#64748B]"
+                aria-hidden="true"
+              />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
+                placeholder={ROOMS_PAGE_MESSAGES.searchPlaceholder}
+                className="w-full pl-12 pr-4 py-3.5 rounded-lg border border-[#E2E8F0]
+                           text-[15px] text-[#0D0F2B] placeholder:text-[#94A3B8]
+                           focus:outline-none focus:ring-2 focus:ring-[#020887] focus:border-transparent
+                           transition-all"
+                aria-label="Search rooms by name"
+              />
+            </div>
+          </div>
+
+          {/* Mobile filter toggle */}
           <div className="lg:hidden mb-6">
             <div className="flex gap-3 mb-4">
               <button
@@ -122,7 +159,9 @@ export function RoomsContent() {
           {filteredRooms.length === 0 && (
             <div className="text-center py-16">
               <p className="text-[18px] font-medium text-[#64748B]">
-                No rooms match your filters. Try adjusting your criteria.
+                {searchQuery.trim()
+                  ? `No rooms found matching "${searchQuery}". Try a different search term.`
+                  : 'No rooms match your filters. Try adjusting your criteria.'}
               </p>
             </div>
           )}

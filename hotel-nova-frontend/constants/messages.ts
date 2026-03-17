@@ -233,6 +233,103 @@ export const ROOMS_PAGE_MESSAGES = {
   allRooms: 'All Rooms',
 } as const;
 
+// ─── Offers Page ────────────────────────────────────────────
+export const OFFERS_PAGE_MESSAGES = {
+  breadcrumbHotels: 'Hotels',
+  breadcrumbNigeria: 'Nigeria',
+  breadcrumbAbuja: 'Abuja',
+  locationName: 'The Grand Oasis',
+  locationBadge: 'Premium Partner',
+  locationAddress: 'Plot 104, Diplomatic Drive, Central Business District, Abuja',
+  heading: 'Exclusive Offers',
+  subtitle:
+    "Curated experiences and seasonal packages designed for your perfect stay in Nigeria's capital city.",
+  filterButton: 'Filter Categories',
+  tabAll: 'All Offers',
+  tabSeasonal: 'Seasonal',
+  tabBusiness: 'Business',
+  tabRomantic: 'Romantic',
+  tabLastMinute: 'Last Minute',
+  claimOffer: 'Claim Offer',
+  bookNow: 'Book Now',
+  details: 'Details',
+  termsLabel: 'Terms:',
+  loyaltyHeading: 'Join NovaRewards™',
+  loyaltySubtitle:
+    'Members save an additional 10% on all offers and earn points towards free nights. Sign up in seconds for immediate benefits.',
+  loyaltyButton: 'Join for Free',
+  newsletterHeading: 'Never Miss a Secret Deal',
+  newsletterSubtitle:
+    'Subscribe to our monthly newsletter and be the first to know about flash sales and holiday packages.',
+  newsletterPlaceholder: 'Enter your email address',
+  newsletterButton: 'Subscribe',
+} as const;
+
+// ─── About Us Page ──────────────────────────────────────────
+export const ABOUT_PAGE_MESSAGES = {
+  heroEyebrow: 'WELCOME TO LUXURY',
+  heroTitle: 'The Grand Oasis Abuja',
+  heroSubtitle:
+    'Discover the intersection of Nigerian heritage and contemporary elegance in the heart of the capital.',
+  storyHeading: 'Our Story',
+  storyParagraph1:
+    'A heritage of luxury and hospitality since 2010. Founded on the principles of providing an unparalleled sanctuary in the heart of Abuja, The Grand Oasis has evolved from a visionary concept into the city\'s premier destination for discerning travelers.',
+  storyParagraph2:
+    'For over a decade, we have been more than just a hotel; we are a landmark of excellence. Our journey began with a single mission: to blend international standards of comfort with the warm, vibrant soul of Nigerian hospitality. Today, we stand proud as a testament to what happens when passion meets precision.',
+  valuesHeading: 'Our Values',
+  valuesSubtitle:
+    'The pillars that define our service and guest experience every single day.',
+  value1Title: 'Hospitality',
+  value1Description:
+    'Warmth in every interaction. We believe that true hospitality comes from the heart, ensuring every guest feels like royalty from the moment they arrive.',
+  value2Title: 'Excellence',
+  value2Description:
+    'Striving for perfection in every detail. From the thread count of our linens to the precision of our concierge services, excellence is our standard.',
+  value3Title: 'Authenticity',
+  value3Description:
+    'True to our Nigerian roots and global standards. We celebrate local culture through art, cuisine, and design while maintaining world-class luxury.',
+  teamHeading: 'The Faces of Oasis',
+  teamSubtitle:
+    'Meet the dedicated team working tirelessly to ensure your stay is nothing short of extraordinary.',
+  teamCta: 'Meet all staff',
+  locationHeading: 'Find Us',
+  locationSubtitle:
+    'Located in the prestigious Garki district, we are conveniently situated near government offices, shopping centers, and cultural landmarks.',
+  locationAddressLabel: 'Address',
+  locationAddress: '12 Luxury Way, Garki, Abuja, Nigeria',
+  locationContactLabel: 'Contact',
+  locationPhone: '+234 800 HOTEL NOVA',
+  locationEmail: 'reservations@hotelnova-abuja.com',
+} as const;
+
+// ─── Contact Page ───────────────────────────────────────────
+export const CONTACT_PAGE_MESSAGES = {
+  heroTitle: 'Contact Us',
+  heroSubtitle:
+    'We\'d love to hear from you. Reach out to The Grand Oasis Abuja for any inquiries or reservations.',
+  formHeading: 'Send us a Message',
+  formNameLabel: 'Full Name',
+  formNamePlaceholder: 'John Doe',
+  formEmailLabel: 'Email Address',
+  formEmailPlaceholder: 'john@example.com',
+  formSubjectLabel: 'Subject',
+  formSubjectPlaceholder: 'Inquiry about Reservation',
+  formMessageLabel: 'Message',
+  formMessagePlaceholder: 'How can we help you?',
+  formSubmitButton: 'Send Message',
+  formSubmittingButton: 'Sending...',
+  infoLocationTitle: 'Our Location',
+  infoLocationAddress: 'Abuja Central Area, Abuja, Nigeria',
+  infoPhoneTitle: 'Phone Number',
+  infoPhone1: '+234 800 000 0000',
+  infoPhone2: '+234 900 000 1111',
+  infoEmailTitle: 'Email Address',
+  infoEmail1: 'reservations@grandoasis.com',
+  infoEmail2: 'info@grandoasis.com',
+  mapTitle: 'VISIT US IN THE HEART OF THE CITY',
+  mapCta: 'Open in Maps',
+} as const;
+
 // ─── Routes ───────────────────────────────────────────────────
 export const ROUTES = {
   home: '/',
@@ -243,4 +340,7 @@ export const ROUTES = {
   adminOverview: '/admin/overview',
   terms: '/terms',
   privacy: '/privacy',
+  offers: '/offers',
+  about: '/about',
+  contact: '/contact',
 } as const;

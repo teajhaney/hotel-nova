@@ -31,7 +31,7 @@ export function RoomCard({ id, image, name, description, priceFrom, badge }: Roo
                      rounded-sm px-2.5 py-1.25
                      shadow-[0_1px_4px_rgba(0,0,0,0.12)]"
         >
-          {FEATURED_ROOMS_MESSAGES.pricePrefix} ${priceFrom}{FEATURED_ROOMS_MESSAGES.priceSuffix}
+          {FEATURED_ROOMS_MESSAGES.pricePrefix} ₦{priceFrom.toLocaleString()}{FEATURED_ROOMS_MESSAGES.priceSuffix}
         </div>
 
         {/* Optional badge — top left */}

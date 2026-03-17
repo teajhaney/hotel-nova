@@ -71,3 +71,51 @@ export const AUTH_IMAGES = {
   signupPanel:
     'https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=1200&q=80',
 } as const;
+
+export const OFFER_IMAGES = {
+  /** Romantic Getaway — luxury hotel room with elegant lighting */
+  romanticGetaway:
+    'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80',
+  /** Business Traveler — modern business lounge */
+  businessTraveler:
+    'https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=800&q=80',
+  /** Weekend Spa Retreat — sunset infinity pool */
+  spaRetreat:
+    'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=800&q=80',
+  /** Summer Escape — tropical hotel pool */
+  summerEscape:
+    'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
+  /** Family Fun — spacious family suite */
+  familyFun:
+    'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80',
+  /** Midweek Special — cozy hotel room */
+  midweekSpecial:
+    'https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=800&q=80',
+} as const;
+
+export const ABOUT_IMAGES = {
+  /** Hero — grand hotel exterior at dusk */
+  hero: 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1920&q=90',
+  /** Our Story — elegant hotel room */
+  storyRoom:
+    'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80',
+  /** Our Story — modern hotel lounge */
+  storyLounge:
+    'https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=800&q=80',
+  /** Team member photos — professional portraits */
+  team: {
+    member1:
+      'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80',
+    member2:
+      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=600&q=80',
+    member3:
+      'https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&w=600&q=80',
+    member4:
+      'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=600&q=80',
+  },
+} as const;
+
+export const CONTACT_IMAGES = {
+  /** Contact hero — hotel building at evening */
+  hero: 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=1920&q=90',
+} as const;
