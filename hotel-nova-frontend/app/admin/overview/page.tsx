@@ -140,7 +140,7 @@ export default function AdminOverviewPage() {
               <YAxis tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} domain={[60, 100]} />
               <Tooltip
                 contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #E2E8F0' }}
-                formatter={(val: number) => [`${val}%`, 'Occupancy']}
+                formatter={(val) => [`${val}%`, 'Occupancy']}
               />
               <Area
                 type="monotone"
@@ -163,7 +163,7 @@ export default function AdminOverviewPage() {
               <YAxis tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} tickFormatter={formatRevenue} />
               <Tooltip
                 contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #E2E8F0' }}
-                formatter={(val: number) => [formatRevenue(val), 'Revenue']}
+                formatter={(val) => [typeof val === 'number' ? formatRevenue(val) : val, 'Revenue']}
               />
               <Bar dataKey="value" fill="#020887" radius={[4, 4, 0, 0]} />
             </BarChart>

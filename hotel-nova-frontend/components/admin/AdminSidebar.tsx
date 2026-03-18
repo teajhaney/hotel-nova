@@ -70,7 +70,7 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
               key={href}
               href={href}
               onClick={onClose}
-              className={`admin-nav-item ${isActive ? 'admin-nav-item-active' : 'admin-nav-item-inactive'}`}
+              className={`admin-nav-item flex items-center ${isActive ? 'admin-nav-item-active' : 'admin-nav-item-inactive'}`}
             >
               <Icon size={18} strokeWidth={isActive ? 2.2 : 1.8} />
               <span>{label}</span>

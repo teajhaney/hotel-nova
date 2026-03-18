@@ -32,12 +32,15 @@ export function AdminDashboardShell({ children }: { children: React.ReactNode })
 
       {/* Mobile drawer */}
       {drawerOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div
-            className="absolute inset-0 bg-black/40"
+        <div className="fixed inset-0 z-[60] lg:hidden">
+          {/* Backdrop */}
+          <button
+            className="absolute inset-0 w-full h-full bg-black/50 cursor-default"
             onClick={() => setDrawerOpen(false)}
+            aria-label="Close menu"
           />
-          <aside className="admin-sidebar flex absolute left-0 top-0 bottom-0 shadow-2xl z-10">
+          {/* Drawer panel */}
+          <aside className="admin-sidebar flex flex-col absolute left-0 top-0 bottom-0 w-[240px] shadow-2xl z-10">
             <AdminSidebar onClose={() => setDrawerOpen(false)} />
           </aside>
         </div>

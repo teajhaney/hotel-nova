@@ -671,7 +671,7 @@ body {
     @apply flex-col w-[240px] shrink-0 bg-white border-r border-[#E2E8F0] sticky top-0 h-screen overflow-y-auto;
   }
   .admin-nav-item {
-    @apply flex items-center gap-3 px-4 py-2.5 rounded-lg text-[14px] font-medium transition-colors duration-150;
+    @apply gap-3 px-4 py-2.5 rounded-lg text-[14px] font-medium transition-colors duration-150;
   }
   .admin-nav-item-active {
     @apply bg-[#020887] text-white;
@@ -711,5 +711,22 @@ body {
   }
   .admin-action-btn {
     @apply flex items-center gap-1.5 px-3 h-9 rounded-lg border border-[#E2E8F0] text-[13px] font-medium text-[#0D0F2B] hover:border-[#020887] hover:text-[#020887] transition-colors;
+  }
+
+  /* ── Admin Form Inputs ────────────────────────────────────── */
+  .admin-form-input {
+    @apply w-full h-10 px-3 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] text-[13px] text-[#0D0F2B] placeholder:text-[#94A3B8] outline-none focus:border-[#020887] focus:bg-white transition-colors;
+  }
+  .admin-form-select {
+    @apply w-full h-10 px-3 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] text-[13px] text-[#0D0F2B] outline-none focus:border-[#020887] focus:bg-white transition-colors cursor-pointer appearance-none;
+  }
+  .admin-form-textarea {
+    @apply w-full px-3 py-2.5 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] text-[13px] text-[#0D0F2B] placeholder:text-[#94A3B8] outline-none focus:border-[#020887] focus:bg-white transition-colors resize-none;
+  }
+  .admin-form-label {
+    @apply block text-[13px] font-medium text-[#0D0F2B] mb-1.5;
+  }
+  .admin-form-error {
+    @apply text-[11px] text-[#EF4444] mt-1;
   }
 }

@@ -24,11 +24,14 @@ export function middleware(request: NextRequest) {
   }
 
   // 3. Admin Protected Routes (/admin/* except auth)
-  if (pathname.startsWith('/admin') && pathname !== '/admin/login' && pathname !== '/admin/signup') {
-    if (!token || role !== 'ADMIN') {
-      return NextResponse.redirect(new URL('/admin/login', request.url));
-    }
-  }
+  // TODO: Re-enable once admin login flow with redirect-back is implemented.
+  // When re-enabling, the admin login form must read the `redirect` search param
+  // and navigate there on successful login instead of going to '/admin/overview'.
+  // if (pathname.startsWith('/admin') && pathname !== '/admin/login' && pathname !== '/admin/signup') {
+  //   if (!token || role !== 'ADMIN') {
+  //     return NextResponse.redirect(new URL('/admin/login', request.url));
+  //   }
+  // }
 
   // 4. Guest Protected Routes (/dashboard)
   // TODO: Re-enable once login flow with redirect-back is implemented.
