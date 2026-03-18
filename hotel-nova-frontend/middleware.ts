@@ -37,6 +37,18 @@ export function middleware(request: NextRequest) {
     }
   }
 
+  // 5. Booking payment and confirmation require guest auth
+  // TODO: Re-enable once login flow with redirect-back is implemented.
+  // When re-enabling, the login form must read the `redirect` search param
+  // and navigate there on successful login instead of going to '/'.
+  // if (pathname === '/book/payment' || pathname === '/book/confirmation') {
+  //   if (!token || role !== 'GUEST') {
+  //     const loginUrl = new URL('/login', request.url);
+  //     loginUrl.searchParams.set('redirect', pathname);
+  //     return NextResponse.redirect(loginUrl);
+  //   }
+  // }
+
   return NextResponse.next();
 }
 

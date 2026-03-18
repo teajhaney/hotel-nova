@@ -1,6 +1,6 @@
-import { Facebook, Instagram, Twitter, Youtube } from "lucide-react";
+import { BedDouble, Facebook, Home, Instagram, Twitter, User, UtensilsCrossed, Youtube } from "lucide-react";
 import { HOME_IMAGES, ROOM_LISTING_IMAGES, OFFER_IMAGES, ABOUT_IMAGES } from "./images";
-import type { Testimonial, RoomListing, Offer, TeamMember } from "@/type/type";
+import type { Testimonial, RoomListing, Offer, TeamMember, BookingRoom } from "@/type/type";
 
 export const FEATURED_ROOMS = [
   {
@@ -39,6 +39,13 @@ export const QUICK_LINKS = [
   { href: '/#amenities', label: 'Spa & Wellness' },
   { href: '/#events', label: 'Meetings & Events' },
   { href: '/gallery', label: 'Photo Gallery' },
+];
+
+export const NAV_ITEMS = [
+  { href: '/', label: 'HOME', icon: Home },
+  { href: '/rooms', label: 'ROOMS', icon: BedDouble },
+  { href: '/#dining', label: 'DINING', icon: UtensilsCrossed },
+  { href: '/profile', label: 'PROFILE', icon: User },
 ];
 
 export const POLICY_LINKS = [
@@ -320,5 +327,63 @@ export const TEAM_MEMBERS: TeamMember[] = [
     role: 'Operations Director',
     image: ABOUT_IMAGES.team.member4,
     bgColor: 'bg-[#4A5568]',
+  },
+];
+
+export const BOOKING_ROOMS: BookingRoom[] = [
+  {
+    id: 'deluxe-city-view',
+    image: ROOM_LISTING_IMAGES.executiveSuite,
+    name: 'Deluxe City View Suite',
+    description: "Spacious 45sqm suite featuring breathtaking views of Abuja's skyline, premium bedding, and a marble-finished bathroom.",
+    pricePerNight: 85000,
+    badge: 'popular',
+    sqm: 45,
+    maxGuests: 2,
+    amenities: ['Free WiFi', 'Coffee Maker', 'Air Conditioning'],
+  },
+  {
+    id: 'executive-king',
+    image: ROOM_LISTING_IMAGES.panoramicKing,
+    name: 'Executive King Room',
+    description: 'Exclusive access to the Executive Lounge, including complimentary breakfast and evening cocktails. Ideal for business travelers.',
+    pricePerNight: 120000,
+    badge: null,
+    sqm: 60,
+    maxGuests: 2,
+    amenities: ['King Bed', 'Lounge Access', '55" Smart TV', 'Ergonomic Desk'],
+  },
+  {
+    id: 'presidential-suite',
+    image: ROOM_LISTING_IMAGES.presidentialSuite,
+    name: 'Presidential Suite',
+    description: 'The pinnacle of luxury with a private terrace, butler service, and bespoke experiences crafted exclusively for you.',
+    pricePerNight: 250000,
+    badge: 'bestseller',
+    sqm: 120,
+    maxGuests: 4,
+    amenities: ['Private Terrace', 'Butler Service', 'Private Bar', 'Jacuzzi'],
+  },
+  {
+    id: 'deluxe-terrace',
+    image: ROOM_LISTING_IMAGES.deluxeTerrace,
+    name: 'Deluxe Terrace Room',
+    description: 'A serene retreat with a private terrace overlooking lush gardens. Perfect for a peaceful getaway.',
+    pricePerNight: 75000,
+    badge: null,
+    sqm: 50,
+    maxGuests: 2,
+    amenities: ['Private Terrace', 'Garden View', 'Free WiFi', 'Minibar'],
+  },
+  {
+    id: 'grand-deluxe',
+    image: ROOM_LISTING_IMAGES.grandDeluxe,
+    name: 'Grand Deluxe Suite',
+    description: 'Indulge in spacious comfort with premium furnishings, a dedicated living area, and access to our rooftop pool.',
+    pricePerNight: 150000,
+    badge: null,
+    sqm: 80,
+    maxGuests: 3,
+    amenities: ['Pool Access', 'Living Area', 'King Bed', 'Spa Bath'],
   },
 ];

@@ -48,3 +48,36 @@ export type TeamMember = {
   image: string;
   bgColor?: string;
 };
+
+export type BookingRoom = {
+  id: string;
+  image: string;
+  name: string;
+  description: string;
+  pricePerNight: number;
+  badge: 'popular' | 'bestseller' | null;
+  sqm: number;
+  maxGuests: number;
+  amenities: string[];
+};
+
+export type GuestDetails = {
+  fullName: string;
+  email: string;
+  phone: string;
+  country: string;
+  agreeToTerms: boolean;
+};
+
+export type BookingWizardState = {
+  checkIn: string | null;   // ISO date string "YYYY-MM-DD"
+  checkOut: string | null;
+  adults: number;
+  children: number;
+  rooms: number;
+  selectedRoom: BookingRoom | null;
+  guestDetails: GuestDetails | null;
+  promoCode: string;
+  promoDiscount: number;
+  specialRequests: string;
+};

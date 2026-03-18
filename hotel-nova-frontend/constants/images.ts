@@ -119,3 +119,7 @@ export const CONTACT_IMAGES = {
   /** Contact hero — hotel building at evening */
   hero: 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=1920&q=90',
 } as const;
+
+export const BOOKING_IMAGES = {
+  map: 'https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=1200&q=80',
+} as const;

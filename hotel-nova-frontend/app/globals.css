@@ -77,6 +77,19 @@
   box-sizing: border-box;
 }
 
+/* All buttons and interactive elements use pointer cursor by default */
+button,
+[role="button"],
+a,
+select,
+label[for] {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
 html {
   font-size: 16px;
   -webkit-text-size-adjust: 100%;
@@ -505,5 +518,82 @@ body {
            placeholder:text-[#94A3B8]
            bg-transparent border-none outline-none
            focus:outline-none;
+  }
+
+  /* ── Booking Wizard ─────────────────────────────────────────── */
+
+  /** Step header container */
+  .booking-step-header {
+    @apply mb-2;
+  }
+
+  /** Step eyebrow (e.g. "STEP 1 OF 3") */
+  .booking-step-eyebrow {
+    @apply block text-[12px] font-bold uppercase tracking-[0.12em] text-[#020887] mb-1;
+  }
+
+  /** Step H1 title */
+  .booking-step-title {
+    @apply text-[28px] font-bold text-[#0D0F2B] leading-tight;
+  }
+
+  /** Progress track (full-width bar background) */
+  .booking-progress-track {
+    @apply mt-3 h-1.5 w-full bg-[#E2E8F0] rounded-full overflow-hidden;
+  }
+
+  /** Progress fill (animated) */
+  .booking-progress-fill {
+    @apply h-full bg-[#020887] rounded-full transition-all duration-500;
+  }
+
+  /** Sidebar card (right panel on Steps 1 & 2) */
+  .booking-sidebar-card {
+    @apply bg-white rounded-lg border border-[#E2E8F0] overflow-hidden;
+  }
+
+  /** Sidebar card dark header */
+  .booking-sidebar-header {
+    @apply bg-[#020887] px-5 py-4;
+  }
+
+  /** Small uppercase label inside sidebar */
+  .booking-sidebar-label {
+    @apply text-[10px] font-bold uppercase tracking-[0.1em] text-[#64748B] mb-0.5;
+  }
+
+  /** Counter item row (label + stepper) */
+  .counter-item {
+    @apply flex items-center justify-between py-4;
+  }
+
+  /** Counter +/- button (outline circle) */
+  .counter-btn {
+    @apply w-9 h-9 rounded-full border-2 border-[#E2E8F0]
+           flex items-center justify-center
+           text-[#0D0F2B]
+           hover:border-[#020887] hover:text-[#020887]
+           disabled:opacity-40 disabled:cursor-not-allowed
+           transition-all duration-150
+           cursor-pointer;
+  }
+
+  /** Counter + button (filled) */
+  .counter-btn-plus {
+    @apply bg-[#020887] border-[#020887] text-white
+           hover:bg-[#38369A] hover:border-[#38369A];
+  }
+
+  /** Available room card container */
+  .available-room-card {
+    @apply bg-white rounded-lg border border-[#E2E8F0] overflow-hidden
+           flex flex-col md:flex-row
+           transition-all duration-200
+           hover:shadow-[0_4px_16px_rgba(0,0,0,0.10)];
+  }
+
+  /** Selected state for available room card */
+  .available-room-card-selected {
+    @apply border-[2px] border-[#020887] shadow-[0_0_0_3px_rgba(2,8,135,0.08)];
   }
 }
