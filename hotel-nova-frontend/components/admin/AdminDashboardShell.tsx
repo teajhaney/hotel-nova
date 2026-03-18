@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { AdminSidebar } from './AdminSidebar';
 import { AdminMobileNav } from './AdminMobileNav';
-import { Menu, Bell, HelpCircle, Search, Plus } from 'lucide-react';
+import { Menu, Bell, HelpCircle, Search } from 'lucide-react';
 
 function getPageTitle(pathname: string): string {
   if (pathname.startsWith('/admin/overview')) return 'Overview';
@@ -59,7 +59,7 @@ export function AdminDashboardShell({ children }: { children: React.ReactNode })
             />
           </div>
 
-          {/* Right: icons + new booking */}
+          {/* Right: icons */}
           <div className="flex items-center gap-3">
             <button
               className="relative w-9 h-9 flex items-center justify-center rounded-lg text-[#64748B] hover:bg-[#F8FAFC] transition-colors"
@@ -73,10 +73,6 @@ export function AdminDashboardShell({ children }: { children: React.ReactNode })
               aria-label="Help"
             >
               <HelpCircle size={20} />
-            </button>
-            <button className="flex items-center gap-1.5 h-9 px-4 rounded-lg bg-[#020887] text-white text-[13px] font-medium hover:bg-[#38369A] transition-colors">
-              <Plus size={16} />
-              New Booking
             </button>
           </div>
         </header>

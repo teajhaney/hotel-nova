@@ -3,14 +3,15 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { X, ChevronDown, Mail, User, ShieldCheck, CalendarDays, Info } from 'lucide-react';
+import { X, ChevronDown, Mail, User, ShieldCheck, CalendarDays, Info, Eye, EyeOff } from 'lucide-react';
+import { useState } from 'react';
 
 // ── Types ────────────────────────────────────────────────────
 export interface UserData {
   name: string;
   email: string;
   role: 'ADMIN' | 'GUEST';
-  status: 'Active' | 'Inactive';
+  status: 'Active' | 'Inactive' | 'Suspended';
   joined: string;
 }
 
@@ -24,12 +25,16 @@ interface UserFormModalProps {
 const addSchema = z.object({
   name: z.string().min(2, 'Full name is required'),
   email: z.string().email('Enter a valid email address'),
-  role: z.enum(['ADMIN', 'GUEST']),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  confirmPassword: z.string().min(1, 'Please confirm the password'),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: 'Passwords do not match',
+  path: ['confirmPassword'],
 });
 
 const editSchema = z.object({
   role: z.enum(['ADMIN', 'GUEST']),
-  status: z.enum(['Active', 'Inactive']),
+  status: z.enum(['Active', 'Inactive', 'Suspended']),
 });
 
 type AddFormData = z.infer<typeof addSchema>;
@@ -52,18 +57,20 @@ function getInitials(name: string) {
   return name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
 }
 
-// ── Add User Form ─────────────────────────────────────────────
+// ── Add Admin Form ─────────────────────────────────────────────
 function AddForm({ onClose, onSave }: { onClose: () => void; onSave: (d: UserData) => void }) {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
   const { register, handleSubmit, formState: { errors } } = useForm<AddFormData>({
     resolver: zodResolver(addSchema),
-    defaultValues: { role: 'ADMIN' },
   });
 
   const onSubmit = (data: AddFormData) => {
     onSave({
       name: data.name,
       email: data.email,
-      role: data.role,
+      role: 'ADMIN',
       status: 'Active',
       joined: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
     });
@@ -71,7 +78,7 @@ function AddForm({ onClose, onSave }: { onClose: () => void; onSave: (d: UserDat
 
   return (
     <form id="user-form" onSubmit={handleSubmit(onSubmit)} className="flex-1 overflow-y-auto px-7 py-6 space-y-5">
-      {/* Full Name */}
+      {/* Account Details */}
       <div className="bg-white rounded-xl border border-[#E5E7EB] p-5 space-y-5">
         <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#9CA3AF]">
           Account Details
@@ -94,17 +101,56 @@ function AddForm({ onClose, onSave }: { onClose: () => void; onSave: (d: UserDat
           </div>
           {errors.email && <span className={errorCls}>{errors.email.message}</span>}
         </div>
+      </div>
+
+      {/* Password */}
+      <div className="bg-white rounded-xl border border-[#E5E7EB] p-5 space-y-5">
+        <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#9CA3AF]">
+          Set Password
+        </p>
 
         <div>
-          <label className={labelCls}>Role</label>
+          <label className={labelCls}>Password</label>
           <div className="relative">
-            <select {...register('role')} className={selectCls}>
-              <option value="ADMIN">Admin</option>
-              <option value="GUEST">Guest</option>
-            </select>
-            <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none" />
+            <input
+              {...register('password')}
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Minimum 8 characters"
+              className={`${inputCls} pr-11`}
+              autoComplete="new-password"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#6B7280] transition-colors"
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
           </div>
-          {errors.role && <span className={errorCls}>{errors.role.message}</span>}
+          {errors.password && <span className={errorCls}>{errors.password.message}</span>}
+        </div>
+
+        <div>
+          <label className={labelCls}>Confirm Password</label>
+          <div className="relative">
+            <input
+              {...register('confirmPassword')}
+              type={showConfirm ? 'text' : 'password'}
+              placeholder="Re-enter the password"
+              className={`${inputCls} pr-11`}
+              autoComplete="new-password"
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirm((v) => !v)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#6B7280] transition-colors"
+              aria-label={showConfirm ? 'Hide password' : 'Show password'}
+            >
+              {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
+          {errors.confirmPassword && <span className={errorCls}>{errors.confirmPassword.message}</span>}
         </div>
       </div>
 
@@ -112,7 +158,7 @@ function AddForm({ onClose, onSave }: { onClose: () => void; onSave: (d: UserDat
       <div className="flex items-start gap-3 px-4 py-3.5 bg-[#EEF0FF] rounded-xl border border-[#C7D2FE]">
         <Info size={16} className="text-[#020887] shrink-0 mt-0.5" />
         <p className="text-[13px] text-[#374151] leading-relaxed">
-          For <strong>Admin</strong> accounts, a temporary password and setup link will be sent to the provided email address. Guests must register through the public signup page.
+          This will create an <strong>Admin</strong> account with full access to the management dashboard. Share the credentials securely with the new admin.
         </p>
       </div>
 
@@ -205,13 +251,16 @@ function EditForm({
           <div className="relative">
             <select {...register('status')} className={selectCls}>
               <option value="Active">Active</option>
-              <option value="Inactive">Inactive (suspended)</option>
+              <option value="Inactive">Inactive</option>
+              <option value="Suspended">Suspended</option>
             </select>
             <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none" />
           </div>
           <span className="block text-[12px] text-[#9CA3AF] mt-1.5">
             {statusValue === 'Inactive'
-              ? 'Suspended accounts cannot log in or make new bookings.'
+              ? 'Inactive accounts are disabled and cannot log in.'
+              : statusValue === 'Suspended'
+              ? 'Suspended accounts are blocked pending review.'
               : 'Account is active and has full access based on their role.'}
           </span>
         </div>
@@ -249,12 +298,12 @@ export function UserFormModal({ user, onClose, onSave }: UserFormModalProps) {
         <div className="shrink-0 flex items-start justify-between px-7 py-6 bg-white border-b border-[#E5E7EB]">
           <div>
             <h2 className="text-[20px] font-bold text-[#0D0F2B] leading-tight">
-              {isEdit ? 'Edit User' : 'Add New User'}
+              {isEdit ? 'Edit User' : 'Add Admin Account'}
             </h2>
             <p className="text-[14px] text-[#6B7280] mt-1">
               {isEdit
                 ? 'Update this user\'s role and account status'
-                : 'Create a new admin or guest account manually'}
+                : 'Create a new admin account with dashboard access'}
             </p>
           </div>
           <button
@@ -287,7 +336,7 @@ export function UserFormModal({ user, onClose, onSave }: UserFormModalProps) {
             form="user-form"
             className="h-10 px-7 rounded-lg bg-[#020887] text-white text-[13px] font-semibold hover:bg-[#38369A] transition-colors"
           >
-            {isEdit ? 'Save Changes' : 'Create User'}
+            {isEdit ? 'Save Changes' : 'Create Admin'}
           </button>
         </div>
       </div>

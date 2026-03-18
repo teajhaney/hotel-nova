@@ -111,7 +111,7 @@ export default function AdminUsersPage() {
           className="flex items-center gap-1.5 h-10 px-4 rounded-lg bg-[#020887] text-white text-[13px] font-medium hover:bg-[#38369A] transition-colors"
         >
           <Plus size={16} />
-          Add New User
+          Add Admin
         </button>
       </div>
 

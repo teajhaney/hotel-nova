@@ -5,7 +5,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { X, ChevronDown, UploadCloud, ImageIcon, Trash2 } from 'lucide-react';
-import { RoomFormModalProps } from '@/type/type';
+import { RoomFormModalProps } from '@/type/interface';
+
 
 const roomSchema = z.object({
   name: z.string().min(2, 'Room name is required'),

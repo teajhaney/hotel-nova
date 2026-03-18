@@ -2,14 +2,18 @@
 
 import { useState } from 'react';
 import { Plus, Tag, Pencil, Trash2, RefreshCw, TrendingUp } from 'lucide-react';
+import { PromoFormModal, type PromoData } from '@/components/admin/promo-codes/PromoFormModal';
+import { DeletePromoModal } from '@/components/admin/promo-codes/DeletePromoModal';
 
 type Tab = 'Active Codes' | 'Expired Codes' | 'Scheduled';
 
-const PROMO_CODES = [
+const INITIAL_PROMOS: PromoData[] = [
   {
     code: 'GRAND25',
     description: '25% off all suites',
     discount: '25%',
+    discountType: 'percentage',
+    discountValue: 25,
     usageLimit: 100,
     used: 67,
     validFrom: 'Mar 1, 2026',
@@ -20,6 +24,8 @@ const PROMO_CODES = [
     code: 'WELCOME15',
     description: '15% off first booking',
     discount: '15%',
+    discountType: 'percentage',
+    discountValue: 15,
     usageLimit: 500,
     used: 312,
     validFrom: 'Jan 1, 2026',
@@ -30,16 +36,20 @@ const PROMO_CODES = [
     code: 'WEEKEND50K',
     description: '₦50,000 off weekend stays',
     discount: '₦50,000',
+    discountType: 'fixed',
+    discountValue: 50000,
     usageLimit: 50,
     used: 50,
     validFrom: 'Feb 1, 2026',
     validTo: 'Feb 28, 2026',
-    status: 'Expired',
+    status: 'Inactive',
   },
   {
     code: 'VIP2026',
     description: '30% off for VIP members',
     discount: '30%',
+    discountType: 'percentage',
+    discountValue: 30,
     usageLimit: 200,
     used: 88,
     validFrom: 'Jan 15, 2026',
@@ -50,6 +60,8 @@ const PROMO_CODES = [
     code: 'EASTER100K',
     description: '₦100,000 off Easter holiday',
     discount: '₦100,000',
+    discountType: 'fixed',
+    discountValue: 100000,
     usageLimit: 75,
     used: 0,
     validFrom: 'Apr 17, 2026',
@@ -60,26 +72,51 @@ const PROMO_CODES = [
     code: 'NEWYR2025',
     description: 'New Year special offer',
     discount: '20%',
+    discountType: 'percentage',
+    discountValue: 20,
     usageLimit: 300,
     used: 300,
     validFrom: 'Dec 28, 2025',
     validTo: 'Jan 2, 2026',
-    status: 'Expired',
+    status: 'Inactive',
   },
 ];
 
 const TABS: Tab[] = ['Active Codes', 'Expired Codes', 'Scheduled'];
 
 export default function AdminPromoCodesPage() {
+  const [promos, setPromos] = useState<PromoData[]>(INITIAL_PROMOS);
   const [activeTab, setActiveTab] = useState<Tab>('Active Codes');
 
-  const statusForTab = (tab: Tab) => {
+  const [addOpen, setAddOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<PromoData | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<PromoData | null>(null);
+
+  const statusForTab = (tab: Tab): string => {
     if (tab === 'Active Codes') return 'Active';
-    if (tab === 'Expired Codes') return 'Expired';
+    if (tab === 'Expired Codes') return 'Inactive';
     return 'Scheduled';
   };
 
-  const filtered = PROMO_CODES.filter((c) => c.status === statusForTab(activeTab));
+  const filtered = promos.filter((c) => c.status === statusForTab(activeTab));
+
+  const handleSave = (data: PromoData) => {
+    setPromos((prev) => {
+      const exists = prev.find((p) => p.code === data.code);
+      if (exists) {
+        return prev.map((p) => (p.code === data.code ? data : p));
+      }
+      return [data, ...prev];
+    });
+    setAddOpen(false);
+    setEditTarget(null);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (!deleteTarget) return;
+    setPromos((prev) => prev.filter((p) => p.code !== deleteTarget.code));
+    setDeleteTarget(null);
+  };
 
   return (
     <div className="admin-page-container">
@@ -89,7 +126,10 @@ export default function AdminPromoCodesPage() {
           <h1 className="text-[24px] font-bold text-[#0D0F2B]">Promo Codes</h1>
           <p className="text-[14px] text-[#64748B] mt-1">Create and manage discount codes for guests</p>
         </div>
-        <button className="flex items-center gap-1.5 h-10 px-4 rounded-lg bg-[#020887] text-white text-[13px] font-medium hover:bg-[#38369A] transition-colors">
+        <button
+          onClick={() => setAddOpen(true)}
+          className="flex items-center gap-1.5 h-10 px-4 rounded-lg bg-[#020887] text-white text-[13px] font-medium hover:bg-[#38369A] transition-colors"
+        >
           <Plus size={16} />
           Add New Code
         </button>
@@ -154,7 +194,7 @@ export default function AdminPromoCodesPage() {
                         <div className="h-1.5 w-full bg-[#F1F5F9] rounded-full overflow-hidden">
                           <div
                             className={`h-full rounded-full ${usagePct >= 100 ? 'bg-[#EF4444]' : usagePct >= 70 ? 'bg-[#F59E0B]' : 'bg-[#020887]'}`}
-                            style={{ width: `${usagePct}%` }}
+                            style={{ width: `${Math.min(usagePct, 100)}%` }}
                           />
                         </div>
                       </div>
@@ -168,9 +208,9 @@ export default function AdminPromoCodesPage() {
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-semibold uppercase tracking-wide ${
                           promo.status === 'Active'
                             ? 'bg-[#D1FAE5] text-[#059669]'
-                            : promo.status === 'Expired'
-                            ? 'bg-[#F1F5F9] text-[#64748B]'
-                            : 'admin-badge-confirmed'
+                            : promo.status === 'Scheduled'
+                            ? 'bg-[#EEF0FF] text-[#020887]'
+                            : 'bg-[#F1F5F9] text-[#64748B]'
                         }`}
                       >
                         {promo.status}
@@ -178,16 +218,28 @@ export default function AdminPromoCodesPage() {
                     </td>
                     <td className="admin-table-td">
                       <div className="flex items-center gap-2">
-                        {promo.status === 'Expired' ? (
-                          <button className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E2E8F0] text-[#64748B] hover:border-[#020887] hover:text-[#020887] transition-colors" aria-label="Renew">
+                        {promo.status === 'Inactive' ? (
+                          <button
+                            onClick={() => setEditTarget(promo)}
+                            className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E2E8F0] text-[#64748B] hover:border-[#020887] hover:text-[#020887] transition-colors"
+                            aria-label="Renew / reactivate"
+                          >
                             <RefreshCw size={14} />
                           </button>
                         ) : (
-                          <button className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E2E8F0] text-[#64748B] hover:border-[#020887] hover:text-[#020887] transition-colors" aria-label="Edit">
+                          <button
+                            onClick={() => setEditTarget(promo)}
+                            className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E2E8F0] text-[#64748B] hover:border-[#020887] hover:text-[#020887] transition-colors"
+                            aria-label="Edit"
+                          >
                             <Pencil size={14} />
                           </button>
                         )}
-                        <button className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E2E8F0] text-[#64748B] hover:border-[#EF4444] hover:text-[#EF4444] transition-colors" aria-label="Delete">
+                        <button
+                          onClick={() => setDeleteTarget(promo)}
+                          className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E2E8F0] text-[#64748B] hover:border-[#EF4444] hover:text-[#EF4444] transition-colors"
+                          aria-label="Delete"
+                        >
                           <Trash2 size={14} />
                         </button>
                       </div>
@@ -225,6 +277,25 @@ export default function AdminPromoCodesPage() {
           </div>
         ))}
       </div>
+
+      {/* Add Modal */}
+      {addOpen && (
+        <PromoFormModal promo={null} onClose={() => setAddOpen(false)} onSave={handleSave} />
+      )}
+
+      {/* Edit Modal */}
+      {editTarget && (
+        <PromoFormModal promo={editTarget} onClose={() => setEditTarget(null)} onSave={handleSave} />
+      )}
+
+      {/* Delete Modal */}
+      {deleteTarget && (
+        <DeletePromoModal
+          promoCode={deleteTarget.code}
+          onClose={() => setDeleteTarget(null)}
+          onConfirm={handleDeleteConfirm}
+        />
+      )}
     </div>
   );
 }
