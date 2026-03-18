@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import { Plus, Search, Pencil, Trash2, ChevronDown } from 'lucide-react';
 import Image from 'next/image';
+import { RoomFormModal, type RoomData } from '@/components/admin/rooms/RoomFormModal';
+import { DeleteRoomModal } from '@/components/admin/rooms/DeleteRoomModal';
 
-const ROOMS = [
+const INITIAL_ROOMS: RoomData[] = [
   {
     id: 'RN-302-DX',
     name: 'Deluxe King 302',
@@ -100,11 +102,17 @@ const STATUS_TEXT: Record<string, string> = {
 };
 
 export default function AdminRoomsPage() {
+  const [rooms, setRooms] = useState<RoomData[]>(INITIAL_ROOMS);
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('All Types');
   const [statusFilter, setStatusFilter] = useState('All Statuses');
 
-  const filtered = ROOMS.filter((r) => {
+  // Modal state
+  const [modalMode, setModalMode] = useState<'add' | 'edit' | null>(null);
+  const [selectedRoom, setSelectedRoom] = useState<RoomData | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<RoomData | null>(null);
+
+  const filtered = rooms.filter((r) => {
     const matchSearch =
       r.name.toLowerCase().includes(search.toLowerCase()) ||
       r.id.toLowerCase().includes(search.toLowerCase());
@@ -113,15 +121,48 @@ export default function AdminRoomsPage() {
     return matchSearch && matchType && matchStatus;
   });
 
+  const handleOpenAdd = () => {
+    setSelectedRoom(null);
+    setModalMode('add');
+  };
+
+  const handleOpenEdit = (room: RoomData) => {
+    setSelectedRoom(room);
+    setModalMode('edit');
+  };
+
+  const handleCloseModal = () => {
+    setModalMode(null);
+    setSelectedRoom(null);
+  };
+
+  const handleSave = (data: RoomData) => {
+    if (modalMode === 'add') {
+      setRooms((prev) => [data, ...prev]);
+    } else {
+      setRooms((prev) => prev.map((r) => (r.id === data.id ? data : r)));
+    }
+    handleCloseModal();
+  };
+
+  const handleDeleteConfirm = () => {
+    if (!deleteTarget) return;
+    setRooms((prev) => prev.filter((r) => r.id !== deleteTarget.id));
+    setDeleteTarget(null);
+  };
+
   return (
     <div className="admin-page-container">
       {/* Header */}
       <div className="flex items-center justify-between mb-7">
         <div>
           <h1 className="text-[24px] font-bold text-[#0D0F2B]">Manage Rooms</h1>
-          <p className="text-[14px] text-[#64748B] mt-1">Total 124 rooms available in inventory</p>
+          <p className="text-[14px] text-[#64748B] mt-1">{rooms.length} rooms in inventory</p>
         </div>
-        <button className="flex items-center gap-1.5 h-10 px-4 rounded-lg bg-[#020887] text-white text-[13px] font-medium hover:bg-[#38369A] transition-colors">
+        <button
+          onClick={handleOpenAdd}
+          className="flex items-center gap-1.5 h-10 px-4 rounded-lg bg-[#020887] text-white text-[13px] font-medium hover:bg-[#38369A] transition-colors"
+        >
           <Plus size={16} />
           Add New Room
         </button>
@@ -215,25 +256,42 @@ export default function AdminRoomsPage() {
                   </td>
                   <td className="admin-table-td">
                     <div className="flex items-center gap-2">
-                      <button className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E2E8F0] text-[#64748B] hover:border-[#020887] hover:text-[#020887] transition-colors" aria-label="Edit">
+                      <button
+                        onClick={() => handleOpenEdit(room)}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E2E8F0] text-[#64748B] hover:border-[#020887] hover:text-[#020887] transition-colors"
+                        aria-label="Edit room"
+                      >
                         <Pencil size={14} />
                       </button>
-                      <button className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E2E8F0] text-[#64748B] hover:border-[#EF4444] hover:text-[#EF4444] transition-colors" aria-label="Delete">
+                      <button
+                        onClick={() => setDeleteTarget(room)}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E2E8F0] text-[#64748B] hover:border-[#EF4444] hover:text-[#EF4444] transition-colors"
+                        aria-label="Delete room"
+                      >
                         <Trash2 size={14} />
                       </button>
                     </div>
                   </td>
                 </tr>
               ))}
+              {filtered.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="px-5 py-10 text-center text-[14px] text-[#94A3B8]">
+                    No rooms match your search or filters
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
 
         {/* Pagination */}
         <div className="px-5 py-4 border-t border-[#E2E8F0] flex items-center justify-between">
-          <p className="text-[13px] text-[#64748B]">Showing 1 to 10 of 124 results</p>
+          <p className="text-[13px] text-[#64748B]">
+            Showing {filtered.length} of {rooms.length} rooms
+          </p>
           <div className="flex items-center gap-1">
-            {[1, 2, 3, '...', 16].map((p, i) => (
+            {[1, 2, 3, '...', 13].map((p, i) => (
               <button
                 key={i}
                 className={`w-8 h-8 flex items-center justify-center rounded-lg text-[13px] font-medium transition-colors ${
@@ -248,6 +306,24 @@ export default function AdminRoomsPage() {
           </div>
         </div>
       </div>
+
+      {/* Add / Edit Modal */}
+      {modalMode && (
+        <RoomFormModal
+          room={selectedRoom}
+          onClose={handleCloseModal}
+          onSave={handleSave}
+        />
+      )}
+
+      {/* Delete Confirmation */}
+      {deleteTarget && (
+        <DeleteRoomModal
+          roomName={deleteTarget.name}
+          onClose={() => setDeleteTarget(null)}
+          onConfirm={handleDeleteConfirm}
+        />
+      )}
     </div>
   );
 }
