@@ -1,5 +1,6 @@
 'use client';
 
+import { GuestRoomCounterProps } from '@/type/interface';
 import { Minus, Plus } from 'lucide-react';
 
 interface CounterItemProps {
@@ -42,15 +43,7 @@ function CounterItem({ label, sublabel, value, onDecrement, onIncrement, min = 0
   );
 }
 
-interface GuestRoomCounterProps {
-  adults: number;
-  childCount: number;
-  rooms: number;
-  onAdultsChange: (v: number) => void;
-  onChildrenChange: (v: number) => void;
-  onRoomsChange: (v: number) => void;
-  showRooms?: boolean;
-}
+
 
 export function GuestRoomCounter({
   adults, childCount, rooms,

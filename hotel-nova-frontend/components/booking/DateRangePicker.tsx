@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
+import { CalendarMonthProps, DateRangePickerProps } from '@/type/interface';
+
 const DAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 const MONTH_NAMES = [
   'January','February','March','April','May','June',
@@ -27,16 +29,7 @@ function parseDate(s: string | null): Date | null {
   return new Date(y, m - 1, d);
 }
 
-interface CalendarMonthProps {
-  year: number;
-  month: number;
-  checkIn: Date | null;
-  checkOut: Date | null;
-  hoverDate: Date | null;
-  onDayClick: (date: Date) => void;
-  onDayHover: (date: Date | null) => void;
-  minDate: Date;
-}
+
 
 function CalendarMonth({
   year, month, checkIn, checkOut, hoverDate,
@@ -109,11 +102,7 @@ function CalendarMonth({
   );
 }
 
-interface DateRangePickerProps {
-  checkIn: string | null;
-  checkOut: string | null;
-  onChange: (checkIn: string | null, checkOut: string | null) => void;
-}
+
 
 export function DateRangePicker({ checkIn, checkOut, onChange }: DateRangePickerProps) {
   const today = new Date();

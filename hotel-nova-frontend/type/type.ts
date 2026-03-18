@@ -128,3 +128,4 @@ export type GuestReview = {
   reviewText: string | null;
   submittedAt: string | null;
 };
+

@@ -1,6 +1,29 @@
-import { BedDouble, Facebook, Home, Instagram, Twitter, User, UtensilsCrossed, Youtube } from "lucide-react";
-import { HOME_IMAGES, ROOM_LISTING_IMAGES, OFFER_IMAGES, ABOUT_IMAGES } from "./images";
-import type { Testimonial, RoomListing, Offer, TeamMember, BookingRoom, GuestBooking, GuestNotification, GuestReview } from "@/type/type";
+import {
+  BedDouble,
+  Facebook,
+  Home,
+  Instagram,
+  Twitter,
+  User,
+  UtensilsCrossed,
+  Youtube,
+} from 'lucide-react';
+import {
+  HOME_IMAGES,
+  ROOM_LISTING_IMAGES,
+  OFFER_IMAGES,
+  ABOUT_IMAGES,
+} from './images';
+import type {
+  Testimonial,
+  RoomListing,
+  Offer,
+  TeamMember,
+  BookingRoom,
+  GuestBooking,
+  GuestNotification,
+  GuestReview,
+} from '@/type/type';
 
 export const FEATURED_ROOMS = [
   {
@@ -32,7 +55,6 @@ export const FEATURED_ROOMS = [
   },
 ] as const;
 
-
 export const QUICK_LINKS = [
   { href: '/rooms', label: 'Our Suites' },
   { href: '/#dining', label: 'Dining Venues' },
@@ -56,12 +78,11 @@ export const POLICY_LINKS = [
 ];
 
 export const SOCIAL_LINKS = [
-  { icon: Twitter,   href: '#', label: 'Twitter — Grand Oasis Abuja'   },
-  { icon: Youtube,   href: '#', label: 'YouTube — Grand Oasis Abuja'   },
+  { icon: Twitter, href: '#', label: 'Twitter — Grand Oasis Abuja' },
+  { icon: Youtube, href: '#', label: 'YouTube — Grand Oasis Abuja' },
   { icon: Instagram, href: '#', label: 'Instagram — Grand Oasis Abuja' },
-  { icon: Facebook,  href: '#', label: 'Facebook — Grand Oasis Abuja'  },
+  { icon: Facebook, href: '#', label: 'Facebook — Grand Oasis Abuja' },
 ];
-
 
 export const NAV_LINKS = [
   { href: '/', label: 'Home' },
@@ -70,7 +91,6 @@ export const NAV_LINKS = [
   { href: '/about', label: 'About Us' },
   { href: '/contact', label: 'Contact' },
 ];
-
 
 export const ROOM_LISTINGS: RoomListing[] = [
   {
@@ -233,7 +253,11 @@ export const OFFERS: Offer[] = [
     originalPrice: 675000,
     price: 505000,
     priceLabel: '/night',
-    terms: ['Min. 2 nights stay', '48h cancellation', 'Subject to availability'],
+    terms: [
+      'Min. 2 nights stay',
+      '48h cancellation',
+      'Subject to availability',
+    ],
     isFeatured: true,
   },
   {
@@ -248,7 +272,8 @@ export const OFFERS: Offer[] = [
     price: 0,
     priceLabel: '',
     terms: [],
-    disclaimer: 'Valid for Sunday-Thursday stays only. Requires valid corporate ID.',
+    disclaimer:
+      'Valid for Sunday-Thursday stays only. Requires valid corporate ID.',
   },
   {
     id: 'weekend-spa-retreat',
@@ -261,7 +286,8 @@ export const OFFERS: Offer[] = [
     price: 315000,
     priceLabel: 'Fixed',
     terms: [],
-    disclaimer: 'Saturday night stay required. Spa treatments must be booked 24h in advance.',
+    disclaimer:
+      'Saturday night stay required. Spa treatments must be booked 24h in advance.',
   },
   {
     id: 'summer-escape',
@@ -561,7 +587,8 @@ export const BOOKING_ROOMS: BookingRoom[] = [
     id: 'deluxe-city-view',
     image: ROOM_LISTING_IMAGES.executiveSuite,
     name: 'Deluxe City View Suite',
-    description: "Spacious 45sqm suite featuring breathtaking views of Abuja's skyline, premium bedding, and a marble-finished bathroom.",
+    description:
+      "Spacious 45sqm suite featuring breathtaking views of Abuja's skyline, premium bedding, and a marble-finished bathroom.",
     pricePerNight: 85000,
     badge: 'popular',
     sqm: 45,
@@ -572,7 +599,8 @@ export const BOOKING_ROOMS: BookingRoom[] = [
     id: 'executive-king',
     image: ROOM_LISTING_IMAGES.panoramicKing,
     name: 'Executive King Room',
-    description: 'Exclusive access to the Executive Lounge, including complimentary breakfast and evening cocktails. Ideal for business travelers.',
+    description:
+      'Exclusive access to the Executive Lounge, including complimentary breakfast and evening cocktails. Ideal for business travelers.',
     pricePerNight: 120000,
     badge: null,
     sqm: 60,
@@ -583,7 +611,8 @@ export const BOOKING_ROOMS: BookingRoom[] = [
     id: 'presidential-suite',
     image: ROOM_LISTING_IMAGES.presidentialSuite,
     name: 'Presidential Suite',
-    description: 'The pinnacle of luxury with a private terrace, butler service, and bespoke experiences crafted exclusively for you.',
+    description:
+      'The pinnacle of luxury with a private terrace, butler service, and bespoke experiences crafted exclusively for you.',
     pricePerNight: 250000,
     badge: 'bestseller',
     sqm: 120,
@@ -594,7 +623,8 @@ export const BOOKING_ROOMS: BookingRoom[] = [
     id: 'deluxe-terrace',
     image: ROOM_LISTING_IMAGES.deluxeTerrace,
     name: 'Deluxe Terrace Room',
-    description: 'A serene retreat with a private terrace overlooking lush gardens. Perfect for a peaceful getaway.',
+    description:
+      'A serene retreat with a private terrace overlooking lush gardens. Perfect for a peaceful getaway.',
     pricePerNight: 75000,
     badge: null,
     sqm: 50,
@@ -605,7 +635,8 @@ export const BOOKING_ROOMS: BookingRoom[] = [
     id: 'grand-deluxe',
     image: ROOM_LISTING_IMAGES.grandDeluxe,
     name: 'Grand Deluxe Suite',
-    description: 'Indulge in spacious comfort with premium furnishings, a dedicated living area, and access to our rooftop pool.',
+    description:
+      'Indulge in spacious comfort with premium furnishings, a dedicated living area, and access to our rooftop pool.',
     pricePerNight: 150000,
     badge: null,
     sqm: 80,
@@ -619,7 +650,8 @@ export const GUEST_NOTIFICATIONS: GuestNotification[] = [
     id: 'notif-1',
     type: 'booking_confirmed',
     title: 'Booking Confirmed',
-    message: 'Your stay at Ocean View Resort has been successfully confirmed for Dec 15–20.',
+    message:
+      'Your stay at Ocean View Resort has been successfully confirmed for Dec 15–20.',
     boldWord: 'Ocean View Resort',
     time: '2 mins ago',
     read: false,
@@ -631,7 +663,8 @@ export const GUEST_NOTIFICATIONS: GuestNotification[] = [
     id: 'notif-2',
     type: 'checkout_reminder',
     title: 'Check-out Reminder',
-    message: "Don't forget! Your check-out at Mountain Cabin Retreat is tomorrow by 11:00 AM.",
+    message:
+      "Don't forget! Your check-out at Mountain Cabin Retreat is tomorrow by 11:00 AM.",
     boldWord: 'Mountain Cabin Retreat',
     time: '3 hours ago',
     read: false,
@@ -643,7 +676,8 @@ export const GUEST_NOTIFICATIONS: GuestNotification[] = [
     id: 'notif-3',
     type: 'payment_received',
     title: 'Payment Received',
-    message: "We've received your payment of ₦450,000 for your upcoming stay at The Grand Oasis.",
+    message:
+      "We've received your payment of ₦450,000 for your upcoming stay at The Grand Oasis.",
     boldWord: 'The Grand Oasis',
     time: 'Yesterday',
     read: true,
@@ -655,7 +689,8 @@ export const GUEST_NOTIFICATIONS: GuestNotification[] = [
     id: 'notif-4',
     type: 'review_prompt',
     title: 'How was your stay?',
-    message: 'Share your experience at Urban Loft. Your feedback helps other travelers!',
+    message:
+      'Share your experience at Urban Loft. Your feedback helps other travelers!',
     boldWord: 'Urban Loft',
     time: '2 days ago',
     read: true,
@@ -667,7 +702,8 @@ export const GUEST_NOTIFICATIONS: GuestNotification[] = [
     id: 'notif-5',
     type: 'security',
     title: 'Profile Security Update',
-    message: "A new login was detected from a Chrome browser on a Mac device. If this wasn't you, please change your password.",
+    message:
+      "A new login was detected from a Chrome browser on a Mac device. If this wasn't you, please change your password.",
     time: '5 days ago',
     read: true,
     archived: false,
@@ -678,7 +714,8 @@ export const GUEST_NOTIFICATIONS: GuestNotification[] = [
     id: 'notif-6',
     type: 'booking_confirmed',
     title: 'Booking Confirmed',
-    message: 'Your reservation for the Executive Grand Suite (Nov 10–13) has been confirmed.',
+    message:
+      'Your reservation for the Executive Grand Suite (Nov 10–13) has been confirmed.',
     boldWord: 'Executive Grand Suite',
     time: '1 week ago',
     read: true,
@@ -694,11 +731,13 @@ export const GUEST_REVIEWS: GuestReview[] = [
     bookingId: 'BK-8821',
     roomType: 'Deluxe King Suite',
     roomSubtype: 'King Size, Pool View',
-    image: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&q=80',
+    image:
+      'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&q=80',
     checkIn: '2023-10-12',
     checkOut: '2023-10-15',
     rating: 5,
-    reviewText: 'Absolutely stunning stay. The pool view was breathtaking and the staff were incredibly attentive. Would book again without hesitation.',
+    reviewText:
+      'Absolutely stunning stay. The pool view was breathtaking and the staff were incredibly attentive. Would book again without hesitation.',
     submittedAt: '2023-10-17',
   },
   {
@@ -706,11 +745,13 @@ export const GUEST_REVIEWS: GuestReview[] = [
     bookingId: 'BK-7654',
     roomType: 'Ocean View Suite',
     roomSubtype: 'Ocean Front, Balcony',
-    image: 'https://images.unsplash.com/photo-1540518614846-7eded433c457?w=400&q=80',
+    image:
+      'https://images.unsplash.com/photo-1540518614846-7eded433c457?w=400&q=80',
     checkIn: '2023-08-20',
     checkOut: '2023-08-25',
     rating: 4,
-    reviewText: 'Beautiful room with stunning ocean views. Breakfast could be improved but overall a wonderful experience.',
+    reviewText:
+      'Beautiful room with stunning ocean views. Breakfast could be improved but overall a wonderful experience.',
     submittedAt: '2023-08-27',
   },
   {
@@ -718,7 +759,8 @@ export const GUEST_REVIEWS: GuestReview[] = [
     bookingId: 'BK-7742',
     roomType: 'Presidential Suite',
     roomSubtype: 'Top Floor, Private Terrace',
-    image: 'https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=400&q=80',
+    image:
+      'https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=400&q=80',
     checkIn: '2023-08-05',
     checkOut: '2023-08-10',
     rating: null,
@@ -730,7 +772,8 @@ export const GUEST_REVIEWS: GuestReview[] = [
     bookingId: 'BK-5432',
     roomType: 'Executive Suite',
     roomSubtype: 'City View, Lounge Access',
-    image: 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=400&q=80',
+    image:
+      'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=400&q=80',
     checkIn: '2023-05-01',
     checkOut: '2023-05-05',
     rating: null,

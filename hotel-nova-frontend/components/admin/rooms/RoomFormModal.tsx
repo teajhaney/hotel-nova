@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { X, ChevronDown, UploadCloud, ImageIcon, Trash2 } from 'lucide-react';
+import { RoomFormModalProps } from '@/type/type';
 
 const roomSchema = z.object({
   name: z.string().min(2, 'Room name is required'),
@@ -21,21 +22,7 @@ const roomSchema = z.object({
 
 type RoomFormData = z.infer<typeof roomSchema>;
 
-export interface RoomData {
-  id: string;
-  name: string;
-  type: string;
-  price: number;
-  status: string;
-  image: string;
-  description?: string;
-}
 
-interface RoomFormModalProps {
-  room?: RoomData | null;
-  onClose: () => void;
-  onSave: (data: RoomData) => void;
-}
 
 const DEFAULT_IMAGE =
   'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=128&h=128&fit=crop&auto=format';
