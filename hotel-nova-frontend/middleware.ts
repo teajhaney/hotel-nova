@@ -31,11 +31,16 @@ export function middleware(request: NextRequest) {
   }
 
   // 4. Guest Protected Routes (/dashboard)
-  if (pathname.startsWith('/dashboard')) {
-    if (!token || role !== 'GUEST') {
-      return NextResponse.redirect(new URL('/login', request.url));
-    }
-  }
+  // TODO: Re-enable once login flow with redirect-back is implemented.
+  // When re-enabling, the login form must read the `redirect` search param
+  // and navigate there on successful login instead of going to '/'.
+  // if (pathname.startsWith('/dashboard')) {
+  //   if (!token || role !== 'GUEST') {
+  //     const loginUrl = new URL('/login', request.url);
+  //     loginUrl.searchParams.set('redirect', pathname);
+  //     return NextResponse.redirect(loginUrl);
+  //   }
+  // }
 
   // 5. Booking payment and confirmation require guest auth
   // TODO: Re-enable once login flow with redirect-back is implemented.

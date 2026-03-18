@@ -596,4 +596,120 @@ body {
   .available-room-card-selected {
     @apply border-[2px] border-[#020887] shadow-[0_0_0_3px_rgba(2,8,135,0.08)];
   }
+
+  /* ── Guest Dashboard ─────────────────────────────────────── */
+
+  /** Full-height two-column shell: sidebar + main */
+  .guest-dashboard-shell {
+    @apply flex min-h-screen bg-[#F8FAFC];
+  }
+
+  /** Fixed left sidebar — visibility (hidden/flex) controlled by component */
+  .guest-sidebar {
+    @apply flex-col w-[260px] shrink-0
+           bg-white border-r border-[#E2E8F0]
+           sticky top-0 h-screen overflow-y-auto;
+  }
+
+  /** Main content area (right of sidebar) */
+  .guest-dashboard-main {
+    @apply flex-1 min-w-0;
+  }
+
+  /** Inner page padding */
+  .guest-page-container {
+    @apply p-5 md:p-8 w-full max-w-[1280px] mx-auto;
+  }
+
+  /** Sidebar navigation item */
+  .guest-nav-item {
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-lg
+           text-[14px] font-medium transition-colors duration-150;
+  }
+
+  /** Active nav item */
+  .guest-nav-item-active {
+    @apply bg-[#EEF0FF] text-[#020887];
+  }
+
+  /** Inactive nav item */
+  .guest-nav-item-inactive {
+    @apply text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0D0F2B];
+  }
+
+  /** Stats card (3-col grid on overview) */
+  .guest-stat-card {
+    @apply bg-white rounded-lg border border-[#E2E8F0] p-4 md:p-5;
+  }
+
+  /** Table action button (Export PDF, Filter) */
+  .guest-table-action-btn {
+    @apply flex items-center gap-1.5 px-3 h-9 rounded-lg
+           border border-[#E2E8F0] text-[13px] font-medium text-[#0D0F2B]
+           hover:border-[#020887] hover:text-[#020887]
+           transition-colors whitespace-nowrap;
+  }
+
+  /** Pagination button */
+  .guest-page-btn {
+    @apply w-8 h-8 flex items-center justify-center rounded-lg
+           text-[13px] font-medium text-[#64748B]
+           hover:bg-[#EEF0FF] hover:text-[#020887]
+           transition-colors;
+  }
+
+  /** Active pagination button */
+  .guest-page-btn-active {
+    @apply bg-[#020887] text-white hover:bg-[#38369A] hover:text-white;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     ADMIN DASHBOARD UTILITIES
+  ════════════════════════════════════════════════════════════ */
+
+  .admin-sidebar {
+    @apply flex-col w-[240px] shrink-0 bg-white border-r border-[#E2E8F0] sticky top-0 h-screen overflow-y-auto;
+  }
+  .admin-nav-item {
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-lg text-[14px] font-medium transition-colors duration-150;
+  }
+  .admin-nav-item-active {
+    @apply bg-[#020887] text-white;
+  }
+  .admin-nav-item-inactive {
+    @apply text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0D0F2B];
+  }
+  .admin-page-container {
+    @apply p-5 md:p-8 w-full max-w-[1400px] mx-auto;
+  }
+  .admin-stat-card {
+    @apply bg-white rounded-xl border border-[#E2E8F0] p-5;
+  }
+  .admin-card {
+    @apply bg-white rounded-xl border border-[#E2E8F0];
+  }
+  .admin-table-th {
+    @apply px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.08em] text-[#94A3B8];
+  }
+  .admin-table-td {
+    @apply px-5 py-4;
+  }
+  .admin-badge-confirmed {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-[#EEF0FF] text-[#020887] uppercase tracking-wide;
+  }
+  .admin-badge-pending {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-[#FEF3C7] text-[#B45309] uppercase tracking-wide;
+  }
+  .admin-badge-checked-in {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-[#DBEAFE] text-[#1D4ED8] uppercase tracking-wide;
+  }
+  .admin-badge-checked-out {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-[#F1F5F9] text-[#64748B] uppercase tracking-wide;
+  }
+  .admin-badge-cancelled {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-[#FEE2E2] text-[#DC2626] uppercase tracking-wide;
+  }
+  .admin-action-btn {
+    @apply flex items-center gap-1.5 px-3 h-9 rounded-lg border border-[#E2E8F0] text-[13px] font-medium text-[#0D0F2B] hover:border-[#020887] hover:text-[#020887] transition-colors;
+  }
 }
