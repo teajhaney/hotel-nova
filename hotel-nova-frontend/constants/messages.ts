@@ -176,7 +176,7 @@ export const PROMO_MESSAGES = {
   eyebrow: 'Exclusive Offer',
   heading: 'Romantic Getaway Package',
   description:
-    "Enjoy complimentary champagne, a 3-course dinner, and late checkout for your special escape.",
+    'Enjoy complimentary champagne, a 3-course dinner, and late checkout for your special escape.',
   ctaPrimary: 'Claim Offer',
   ctaSecondary: 'Learn More',
 } as const;
@@ -215,8 +215,7 @@ export const FOOTER_MESSAGES = {
 // ─── Rooms Listing Page ─────────────────────────────────────
 export const ROOMS_PAGE_MESSAGES = {
   heading: 'Luxury Rooms & Suites',
-  subtitle:
-    'Experience the Grand Oasis branding with our handpicked suites.',
+  subtitle: 'Experience the Grand Oasis branding with our handpicked suites.',
   filtersHeading: 'Filters',
   priceRangeLabel: 'Price Range',
   roomTypeLabel: 'Room Type',
@@ -240,7 +239,8 @@ export const OFFERS_PAGE_MESSAGES = {
   breadcrumbAbuja: 'Abuja',
   locationName: 'The Grand Oasis',
   locationBadge: 'Premium Partner',
-  locationAddress: 'Plot 104, Diplomatic Drive, Central Business District, Abuja',
+  locationAddress:
+    'Plot 104, Diplomatic Drive, Central Business District, Abuja',
   heading: 'Exclusive Offers',
   subtitle:
     "Curated experiences and seasonal packages designed for your perfect stay in Nigeria's capital city.",
@@ -273,7 +273,7 @@ export const ABOUT_PAGE_MESSAGES = {
     'Discover the intersection of Nigerian heritage and contemporary elegance in the heart of the capital.',
   storyHeading: 'Our Story',
   storyParagraph1:
-    'A heritage of luxury and hospitality since 2010. Founded on the principles of providing an unparalleled sanctuary in the heart of Abuja, The Grand Oasis has evolved from a visionary concept into the city\'s premier destination for discerning travelers.',
+    "A heritage of luxury and hospitality since 2010. Founded on the principles of providing an unparalleled sanctuary in the heart of Abuja, The Grand Oasis has evolved from a visionary concept into the city's premier destination for discerning travelers.",
   storyParagraph2:
     'For over a decade, we have been more than just a hotel; we are a landmark of excellence. Our journey began with a single mission: to blend international standards of comfort with the warm, vibrant soul of Nigerian hospitality. Today, we stand proud as a testament to what happens when passion meets precision.',
   valuesHeading: 'Our Values',
@@ -306,7 +306,7 @@ export const ABOUT_PAGE_MESSAGES = {
 export const CONTACT_PAGE_MESSAGES = {
   heroTitle: 'Contact Us',
   heroSubtitle:
-    'We\'d love to hear from you. Reach out to The Grand Oasis Abuja for any inquiries or reservations.',
+    "We'd love to hear from you. Reach out to The Grand Oasis Abuja for any inquiries or reservations.",
   formHeading: 'Send us a Message',
   formNameLabel: 'Full Name',
   formNamePlaceholder: 'John Doe',
@@ -335,7 +335,8 @@ export const BOOKING_MESSAGES = {
   // Step indicators
   step1Label: 'STEP 1 OF 4',
   step1Title: 'Plan your stay',
-  step1Subtitle: 'Select your preferred dates and guest count to see available rooms.',
+  step1Subtitle:
+    'Select your preferred dates and guest count to see available rooms.',
   step2Label: 'Step 2 of 4: Select Room',
   step2Percent: '40% Complete',
   step3Label: 'Step 3 of 4: Booking Summary',
@@ -365,12 +366,14 @@ export const BOOKING_MESSAGES = {
   subtotalEstimate: 'Subtotal estimate',
   taxesAndFees: 'Taxes & Fees',
   totalPlaceholder: 'Total Placeholder',
-  priceDisclaimer: '*Prices are subject to change based on room availability and seasonal adjustments.',
+  priceDisclaimer:
+    '*Prices are subject to change based on room availability and seasonal adjustments.',
   needAssistance: 'Need assistance?',
   assistancePhone: 'Call +234 9 123 4567',
   // Step 2
   availableRoomsTitle: 'Available Rooms',
-  availableRoomsSubtitle: 'Select your preferred room to continue your stay at The Grand Oasis Abuja.',
+  availableRoomsSubtitle:
+    'Select your preferred room to continue your stay at The Grand Oasis Abuja.',
   viewGallery: 'View Gallery',
   roomDetailsLink: 'Room details',
   selectRoomBtn: 'Select Room',
@@ -383,11 +386,13 @@ export const BOOKING_MESSAGES = {
   guestCount: 'GUESTS',
   roomSelection: 'ROOM SELECTION',
   noRoomSelected: 'No room selected yet',
-  concierge247: 'Our concierge is available 24/7 to help you with your reservation.',
+  concierge247:
+    'Our concierge is available 24/7 to help you with your reservation.',
   conciergePhone: '+234 800 GRAND OASIS',
   // Step 3
   bookingSummaryTitle: 'Booking summary',
-  bookingSummarySubtitle: 'Review your booking details before proceeding to payment.',
+  bookingSummarySubtitle:
+    'Review your booking details before proceeding to payment.',
   almostThere: 'Almost there! One more step to confirm your luxury stay.',
   selectedStay: 'SELECTED STAY',
   roomType: 'Room Type',
@@ -407,7 +412,8 @@ export const BOOKING_MESSAGES = {
   termsAnd: 'and',
   cancellationLink: 'Cancellation Policy',
   specialRequestsTitle: 'Special Requests',
-  specialRequestsPlaceholder: 'Late check-in, dietary needs, or high floor preference...',
+  specialRequestsPlaceholder:
+    'Late check-in, dietary needs, or high floor preference...',
   priceSummaryTitle: 'Price Summary',
   ratePerNight: 'Rate per night',
   totalNights: 'Total Nights',
@@ -445,7 +451,8 @@ export const BOOKING_MESSAGES = {
   breadcrumbPayment: 'Payment',
   // Confirmation
   confirmationTitle: "You're all set!",
-  confirmationSubtitle: 'Your booking has been successfully processed. A confirmation email has been sent to your inbox.',
+  confirmationSubtitle:
+    'Your booking has been successfully processed. A confirmation email has been sent to your inbox.',
   confirmationId: 'CONFIRMATION ID',
   checkInLabel: 'CHECK-IN',
   checkOutLabel: 'CHECK-OUT',
@@ -456,7 +463,11 @@ export const BOOKING_MESSAGES = {
   contactSupport: 'Contact Support',
 } as const;
 
-export const BOOKING_ROOM_FILTERS = ['All Rooms', 'Suites', 'Standard'] as const;
+export const BOOKING_ROOM_FILTERS = [
+  'All Rooms',
+  'Suites',
+  'Standard',
+] as const;
 
 // ─── Routes ───────────────────────────────────────────────────
 export const ROUTES = {
@@ -476,9 +487,10 @@ export const ROUTES = {
 // ─── Guest Dashboard ──────────────────────────────────────────
 export const GUEST_DASHBOARD_MESSAGES = {
   hotelName: 'THE GRAND OASIS',
-  dashboardSubtitle: 'Abuja Dashboard',
+  dashboardSubtitle: 'Guest Dashboard',
   welcomeTitle: 'Welcome back, Guest',
-  welcomeSubtitle: 'Manage your luxury stays and exclusive rewards at The Grand Oasis.',
+  welcomeSubtitle:
+    'Manage your luxury stays and exclusive rewards at The Grand Oasis.',
   membershipLabel: 'GOLD MEMBER',
   memberIdPrefix: 'Member ID:',
   // Sidebar nav
@@ -489,6 +501,8 @@ export const GUEST_DASHBOARD_MESSAGES = {
   notifications: 'Notifications',
   bookNewStay: '+ Book New Stay',
   logout: 'Logout',
+  guest: 'Guest',
+  guestName: 'John Doe',
   // Stats
   upcomingStays: 'UPCOMING STAYS',
   nextCheckIn: 'Next check-in: 3 days',
@@ -574,7 +588,7 @@ export const GUEST_DASHBOARD_MESSAGES = {
   // Mobile nav
   mobileHome: 'Home',
   mobileBookings: 'Bookings',
-  mobileAlerts: 'Alerts',
+  mobileReviews: 'Reviews',
   mobileProfile: 'Profile',
   // Notifications page
   notificationsTitle: 'Notifications',
@@ -588,7 +602,8 @@ export const GUEST_DASHBOARD_MESSAGES = {
   noNotifications: 'No notifications here.',
   // Reviews page
   reviewsTitle: 'My Reviews',
-  reviewsSubtitle: 'Share your experience and help other guests make informed choices',
+  reviewsSubtitle:
+    'Share your experience and help other guests make informed choices',
   reviewTabAll: 'All',
   reviewTabPending: 'Pending',
   reviewTabSubmitted: 'Submitted',
@@ -598,9 +613,290 @@ export const GUEST_DASHBOARD_MESSAGES = {
   reviewPendingLabel: 'Awaiting Review',
   noReviews: 'No reviews yet.',
   reviewModalTitle: 'How was your stay?',
-  reviewModalSubtitle: 'Your honest feedback helps us improve and helps other guests.',
+  reviewModalSubtitle:
+    'Your honest feedback helps us improve and helps other guests.',
   ratingLabel: 'Your Rating',
   reviewLabel: 'Your Review',
-  reviewPlaceholder: 'Tell us about your experience — the room, service, cleanliness, etc.',
+  reviewPlaceholder:
+    'Tell us about your experience — the room, service, cleanliness, etc.',
   submitReview: 'Submit Review',
+} as const;
+
+// ─── Admin Dashboard ──────────────────────────────────────────
+export const ADMIN_DASHBOARD_MESSAGES = {
+  // ── Shell & Navigation ──────────────────────────────────────
+  hotelName: 'The Grand Oasis',
+  adminDashboardLabel: 'Admin Dashboard',
+  searchPlaceholder: 'Search...',
+  openMenuAriaLabel: 'Open menu',
+  closeMenuAriaLabel: 'Close menu',
+  notificationsAriaLabel: 'Notifications',
+  helpAriaLabel: 'Help',
+  closePanelAriaLabel: 'Close panel',
+  closeModalAriaLabel: 'Close modal',
+  closeAriaLabel: 'Close',
+
+  // ── Sidebar nav items ───────────────────────────────────────
+  adminNavAriaLabel: 'Admin navigation',
+  navOverview: 'Overview',
+  navManageRooms: 'Manage Rooms',
+  navAllBookings: 'All Bookings',
+  navUsers: 'Users',
+  navReviews: 'Reviews',
+  navPromoCodes: 'Promo Codes',
+  navAnalytics: 'Analytics',
+  navSettings: 'Settings',
+  navNotifications: 'Notifications',
+  adminName: 'John Doe',
+  adminRole: 'Super Admin',
+  logoutAriaLabel: 'Logout',
+
+  // ── Mobile bottom nav ───────────────────────────────────────
+  mobileNavAriaLabel: 'Mobile navigation',
+  mobileNavHome: 'Home',
+  mobileNavBookings: 'Bookings',
+  mobileNavAnalytics: 'Analytics',
+  mobileNavSettings: 'Settings',
+
+  // ── Shared actions ──────────────────────────────────────────
+  cancel: 'Cancel',
+  saveChanges: 'Save Changes',
+  changeMonthSuffix: 'this month',
+  downloadAriaLabel: 'Download',
+  printAriaLabel: 'Print',
+  editRoomAriaLabel: 'Edit room',
+  deleteRoomAriaLabel: 'Delete room',
+  editUserAriaLabel: 'Edit user',
+  deleteUserAriaLabel: 'Delete user',
+  editStatusAriaLabel: 'Edit status',
+  deleteBookingAriaLabel: 'Delete booking',
+  editPromoAriaLabel: 'Edit',
+  deletePromoAriaLabel: 'Delete',
+  renewPromoAriaLabel: 'Renew / reactivate',
+
+  // ── Shared filter/status options ────────────────────────────
+  allTypes: 'All Types',
+  allStatuses: 'All Statuses',
+  allRoomTypes: 'All Room Types',
+  typeDeluxe: 'Deluxe',
+  typeSuite: 'Suite',
+  typeStandard: 'Standard',
+  typeExecutive: 'Executive',
+  statusAvailable: 'Available',
+  statusOccupied: 'Occupied',
+  statusMaintenance: 'Maintenance',
+  statusConfirmed: 'Confirmed',
+  statusPending: 'Pending',
+  statusCheckedIn: 'Checked In',
+  statusCheckedOut: 'Checked Out',
+  statusCancelled: 'Cancelled',
+  statusActive: 'Active',
+  statusInactive: 'Inactive',
+  statusSuspended: 'Suspended',
+  statusScheduled: 'Scheduled',
+
+  // ── Overview page ────────────────────────────────────────────
+  overviewTitle: 'Dashboard Overview',
+  overviewSubtitle:
+    "Welcome back, Ibrahim. Here's what's happening at The Grand Oasis Abuja today.",
+  chartOccupancyTitle: 'Occupancy Trends',
+  chartRevenueTitle: 'Monthly Revenue',
+  upcomingCheckinsTitle: 'Upcoming Check-ins',
+  overviewColGuestName: 'Guest Name',
+  overviewColRoomType: 'Room Type',
+  overviewColArrival: 'Arrival',
+  overviewColStatus: 'Status',
+  overviewColAction: 'Action',
+  tooltipOccupancy: 'Occupancy',
+  tooltipRevenue: 'Revenue',
+  actionCheckin: 'Check-in',
+  actionApprove: 'Approve',
+  statOccupancyRate: 'Occupancy Rate',
+  statTodayCheckins: "Today's Check-ins",
+  statTodayCheckouts: "Today's Check-outs",
+  statDailyRevenue: 'Total Revenue (Daily)',
+
+  // ── Rooms page ───────────────────────────────────────────────
+  roomsTitle: 'Manage Rooms',
+  addNewRoom: 'Add New Room',
+  searchRoomsPlaceholder: 'Search rooms...',
+  roomsColRoomInfo: 'Room Info',
+  roomsColType: 'Type',
+  roomsColPricePerNight: 'Price / Night',
+  roomsColStatus: 'Status',
+  roomsColActions: 'Actions',
+  noRoomsFound: 'No rooms match your search or filters',
+
+  // ── Bookings page ─────────────────────────────────────────────
+  bookingsTitle: 'All Bookings',
+  bookingsSubtitle: 'Manage and track all hotel reservations',
+  bookingStatTotalBookings: 'Total Bookings',
+  bookingStatPending: 'Pending',
+  bookingStatCheckedIn: 'Checked-In',
+  bookingsColBookingId: 'Booking ID',
+  bookingsColGuestName: 'Guest Name',
+  bookingsColRoom: 'Room',
+  bookingsColCheckInOut: 'Check-in / Out',
+  bookingsColAmount: 'Amount',
+  bookingsColStatus: 'Status',
+  bookingsColActions: 'Actions',
+  noBookingsFound: 'No bookings match the current filter',
+
+  // ── Users page ────────────────────────────────────────────────
+  usersTitle: 'Users Management',
+  usersSubtitle: 'Manage guest accounts and admin permissions',
+  addAdmin: 'Add Admin',
+  userStatTotalUsers: 'Total Users',
+  userStatActiveGuests: 'Active Guests',
+  userStatAdminAccounts: 'Admin Accounts',
+  userDirectoryTitle: 'User Directory',
+  userTabAll: 'All Users',
+  userTabAdmins: 'Admins',
+  userTabGuests: 'Guests',
+  usersColUser: 'User',
+  usersColEmail: 'Email',
+  usersColRole: 'Role',
+  usersColStatus: 'Status',
+  usersColJoined: 'Joined',
+  usersColActions: 'Actions',
+
+  // ── Promo Codes page ──────────────────────────────────────────
+  promoTitle: 'Promo Codes',
+  promoSubtitle: 'Create and manage discount codes for guests',
+  addNewCode: 'Add New Code',
+  promoTabActive: 'Active Codes',
+  promoTabExpired: 'Expired Codes',
+  promoTabScheduled: 'Scheduled',
+  promoColCodeName: 'Code Name',
+  promoColDiscountValue: 'Discount Value',
+  promoColUsage: 'Usage',
+  promoColValidityPeriod: 'Validity Period',
+  promoColStatus: 'Status',
+  promoColActions: 'Actions',
+  promoStatRedemptions: 'Total Redemptions',
+  promoStatDiscountValue: 'Active Discount Value',
+  promoStatConvRate: 'Average Conv. Rate',
+
+  // ── RoomFormModal ─────────────────────────────────────────────
+  roomFormAddTitle: 'Add New Room',
+  roomFormEditTitle: 'Edit Room',
+  roomFormAddSubtitle:
+    'Fill in the details below to add a new room to the inventory',
+  roomFormEditSubtitle: 'Update the room details and availability status',
+  roomSectionBasicInfo: 'Basic Information',
+  roomSectionPricing: 'Pricing & Availability',
+  roomSectionDescription: 'Description',
+  roomSectionImage: 'Room Image',
+  roomLabelName: 'Room Name',
+  roomLabelCode: 'Room Code',
+  roomLabelType: 'Room Type',
+  roomLabelPrice: 'Price per Night',
+  roomLabelStatus: 'Availability Status',
+  roomPlaceholderName: 'e.g. Deluxe King Suite 302',
+  roomPlaceholderCode: 'e.g. RN-302-DX',
+  roomHintCode: 'Uppercase letters, numbers & hyphens only',
+  roomDescriptionOptional: '(optional)',
+  roomPlaceholderDescription:
+    'Describe the room — highlight key features, views, furnishings, bed type, and included amenities...',
+  roomUploadPrompt: 'Click to upload or drag & drop',
+  roomUploadFormats: 'PNG, JPG, WebP — max 5 MB',
+  roomOrPasteUrl: 'or paste an image URL',
+  roomRemoveImage: 'Remove image',
+  roomUploadPriority:
+    'Uploaded file takes priority over URL if both are provided.',
+  roomSubmitAdd: 'Add Room',
+
+  // ── DeleteRoomModal ───────────────────────────────────────────
+  deleteRoomTitle: 'Delete Room',
+  deleteRoomBody: 'Are you sure you want to delete',
+  deleteRoomBodySuffix: '? This action cannot be undone.',
+  deleteRoomConfirm: 'Delete Room',
+
+  // ── BookingStatusModal ────────────────────────────────────────
+  bookingStatusTitle: 'Update Booking Status',
+  bookingStatusSubtitle: 'Change the status for this reservation',
+  bookingStatusLabel: 'Update Status To',
+  bookingStatusSubmit: 'Update Status',
+
+  // ── DeleteBookingModal ────────────────────────────────────────
+  deleteBookingTitle: 'Delete Booking',
+  deleteBookingBodyPrefix: 'Are you sure you want to delete booking',
+  deleteBookingBodyFor: 'for',
+  deleteBookingBodySuffix: '? This action cannot be undone.',
+  deleteBookingConfirm: 'Delete Booking',
+
+  // ── UserFormModal ─────────────────────────────────────────────
+  userFormAddTitle: 'Add Admin Account',
+  userFormEditTitle: 'Edit User',
+  userFormAddSubtitle: 'Create a new admin account with dashboard access',
+  userFormEditSubtitle: "Update this user's role and account status",
+  userSectionAccountDetails: 'Account Details',
+  userSectionSetPassword: 'Set Password',
+  userSectionProfile: 'User Profile',
+  userSectionSettings: 'Account Settings',
+  userLabelFullName: 'Full Name',
+  userLabelEmail: 'Email Address',
+  userLabelPassword: 'Password',
+  userLabelConfirmPassword: 'Confirm Password',
+  userLabelRole: 'Role',
+  userLabelAccountStatus: 'Account Status',
+  userPlaceholderName: 'e.g. Amara Okonkwo',
+  userPlaceholderEmail: 'e.g. amara@grandoasis.com',
+  userPlaceholderPassword: 'Minimum 8 characters',
+  userPlaceholderConfirmPassword: 'Re-enter the password',
+  userShowPasswordAriaLabel: 'Show password',
+  userHidePasswordAriaLabel: 'Hide password',
+  userRoleGuestOption: 'Guest',
+  userRoleAdminOption: 'Admin',
+  userRoleHintAdmin:
+    'Admin accounts have full access to the management dashboard.',
+  userRoleHintGuest:
+    'Guest accounts can browse rooms and manage their own bookings.',
+  userStatusHintInactive: 'Inactive accounts are disabled and cannot log in.',
+  userStatusHintSuspended: 'Suspended accounts are blocked pending review.',
+  userStatusHintActive:
+    'Account is active and has full access based on their role.',
+  userAddAdminBanner:
+    'This will create an Admin account with full access to the management dashboard. Share the credentials securely with the new admin.',
+  userEditNote:
+    'Name and email can only be changed by the account holder in their profile settings.',
+  userJoinedPrefix: 'Joined',
+  userSubmitCreateAdmin: 'Create Admin',
+
+  // ── DeleteUserModal ───────────────────────────────────────────
+  deleteUserTitle: 'Delete User Account',
+  deleteUserBodyPrefix: 'Are you sure you want to permanently delete',
+  deleteUserBodySuffix:
+    '? Their booking history will also be removed. This action cannot be undone.',
+  deleteUserConfirm: 'Delete Account',
+
+  // ── PromoFormModal ────────────────────────────────────────────
+  promoFormAddTitle: 'Add New Promo Code',
+  promoFormEditTitle: 'Edit Promo Code',
+  promoFormAddSubtitle: 'Create a new discount code for guests',
+  promoFormEditSubtitle: 'Update the promo code details and status',
+  promoSectionCodeDetails: 'Code Details',
+  promoSectionDiscount: 'Discount',
+  promoSectionValidity: 'Validity & Status',
+  promoLabelCode: 'Promo Code',
+  promoLabelDescription: 'Description',
+  promoLabelDiscountType: 'Discount Type',
+  promoLabelDiscountValue: 'Discount Value',
+  promoLabelUsageLimit: 'Usage Limit',
+  promoLabelValidFrom: 'Valid From',
+  promoLabelValidTo: 'Valid To',
+  promoLabelStatus: 'Status',
+  promoPlaceholderCode: 'e.g. GRAND25',
+  promoPlaceholderDescription: 'e.g. 25% off all suite bookings',
+  promoHintCode: 'Uppercase letters and numbers only — no spaces or symbols',
+  promoDiscountTypePercentage: 'Percentage (%)',
+  promoDiscountTypeFixed: 'Fixed Amount (₦)',
+  promoSubmitCreate: 'Create Code',
+
+  // ── DeletePromoModal ──────────────────────────────────────────
+  deletePromoTitle: 'Delete Promo Code',
+  deletePromoBodyPrefix: 'Are you sure you want to permanently delete the code',
+  deletePromoBodySuffix:
+    '? Any guests who have saved this code will no longer be able to redeem it. This action cannot be undone.',
+  deletePromoConfirm: 'Delete Code',
 } as const;

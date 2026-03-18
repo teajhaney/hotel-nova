@@ -2,15 +2,50 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BedDouble, History, User, Star, Bell, LogOut, X, Building2 } from 'lucide-react';
+import {
+  BedDouble,
+  History,
+  User,
+  Star,
+  Bell,
+  LogOut,
+  X,
+  Building2,
+} from 'lucide-react';
 import { GUEST_DASHBOARD_MESSAGES } from '@/constants/messages';
 
 const NAV_ITEMS = [
-  { href: '/dashboard/guest', label: GUEST_DASHBOARD_MESSAGES.myBookings, icon: BedDouble, exact: true },
-  { href: '/dashboard/guest/history', label: GUEST_DASHBOARD_MESSAGES.bookingHistory, icon: History, exact: false },
-  { href: '/dashboard/guest/profile', label: GUEST_DASHBOARD_MESSAGES.profile, icon: User, exact: false },
-  { href: '/dashboard/guest/reviews', label: GUEST_DASHBOARD_MESSAGES.reviews, icon: Star, exact: false },
-  { href: '/dashboard/guest/notifications', label: GUEST_DASHBOARD_MESSAGES.notifications, icon: Bell, exact: false, badge: true },
+  {
+    href: '/dashboard/guest',
+    label: GUEST_DASHBOARD_MESSAGES.myBookings,
+    icon: BedDouble,
+    exact: true,
+  },
+  {
+    href: '/dashboard/guest/history',
+    label: GUEST_DASHBOARD_MESSAGES.bookingHistory,
+    icon: History,
+    exact: false,
+  },
+  {
+    href: '/dashboard/guest/profile',
+    label: GUEST_DASHBOARD_MESSAGES.profile,
+    icon: User,
+    exact: false,
+  },
+  {
+    href: '/dashboard/guest/reviews',
+    label: GUEST_DASHBOARD_MESSAGES.reviews,
+    icon: Star,
+    exact: false,
+  },
+  {
+    href: '/dashboard/guest/notifications',
+    label: GUEST_DASHBOARD_MESSAGES.notifications,
+    icon: Bell,
+    exact: false,
+    badge: true,
+  },
 ];
 
 interface GuestSidebarProps {
@@ -32,7 +67,9 @@ export function GuestSidebar({ onClose }: GuestSidebarProps) {
             <p className="text-[13px] font-bold text-[#0D0F2B] leading-tight tracking-wide uppercase truncate">
               {GUEST_DASHBOARD_MESSAGES.hotelName}
             </p>
-            <p className="text-[11px] text-[#64748B]">{GUEST_DASHBOARD_MESSAGES.dashboardSubtitle}</p>
+            <p className="text-[11px] text-[#64748B]">
+              {GUEST_DASHBOARD_MESSAGES.dashboardSubtitle}
+            </p>
           </div>
         </div>
         {onClose && (
@@ -49,7 +86,9 @@ export function GuestSidebar({ onClose }: GuestSidebarProps) {
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 flex flex-col gap-1">
         {NAV_ITEMS.map(({ href, label, icon: Icon, exact, badge }) => {
-          const isActive = exact ? pathname === href : pathname.startsWith(href);
+          const isActive = exact
+            ? pathname === href
+            : pathname.startsWith(href);
           return (
             <Link
               key={href}
@@ -67,12 +106,27 @@ export function GuestSidebar({ onClose }: GuestSidebarProps) {
         })}
       </nav>
 
-      {/* Logout */}
+      {/* Guest profile + Logout */}
       <div className="px-4 pb-5 border-t border-[#E2E8F0] pt-4">
-        <button className="flex items-center gap-2.5 w-full px-4 py-2.5 rounded-lg text-[14px] font-medium text-[#EF4444] hover:bg-[#FEF2F2] transition-colors">
-          <LogOut size={18} strokeWidth={1.8} />
-          <span>{GUEST_DASHBOARD_MESSAGES.logout}</span>
-        </button>
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-full bg-[#020887] flex items-center justify-center shrink-0">
+            <span className="text-white text-[13px] font-bold">JD</span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[13px] font-semibold text-[#0D0F2B] leading-tight truncate">
+              {GUEST_DASHBOARD_MESSAGES.guestName}
+            </p>
+            <p className="text-[11px] text-[#64748B] truncate">
+              {GUEST_DASHBOARD_MESSAGES.guest}
+            </p>
+          </div>
+          <button
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-[#EF4444] hover:bg-[#FEF2F2] transition-colors"
+            aria-label="Logout"
+          >
+            <LogOut size={16} strokeWidth={1.8} />
+          </button>
+        </div>
       </div>
     </div>
   );

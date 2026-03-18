@@ -102,6 +102,7 @@ body {
   font-family: var(--font-sans);
   line-height: 1.6;
   margin: 0;
+  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -111,6 +112,50 @@ body {
 :focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 0px;
+}
+
+/* ─── Keyframe Animations ────────────────────────────────── */
+
+/* Right-side drawer panel slides in from the right edge */
+@keyframes slide-in-right {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+/* Backdrop / overlay fades in */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Centered modal card fades in and scales up slightly */
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.96) translateY(6px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+
+/* Mobile bottom nav slides up from below the fold */
+@keyframes slide-up {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* Navbar mobile dropdown slides down from the header */
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Page-level enter: used by template.tsx on every navigation */
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Subtle root-level page fade: public pages + cross-section transitions */
+@keyframes page-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 /* ─── Reduced Motion ─────────────────────────────────────── */
@@ -712,6 +757,43 @@ body {
   }
   .admin-action-btn {
     @apply flex items-center gap-1.5 px-3 h-9 rounded-lg border border-[#E2E8F0] text-[13px] font-medium text-[#0D0F2B] hover:border-[#020887] hover:text-[#020887] transition-colors;
+  }
+
+  /* ── Animation utilities ─────────────────────────────────── */
+
+  /** Right-side drawer panel enter animation */
+  .animate-slide-in-right {
+    animation: slide-in-right 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /** Backdrop / overlay fade-in */
+  .animate-fade-in {
+    animation: fade-in 0.25s ease-out both;
+  }
+
+  /** Centered modal card scale+fade enter */
+  .animate-scale-in {
+    animation: scale-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /** Mobile bottom nav slide-up enter */
+  .animate-slide-up {
+    animation: slide-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /** Navbar mobile dropdown slide-down enter */
+  .animate-slide-down {
+    animation: slide-down 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /** Page content enters: used inside dashboard/admin shells */
+  .animate-page-enter {
+    animation: page-enter 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /** Root-level subtle fade: public pages and cross-section transitions */
+  .animate-page-fade {
+    animation: page-fade 0.2s ease-out both;
   }
 
   /* ── Admin Form Inputs ────────────────────────────────────── */

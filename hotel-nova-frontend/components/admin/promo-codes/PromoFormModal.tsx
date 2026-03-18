@@ -4,6 +4,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { X, ChevronDown } from 'lucide-react';
+import { PromoFormModalProps } from '@/type/interface';
+import { ADMIN_DASHBOARD_MESSAGES } from '@/constants/messages';
+
+const M = ADMIN_DASHBOARD_MESSAGES;
 
 const promoSchema = z.object({
   code: z
@@ -21,24 +25,7 @@ const promoSchema = z.object({
 
 type PromoFormData = z.infer<typeof promoSchema>;
 
-export interface PromoData {
-  code: string;
-  description: string;
-  discount: string;
-  discountType: 'percentage' | 'fixed';
-  discountValue: number;
-  usageLimit: number;
-  used: number;
-  validFrom: string;
-  validTo: string;
-  status: string;
-}
 
-interface PromoFormModalProps {
-  promo?: PromoData | null;
-  onClose: () => void;
-  onSave: (data: PromoData) => void;
-}
 
 const inputCls =
   'block w-full h-12 px-4 rounded-lg border border-[#D1D5DB] bg-white text-[14px] text-[#0D0F2B] placeholder:text-[#9CA3AF] outline-none focus:border-[#020887] focus:ring-2 focus:ring-[#020887]/10 transition-all';
@@ -113,20 +100,20 @@ export function PromoFormModal({ promo, onClose, onSave }: PromoFormModalProps) 
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
-      <button className="absolute inset-0 w-full h-full bg-black/50 cursor-default" onClick={onClose} aria-label="Close panel" />
+      <button className="absolute inset-0 w-full h-full bg-black/50 cursor-default" onClick={onClose} aria-label={M.closePanelAriaLabel} />
 
-      <div className="relative flex flex-col bg-[#F8FAFC] w-full sm:w-[540px] h-full shadow-2xl">
+      <div className="relative flex flex-col bg-[#F8FAFC] w-full sm:w-[540px] h-full shadow-2xl animate-slide-in-right">
         {/* Header */}
         <div className="shrink-0 flex items-start justify-between px-7 py-6 bg-white border-b border-[#E5E7EB]">
           <div>
             <h2 className="text-[20px] font-bold text-[#0D0F2B] leading-tight">
-              {isEdit ? 'Edit Promo Code' : 'Add New Promo Code'}
+              {isEdit ? M.promoFormEditTitle : M.promoFormAddTitle}
             </h2>
             <p className="text-[14px] text-[#6B7280] mt-1">
-              {isEdit ? 'Update the promo code details and status' : 'Create a new discount code for guests'}
+              {isEdit ? M.promoFormEditSubtitle : M.promoFormAddSubtitle}
             </p>
           </div>
-          <button onClick={onClose} className="w-9 h-9 flex items-center justify-center rounded-lg text-[#6B7280] hover:bg-[#F3F4F6] transition-colors shrink-0 ml-4" aria-label="Close">
+          <button onClick={onClose} className="w-9 h-9 flex items-center justify-center rounded-lg text-[#6B7280] hover:bg-[#F3F4F6] transition-colors shrink-0 ml-4" aria-label={M.closeAriaLabel}>
             <X size={20} />
           </button>
         </div>
@@ -136,38 +123,38 @@ export function PromoFormModal({ promo, onClose, onSave }: PromoFormModalProps) 
 
           {/* Code Details */}
           <div className="bg-white rounded-xl border border-[#E5E7EB] p-5 space-y-5">
-            <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#9CA3AF]">Code Details</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#9CA3AF]">{M.promoSectionCodeDetails}</p>
 
             <div>
-              <label className={labelCls}>Promo Code</label>
+              <label className={labelCls}>{M.promoLabelCode}</label>
               <input
                 {...register('code')}
-                placeholder="e.g. GRAND25"
+                placeholder={M.promoPlaceholderCode}
                 className={inputCls}
                 style={{ textTransform: 'uppercase' }}
                 autoComplete="off"
               />
-              <span className="block text-[12px] text-[#9CA3AF] mt-1.5">Uppercase letters and numbers only — no spaces or symbols</span>
+              <span className="block text-[12px] text-[#9CA3AF] mt-1.5">{M.promoHintCode}</span>
               {errors.code && <span className={errorCls}>{errors.code.message}</span>}
             </div>
 
             <div>
-              <label className={labelCls}>Description</label>
-              <input {...register('description')} placeholder="e.g. 25% off all suite bookings" className={inputCls} autoComplete="off" />
+              <label className={labelCls}>{M.promoLabelDescription}</label>
+              <input {...register('description')} placeholder={M.promoPlaceholderDescription} className={inputCls} autoComplete="off" />
               {errors.description && <span className={errorCls}>{errors.description.message}</span>}
             </div>
           </div>
 
           {/* Discount */}
           <div className="bg-white rounded-xl border border-[#E5E7EB] p-5 space-y-5">
-            <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#9CA3AF]">Discount</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#9CA3AF]">{M.promoSectionDiscount}</p>
 
             <div>
-              <label className={labelCls}>Discount Type</label>
+              <label className={labelCls}>{M.promoLabelDiscountType}</label>
               <div className="relative">
                 <select {...register('discountType')} className={selectCls}>
-                  <option value="percentage">Percentage (%)</option>
-                  <option value="fixed">Fixed Amount (₦)</option>
+                  <option value="percentage">{M.promoDiscountTypePercentage}</option>
+                  <option value="fixed">{M.promoDiscountTypeFixed}</option>
                 </select>
                 <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none" />
               </div>
@@ -175,7 +162,7 @@ export function PromoFormModal({ promo, onClose, onSave }: PromoFormModalProps) 
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className={labelCls}>Discount Value</label>
+                <label className={labelCls}>{M.promoLabelDiscountValue}</label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[14px] font-semibold text-[#6B7280] pointer-events-none select-none">
                     {discountType === 'percentage' ? '%' : '₦'}
@@ -192,7 +179,7 @@ export function PromoFormModal({ promo, onClose, onSave }: PromoFormModalProps) 
               </div>
 
               <div>
-                <label className={labelCls}>Usage Limit</label>
+                <label className={labelCls}>{M.promoLabelUsageLimit}</label>
                 <input
                   {...register('usageLimit', { valueAsNumber: true })}
                   type="number"
@@ -207,28 +194,28 @@ export function PromoFormModal({ promo, onClose, onSave }: PromoFormModalProps) 
 
           {/* Validity & Status */}
           <div className="bg-white rounded-xl border border-[#E5E7EB] p-5 space-y-5">
-            <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#9CA3AF]">Validity &amp; Status</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#9CA3AF]">{M.promoSectionValidity}</p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className={labelCls}>Valid From</label>
+                <label className={labelCls}>{M.promoLabelValidFrom}</label>
                 <input {...register('validFrom')} type="date" className={inputCls} />
                 {errors.validFrom && <span className={errorCls}>{errors.validFrom.message}</span>}
               </div>
               <div>
-                <label className={labelCls}>Valid To</label>
+                <label className={labelCls}>{M.promoLabelValidTo}</label>
                 <input {...register('validTo')} type="date" className={inputCls} />
                 {errors.validTo && <span className={errorCls}>{errors.validTo.message}</span>}
               </div>
             </div>
 
             <div>
-              <label className={labelCls}>Status</label>
+              <label className={labelCls}>{M.promoLabelStatus}</label>
               <div className="relative">
                 <select {...register('status')} className={selectCls}>
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                  <option value="Scheduled">Scheduled</option>
+                  <option value="Active">{M.statusActive}</option>
+                  <option value="Inactive">{M.statusInactive}</option>
+                  <option value="Scheduled">{M.statusScheduled}</option>
                 </select>
                 <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none" />
               </div>
@@ -242,10 +229,10 @@ export function PromoFormModal({ promo, onClose, onSave }: PromoFormModalProps) 
         {/* Footer */}
         <div className="shrink-0 px-7 py-4 border-t border-[#E5E7EB] bg-white flex items-center justify-end gap-3">
           <button type="button" onClick={onClose} className="h-10 px-5 rounded-lg border border-[#D1D5DB] text-[13px] font-medium text-[#374151] hover:bg-[#F3F4F6] transition-colors">
-            Cancel
+            {M.cancel}
           </button>
           <button type="submit" form="promo-form" className="h-10 px-7 rounded-lg bg-[#020887] text-white text-[13px] font-semibold hover:bg-[#38369A] transition-colors">
-            {isEdit ? 'Save Changes' : 'Create Code'}
+            {isEdit ? M.saveChanges : M.promoSubmitCreate}
           </button>
         </div>
       </div>

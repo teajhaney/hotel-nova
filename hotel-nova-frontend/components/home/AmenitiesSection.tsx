@@ -37,7 +37,7 @@ export function AmenitiesSection() {
         </div>
 
         {/* 4 × 2 icon tile grid */}
-        <div className="grid grid-cols-4 md:grid-cols-2 sm:grid-cols-2 gap-[16px]">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-[16px]">
           {AMENITIES.map(({ icon: Icon, label }) => (
             <div
               key={label}

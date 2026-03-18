@@ -8,6 +8,9 @@ import {
   Pencil,
   Trash2,
 } from 'lucide-react';
+import { ADMIN_DASHBOARD_MESSAGES } from '@/constants/messages';
+
+const M = ADMIN_DASHBOARD_MESSAGES;
 import {
   AreaChart,
   Area,
@@ -49,7 +52,7 @@ const UPCOMING_CHECKINS = [
 
 const STAT_CARDS = [
   {
-    label: 'Occupancy Rate',
+    label: M.statOccupancyRate,
     value: '84%',
     change: '+5.2%',
     note: 'Target: 90%',
@@ -59,7 +62,7 @@ const STAT_CARDS = [
     changeColor: 'text-[#10B981]',
   },
   {
-    label: "Today's Check-ins",
+    label: M.statTodayCheckins,
     value: '12',
     change: '+2',
     note: '4 arriving after 6 PM',
@@ -69,7 +72,7 @@ const STAT_CARDS = [
     changeColor: 'text-[#10B981]',
   },
   {
-    label: "Today's Check-outs",
+    label: M.statTodayCheckouts,
     value: '8',
     change: '0',
     note: '6 pending inspection',
@@ -79,7 +82,7 @@ const STAT_CARDS = [
     changeColor: 'text-[#64748B]',
   },
   {
-    label: 'Total Revenue (Daily)',
+    label: M.statDailyRevenue,
     value: '₦2.45M',
     change: '+12.4%',
     note: 'Excludes pending bar tabs',
@@ -99,10 +102,8 @@ export default function AdminOverviewPage() {
     <div className="admin-page-container">
       {/* Header */}
       <div className="mb-7">
-        <h1 className="text-[24px] font-bold text-[#0D0F2B]">Dashboard Overview</h1>
-        <p className="text-[14px] text-[#64748B] mt-1">
-          Welcome back, Ibrahim. Here&apos;s what&apos;s happening at The Grand Oasis Abuja today.
-        </p>
+        <h1 className="text-[24px] font-bold text-[#0D0F2B]">{M.overviewTitle}</h1>
+        <p className="text-[14px] text-[#64748B] mt-1">{M.overviewSubtitle}</p>
       </div>
 
       {/* Stat Cards */}
@@ -126,7 +127,7 @@ export default function AdminOverviewPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-7">
         {/* Occupancy Trends */}
         <div className="admin-card p-5">
-          <h2 className="text-[15px] font-semibold text-[#0D0F2B] mb-4">Occupancy Trends</h2>
+          <h2 className="text-[15px] font-semibold text-[#0D0F2B] mb-4">{M.chartOccupancyTitle}</h2>
           <ResponsiveContainer width="100%" height={200}>
             <AreaChart data={occupancyData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
               <defs>
@@ -140,7 +141,7 @@ export default function AdminOverviewPage() {
               <YAxis tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} domain={[60, 100]} />
               <Tooltip
                 contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #E2E8F0' }}
-                formatter={(val) => [`${val}%`, 'Occupancy']}
+                formatter={(val) => [`${val}%`, M.tooltipOccupancy]}
               />
               <Area
                 type="monotone"
@@ -155,7 +156,7 @@ export default function AdminOverviewPage() {
 
         {/* Monthly Revenue */}
         <div className="admin-card p-5">
-          <h2 className="text-[15px] font-semibold text-[#0D0F2B] mb-4">Monthly Revenue</h2>
+          <h2 className="text-[15px] font-semibold text-[#0D0F2B] mb-4">{M.chartRevenueTitle}</h2>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={revenueData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
@@ -163,7 +164,7 @@ export default function AdminOverviewPage() {
               <YAxis tick={{ fontSize: 11, fill: '#94A3B8' }} axisLine={false} tickLine={false} tickFormatter={formatRevenue} />
               <Tooltip
                 contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #E2E8F0' }}
-                formatter={(val) => [typeof val === 'number' ? formatRevenue(val) : val, 'Revenue']}
+                formatter={(val) => [typeof val === 'number' ? formatRevenue(val) : val, M.tooltipRevenue]}
               />
               <Bar dataKey="value" fill="#020887" radius={[4, 4, 0, 0]} />
             </BarChart>
@@ -174,17 +175,17 @@ export default function AdminOverviewPage() {
       {/* Upcoming Check-ins Table */}
       <div className="admin-card overflow-hidden">
         <div className="px-5 py-4 border-b border-[#E2E8F0]">
-          <h2 className="text-[15px] font-semibold text-[#0D0F2B]">Upcoming Check-ins</h2>
+          <h2 className="text-[15px] font-semibold text-[#0D0F2B]">{M.upcomingCheckinsTitle}</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0]">
               <tr>
-                <th className="admin-table-th">Guest Name</th>
-                <th className="admin-table-th">Room Type</th>
-                <th className="admin-table-th">Arrival</th>
-                <th className="admin-table-th">Status</th>
-                <th className="admin-table-th">Action</th>
+                <th className="admin-table-th">{M.overviewColGuestName}</th>
+                <th className="admin-table-th">{M.overviewColRoomType}</th>
+                <th className="admin-table-th">{M.overviewColArrival}</th>
+                <th className="admin-table-th">{M.overviewColStatus}</th>
+                <th className="admin-table-th">{M.overviewColAction}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#F1F5F9]">
@@ -221,7 +222,7 @@ export default function AdminOverviewPage() {
                           : 'bg-[#FEF3C7] text-[#B45309] hover:bg-[#FDE68A]'
                       }`}
                     >
-                      {row.status === 'Confirmed' ? 'Check-in' : 'Approve'}
+                      {row.status === 'Confirmed' ? M.actionCheckin : M.actionApprove}
                     </button>
                   </td>
                 </tr>

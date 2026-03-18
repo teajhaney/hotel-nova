@@ -2,13 +2,16 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { NAV_ITEMS } from '@/constants/dummyData';
-
-
+import { BedDouble, Home, User, UtensilsCrossed } from 'lucide-react';
 
 export function MobileBottomNav() {
   const pathname = usePathname();
-
+  const NAV_ITEMS = [
+    { href: '/', label: 'HOME', icon: Home },
+    { href: '/rooms', label: 'ROOMS', icon: BedDouble },
+    { href: '/offers', label: 'OFFERS', icon: UtensilsCrossed },
+    { href: '/dashboard/guest', label: 'DASHBOARD', icon: User },
+  ];
   return (
     <nav
       className="fixed bottom-0 left-0 right-0 z-50

@@ -4,6 +4,9 @@ import { useState } from 'react';
 import { Plus, TrendingUp, TrendingDown, Pencil, Trash2 } from 'lucide-react';
 import { UserFormModal, type UserData } from '@/components/admin/users/UserFormModal';
 import { DeleteUserModal } from '@/components/admin/users/DeleteUserModal';
+import { ADMIN_DASHBOARD_MESSAGES } from '@/constants/messages';
+
+const M = ADMIN_DASHBOARD_MESSAGES;
 
 type RoleFilter = 'All' | 'Admins' | 'Guests';
 
@@ -29,15 +32,15 @@ const ROLE_BADGE: Record<string, string> = {
 };
 
 const STATS = [
-  { label: 'Total Users',   value: '1,284', change: '+12%', positive: true  },
-  { label: 'Active Guests', value: '856',   change: '+5%',  positive: true  },
-  { label: 'Admin Accounts', value: '42',   change: '+2',   positive: true  },
+  { label: M.userStatTotalUsers,    value: '1,284', change: '+12%', positive: true  },
+  { label: M.userStatActiveGuests,  value: '856',   change: '+5%',  positive: true  },
+  { label: M.userStatAdminAccounts, value: '42',    change: '+2',   positive: true  },
 ];
 
 const ROLE_TABS: { key: RoleFilter; label: string }[] = [
-  { key: 'All',    label: 'All Users'  },
-  { key: 'Admins', label: 'Admins'     },
-  { key: 'Guests', label: 'Guests'     },
+  { key: 'All',    label: M.userTabAll    },
+  { key: 'Admins', label: M.userTabAdmins },
+  { key: 'Guests', label: M.userTabGuests },
 ];
 
 export default function AdminUsersPage() {
@@ -101,17 +104,15 @@ export default function AdminUsersPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-7">
         <div>
-          <h1 className="text-[24px] font-bold text-[#0D0F2B]">Users Management</h1>
-          <p className="text-[14px] text-[#64748B] mt-1">
-            Manage guest accounts and admin permissions
-          </p>
+          <h1 className="text-[24px] font-bold text-[#0D0F2B]">{M.usersTitle}</h1>
+          <p className="text-[14px] text-[#64748B] mt-1">{M.usersSubtitle}</p>
         </div>
         <button
           onClick={handleOpenAdd}
           className="flex items-center gap-1.5 h-10 px-4 rounded-lg bg-[#020887] text-white text-[13px] font-medium hover:bg-[#38369A] transition-colors"
         >
           <Plus size={16} />
-          Add Admin
+          {M.addAdmin}
         </button>
       </div>
 
@@ -133,7 +134,7 @@ export default function AdminUsersPage() {
       <div className="admin-card overflow-hidden">
         {/* Card header: title + role filter tabs */}
         <div className="px-5 py-4 border-b border-[#E2E8F0] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <h2 className="text-[15px] font-semibold text-[#0D0F2B]">User Directory</h2>
+          <h2 className="text-[15px] font-semibold text-[#0D0F2B]">{M.userDirectoryTitle}</h2>
 
           {/* Role filter tabs */}
           <div className="flex items-center gap-1 bg-[#F1F5F9] p-1 rounded-lg">
@@ -166,12 +167,12 @@ export default function AdminUsersPage() {
           <table className="w-full">
             <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0]">
               <tr>
-                <th className="admin-table-th">User</th>
-                <th className="admin-table-th">Email</th>
-                <th className="admin-table-th">Role</th>
-                <th className="admin-table-th">Status</th>
-                <th className="admin-table-th">Joined</th>
-                <th className="admin-table-th">Actions</th>
+                <th className="admin-table-th">{M.usersColUser}</th>
+                <th className="admin-table-th">{M.usersColEmail}</th>
+                <th className="admin-table-th">{M.usersColRole}</th>
+                <th className="admin-table-th">{M.usersColStatus}</th>
+                <th className="admin-table-th">{M.usersColJoined}</th>
+                <th className="admin-table-th">{M.usersColActions}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#F1F5F9]">
@@ -213,14 +214,14 @@ export default function AdminUsersPage() {
                       <button
                         onClick={() => handleOpenEdit(user)}
                         className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E2E8F0] text-[#64748B] hover:border-[#020887] hover:text-[#020887] transition-colors"
-                        aria-label="Edit user"
+                        aria-label={M.editUserAriaLabel}
                       >
                         <Pencil size={14} />
                       </button>
                       <button
                         onClick={() => setDeleteTarget(user)}
                         className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E2E8F0] text-[#64748B] hover:border-[#EF4444] hover:text-[#EF4444] transition-colors"
-                        aria-label="Delete user"
+                        aria-label={M.deleteUserAriaLabel}
                       >
                         <Trash2 size={14} />
                       </button>

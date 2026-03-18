@@ -44,3 +44,23 @@ export interface GuestRoomCounterProps {
   onRoomsChange: (v: number) => void;
   showRooms?: boolean;
 }
+
+
+export interface PromoData {
+  code: string;
+  description: string;
+  discount: string;
+  discountType: 'percentage' | 'fixed';
+  discountValue: number;
+  usageLimit: number;
+  used: number;
+  validFrom: string;
+  validTo: string;
+  status: string;
+}
+
+export interface PromoFormModalProps {
+  promo?: PromoData | null;
+  onClose: () => void;
+  onSave: (data: PromoData) => void;
+}

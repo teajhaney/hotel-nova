@@ -5,6 +5,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { X, ChevronDown, Mail, User, ShieldCheck, CalendarDays, Info, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
+import { ADMIN_DASHBOARD_MESSAGES } from '@/constants/messages';
+
+const M = ADMIN_DASHBOARD_MESSAGES;
 
 // ── Types ────────────────────────────────────────────────────
 export interface UserData {
@@ -81,23 +84,23 @@ function AddForm({ onClose, onSave }: { onClose: () => void; onSave: (d: UserDat
       {/* Account Details */}
       <div className="bg-white rounded-xl border border-[#E5E7EB] p-5 space-y-5">
         <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#9CA3AF]">
-          Account Details
+          {M.userSectionAccountDetails}
         </p>
 
         <div>
-          <label className={labelCls}>Full Name</label>
+          <label className={labelCls}>{M.userLabelFullName}</label>
           <div className="relative">
             <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none" />
-            <input {...register('name')} placeholder="e.g. Amara Okonkwo" className={`${inputCls} pl-10`} autoComplete="off" />
+            <input {...register('name')} placeholder={M.userPlaceholderName} className={`${inputCls} pl-10`} autoComplete="off" />
           </div>
           {errors.name && <span className={errorCls}>{errors.name.message}</span>}
         </div>
 
         <div>
-          <label className={labelCls}>Email Address</label>
+          <label className={labelCls}>{M.userLabelEmail}</label>
           <div className="relative">
             <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none" />
-            <input {...register('email')} type="email" placeholder="e.g. amara@grandoasis.com" className={`${inputCls} pl-10`} autoComplete="off" />
+            <input {...register('email')} type="email" placeholder={M.userPlaceholderEmail} className={`${inputCls} pl-10`} autoComplete="off" />
           </div>
           {errors.email && <span className={errorCls}>{errors.email.message}</span>}
         </div>
@@ -106,16 +109,16 @@ function AddForm({ onClose, onSave }: { onClose: () => void; onSave: (d: UserDat
       {/* Password */}
       <div className="bg-white rounded-xl border border-[#E5E7EB] p-5 space-y-5">
         <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#9CA3AF]">
-          Set Password
+          {M.userSectionSetPassword}
         </p>
 
         <div>
-          <label className={labelCls}>Password</label>
+          <label className={labelCls}>{M.userLabelPassword}</label>
           <div className="relative">
             <input
               {...register('password')}
               type={showPassword ? 'text' : 'password'}
-              placeholder="Minimum 8 characters"
+              placeholder={M.userPlaceholderPassword}
               className={`${inputCls} pr-11`}
               autoComplete="new-password"
             />
@@ -123,7 +126,7 @@ function AddForm({ onClose, onSave }: { onClose: () => void; onSave: (d: UserDat
               type="button"
               onClick={() => setShowPassword((v) => !v)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#6B7280] transition-colors"
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              aria-label={showPassword ? M.userHidePasswordAriaLabel : M.userShowPasswordAriaLabel}
             >
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
@@ -132,12 +135,12 @@ function AddForm({ onClose, onSave }: { onClose: () => void; onSave: (d: UserDat
         </div>
 
         <div>
-          <label className={labelCls}>Confirm Password</label>
+          <label className={labelCls}>{M.userLabelConfirmPassword}</label>
           <div className="relative">
             <input
               {...register('confirmPassword')}
               type={showConfirm ? 'text' : 'password'}
-              placeholder="Re-enter the password"
+              placeholder={M.userPlaceholderConfirmPassword}
               className={`${inputCls} pr-11`}
               autoComplete="new-password"
             />
@@ -145,7 +148,7 @@ function AddForm({ onClose, onSave }: { onClose: () => void; onSave: (d: UserDat
               type="button"
               onClick={() => setShowConfirm((v) => !v)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#6B7280] transition-colors"
-              aria-label={showConfirm ? 'Hide password' : 'Show password'}
+              aria-label={showConfirm ? M.userHidePasswordAriaLabel : M.userShowPasswordAriaLabel}
             >
               {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
@@ -158,7 +161,7 @@ function AddForm({ onClose, onSave }: { onClose: () => void; onSave: (d: UserDat
       <div className="flex items-start gap-3 px-4 py-3.5 bg-[#EEF0FF] rounded-xl border border-[#C7D2FE]">
         <Info size={16} className="text-[#020887] shrink-0 mt-0.5" />
         <p className="text-[13px] text-[#374151] leading-relaxed">
-          This will create an <strong>Admin</strong> account with full access to the management dashboard. Share the credentials securely with the new admin.
+          {M.userAddAdminBanner}
         </p>
       </div>
 
@@ -196,7 +199,7 @@ function EditForm({
       {/* Profile card (read-only) */}
       <div className="bg-white rounded-xl border border-[#E5E7EB] p-5">
         <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#9CA3AF] mb-4">
-          User Profile
+          {M.userSectionProfile}
         </p>
         <div className="flex items-center gap-4">
           <div
@@ -216,7 +219,7 @@ function EditForm({
             </div>
             <div className="flex items-center gap-1.5 mt-0.5">
               <CalendarDays size={13} className="text-[#9CA3AF] shrink-0" />
-              <p className="text-[13px] text-[#6B7280]">Joined {user.joined}</p>
+              <p className="text-[13px] text-[#6B7280]">{M.userJoinedPrefix} {user.joined}</p>
             </div>
           </div>
         </div>
@@ -225,43 +228,41 @@ function EditForm({
       {/* Editable settings */}
       <div className="bg-white rounded-xl border border-[#E5E7EB] p-5 space-y-5">
         <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#9CA3AF]">
-          Account Settings
+          {M.userSectionSettings}
         </p>
 
         {/* Role */}
         <div>
-          <label className={labelCls}>Role</label>
+          <label className={labelCls}>{M.userLabelRole}</label>
           <div className="relative">
             <select {...register('role')} className={selectCls}>
-              <option value="GUEST">Guest</option>
-              <option value="ADMIN">Admin</option>
+              <option value="GUEST">{M.userRoleGuestOption}</option>
+              <option value="ADMIN">{M.userRoleAdminOption}</option>
             </select>
             <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none" />
           </div>
           <span className="block text-[12px] text-[#9CA3AF] mt-1.5">
-            {roleValue === 'ADMIN'
-              ? 'Admin accounts have full access to the management dashboard.'
-              : 'Guest accounts can browse rooms and manage their own bookings.'}
+            {roleValue === 'ADMIN' ? M.userRoleHintAdmin : M.userRoleHintGuest}
           </span>
         </div>
 
         {/* Status */}
         <div>
-          <label className={labelCls}>Account Status</label>
+          <label className={labelCls}>{M.userLabelAccountStatus}</label>
           <div className="relative">
             <select {...register('status')} className={selectCls}>
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-              <option value="Suspended">Suspended</option>
+              <option value="Active">{M.statusActive}</option>
+              <option value="Inactive">{M.statusInactive}</option>
+              <option value="Suspended">{M.statusSuspended}</option>
             </select>
             <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none" />
           </div>
           <span className="block text-[12px] text-[#9CA3AF] mt-1.5">
             {statusValue === 'Inactive'
-              ? 'Inactive accounts are disabled and cannot log in.'
+              ? M.userStatusHintInactive
               : statusValue === 'Suspended'
-              ? 'Suspended accounts are blocked pending review.'
-              : 'Account is active and has full access based on their role.'}
+              ? M.userStatusHintSuspended
+              : M.userStatusHintActive}
           </span>
         </div>
       </div>
@@ -270,7 +271,7 @@ function EditForm({
       <div className="flex items-start gap-3 px-4 py-3.5 bg-[#FFFBEB] rounded-xl border border-[#FDE68A]">
         <ShieldCheck size={16} className="text-[#B45309] shrink-0 mt-0.5" />
         <p className="text-[13px] text-[#374151] leading-relaxed">
-          Name and email can only be changed by the account holder in their profile settings.
+          {M.userEditNote}
         </p>
       </div>
 
@@ -289,27 +290,25 @@ export function UserFormModal({ user, onClose, onSave }: UserFormModalProps) {
       <button
         className="absolute inset-0 w-full h-full bg-black/50 cursor-default"
         onClick={onClose}
-        aria-label="Close panel"
+        aria-label={M.closePanelAriaLabel}
       />
 
       {/* Drawer */}
-      <div className="relative flex flex-col bg-[#F8FAFC] w-full sm:w-[500px] h-full shadow-2xl">
+      <div className="relative flex flex-col bg-[#F8FAFC] w-full sm:w-[500px] h-full shadow-2xl animate-slide-in-right">
         {/* Header */}
         <div className="shrink-0 flex items-start justify-between px-7 py-6 bg-white border-b border-[#E5E7EB]">
           <div>
             <h2 className="text-[20px] font-bold text-[#0D0F2B] leading-tight">
-              {isEdit ? 'Edit User' : 'Add Admin Account'}
+              {isEdit ? M.userFormEditTitle : M.userFormAddTitle}
             </h2>
             <p className="text-[14px] text-[#6B7280] mt-1">
-              {isEdit
-                ? 'Update this user\'s role and account status'
-                : 'Create a new admin account with dashboard access'}
+              {isEdit ? M.userFormEditSubtitle : M.userFormAddSubtitle}
             </p>
           </div>
           <button
             onClick={onClose}
             className="w-9 h-9 flex items-center justify-center rounded-lg text-[#6B7280] hover:bg-[#F3F4F6] transition-colors shrink-0 ml-4"
-            aria-label="Close"
+            aria-label={M.closeAriaLabel}
           >
             <X size={20} />
           </button>
@@ -329,14 +328,14 @@ export function UserFormModal({ user, onClose, onSave }: UserFormModalProps) {
             onClick={onClose}
             className="h-10 px-5 rounded-lg border border-[#D1D5DB] text-[13px] font-medium text-[#374151] hover:bg-[#F3F4F6] transition-colors"
           >
-            Cancel
+            {M.cancel}
           </button>
           <button
             type="submit"
             form="user-form"
             className="h-10 px-7 rounded-lg bg-[#020887] text-white text-[13px] font-semibold hover:bg-[#38369A] transition-colors"
           >
-            {isEdit ? 'Save Changes' : 'Create Admin'}
+            {isEdit ? M.saveChanges : M.userSubmitCreateAdmin}
           </button>
         </div>
       </div>

@@ -24,7 +24,7 @@ import type {
   GuestNotification,
   GuestReview,
 } from '@/type/type';
-import { RoomData } from '@/type/interface';
+import { PromoData, RoomData } from '@/type/interface';
 
 export const FEATURED_ROOMS = [
   {
@@ -64,12 +64,7 @@ export const QUICK_LINKS = [
   { href: '/gallery', label: 'Photo Gallery' },
 ];
 
-export const NAV_ITEMS = [
-  { href: '/', label: 'HOME', icon: Home },
-  { href: '/rooms', label: 'ROOMS', icon: BedDouble },
-  { href: '/#dining', label: 'DINING', icon: UtensilsCrossed },
-  { href: '/profile', label: 'PROFILE', icon: User },
-];
+
 
 export const POLICY_LINKS = [
   { href: '/privacy', label: 'Privacy Policy' },
@@ -874,5 +869,81 @@ export const INITIAL_ROOMS: RoomData[] = [
     status: 'Occupied',
     image:
       'https://images.unsplash.com/photo-1565791380713-1756b9a05343?w=128&h=128&fit=crop&auto=format',
+  },
+];
+
+
+export const INITIAL_PROMOS: PromoData[] = [
+  {
+    code: 'GRAND25',
+    description: '25% off all suites',
+    discount: '25%',
+    discountType: 'percentage',
+    discountValue: 25,
+    usageLimit: 100,
+    used: 67,
+    validFrom: 'Mar 1, 2026',
+    validTo: 'Mar 31, 2026',
+    status: 'Active',
+  },
+  {
+    code: 'WELCOME15',
+    description: '15% off first booking',
+    discount: '15%',
+    discountType: 'percentage',
+    discountValue: 15,
+    usageLimit: 500,
+    used: 312,
+    validFrom: 'Jan 1, 2026',
+    validTo: 'Dec 31, 2026',
+    status: 'Active',
+  },
+  {
+    code: 'WEEKEND50K',
+    description: '₦50,000 off weekend stays',
+    discount: '₦50,000',
+    discountType: 'fixed',
+    discountValue: 50000,
+    usageLimit: 50,
+    used: 50,
+    validFrom: 'Feb 1, 2026',
+    validTo: 'Feb 28, 2026',
+    status: 'Inactive',
+  },
+  {
+    code: 'VIP2026',
+    description: '30% off for VIP members',
+    discount: '30%',
+    discountType: 'percentage',
+    discountValue: 30,
+    usageLimit: 200,
+    used: 88,
+    validFrom: 'Jan 15, 2026',
+    validTo: 'Jun 30, 2026',
+    status: 'Active',
+  },
+  {
+    code: 'EASTER100K',
+    description: '₦100,000 off Easter holiday',
+    discount: '₦100,000',
+    discountType: 'fixed',
+    discountValue: 100000,
+    usageLimit: 75,
+    used: 0,
+    validFrom: 'Apr 17, 2026',
+    validTo: 'Apr 20, 2026',
+    status: 'Scheduled',
+  },
+  {
+    code: 'NEWYR2025',
+    description: 'New Year special offer',
+    discount: '20%',
+    discountType: 'percentage',
+    discountValue: 20,
+    usageLimit: 300,
+    used: 300,
+    validFrom: 'Dec 28, 2025',
+    validTo: 'Jan 2, 2026',
+    status: 'Inactive',
   },
 ];

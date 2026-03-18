@@ -7,6 +7,9 @@ import { RoomFormModal, } from '@/components/admin/rooms/RoomFormModal';
 import { DeleteRoomModal } from '@/components/admin/rooms/DeleteRoomModal';
 import { INITIAL_ROOMS } from '@/constants/dummyData';
 import { RoomData } from '@/type/interface';
+import { ADMIN_DASHBOARD_MESSAGES } from '@/constants/messages';
+
+const M = ADMIN_DASHBOARD_MESSAGES;
 
 
 const STATUS_DOT: Record<string, string> = {
@@ -24,8 +27,8 @@ const STATUS_TEXT: Record<string, string> = {
 export default function AdminRoomsPage() {
   const [rooms, setRooms] = useState<RoomData[]>(INITIAL_ROOMS);
   const [search, setSearch] = useState('');
-  const [typeFilter, setTypeFilter] = useState('All Types');
-  const [statusFilter, setStatusFilter] = useState('All Statuses');
+  const [typeFilter, setTypeFilter] = useState<string>(M.allTypes);
+  const [statusFilter, setStatusFilter] = useState<string>(M.allStatuses);
 
   // Modal state
   const [modalMode, setModalMode] = useState<'add' | 'edit' | null>(null);
@@ -36,8 +39,8 @@ export default function AdminRoomsPage() {
     const matchSearch =
       r.name.toLowerCase().includes(search.toLowerCase()) ||
       r.id.toLowerCase().includes(search.toLowerCase());
-    const matchType = typeFilter === 'All Types' || r.type === typeFilter;
-    const matchStatus = statusFilter === 'All Statuses' || r.status === statusFilter;
+    const matchType = typeFilter === M.allTypes || r.type === typeFilter;
+    const matchStatus = statusFilter === M.allStatuses || r.status === statusFilter;
     return matchSearch && matchType && matchStatus;
   });
 
@@ -76,7 +79,7 @@ export default function AdminRoomsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-7">
         <div>
-          <h1 className="text-[24px] font-bold text-[#0D0F2B]">Manage Rooms</h1>
+          <h1 className="text-[24px] font-bold text-[#0D0F2B]">{M.roomsTitle}</h1>
           <p className="text-[14px] text-[#64748B] mt-1">
             {rooms.length} rooms in inventory
           </p>
@@ -86,7 +89,7 @@ export default function AdminRoomsPage() {
           className="flex items-center gap-1.5 h-10 px-4 rounded-lg bg-[#020887] text-white text-[13px] font-medium hover:bg-[#38369A] transition-colors"
         >
           <Plus size={16} />
-          Add New Room
+          {M.addNewRoom}
         </button>
       </div>
 
@@ -98,7 +101,7 @@ export default function AdminRoomsPage() {
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search rooms..."
+            placeholder={M.searchRoomsPlaceholder}
             className="flex-1 text-[14px] bg-transparent border-none outline-none text-[#0D0F2B] placeholder:text-[#94A3B8]"
           />
         </div>
@@ -108,11 +111,11 @@ export default function AdminRoomsPage() {
             onChange={e => setTypeFilter(e.target.value)}
             className="h-10 pl-3 pr-8 rounded-lg border border-[#E2E8F0] bg-white text-[13px] text-[#0D0F2B] outline-none appearance-none cursor-pointer"
           >
-            <option>All Types</option>
-            <option>Deluxe</option>
-            <option>Suite</option>
-            <option>Standard</option>
-            <option>Executive</option>
+            <option>{M.allTypes}</option>
+            <option>{M.typeDeluxe}</option>
+            <option>{M.typeSuite}</option>
+            <option>{M.typeStandard}</option>
+            <option>{M.typeExecutive}</option>
           </select>
           <ChevronDown
             size={14}
@@ -125,10 +128,10 @@ export default function AdminRoomsPage() {
             onChange={e => setStatusFilter(e.target.value)}
             className="h-10 pl-3 pr-8 rounded-lg border border-[#E2E8F0] bg-white text-[13px] text-[#0D0F2B] outline-none appearance-none cursor-pointer"
           >
-            <option>All Statuses</option>
-            <option>Available</option>
-            <option>Occupied</option>
-            <option>Maintenance</option>
+            <option>{M.allStatuses}</option>
+            <option>{M.statusAvailable}</option>
+            <option>{M.statusOccupied}</option>
+            <option>{M.statusMaintenance}</option>
           </select>
           <ChevronDown
             size={14}
@@ -143,11 +146,11 @@ export default function AdminRoomsPage() {
           <table className="w-full">
             <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0]">
               <tr>
-                <th className="admin-table-th">Room Info</th>
-                <th className="admin-table-th">Type</th>
-                <th className="admin-table-th">Price / Night</th>
-                <th className="admin-table-th">Status</th>
-                <th className="admin-table-th">Actions</th>
+                <th className="admin-table-th">{M.roomsColRoomInfo}</th>
+                <th className="admin-table-th">{M.roomsColType}</th>
+                <th className="admin-table-th">{M.roomsColPricePerNight}</th>
+                <th className="admin-table-th">{M.roomsColStatus}</th>
+                <th className="admin-table-th">{M.roomsColActions}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#F1F5F9]">
@@ -200,14 +203,14 @@ export default function AdminRoomsPage() {
                       <button
                         onClick={() => handleOpenEdit(room)}
                         className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E2E8F0] text-[#64748B] hover:border-[#020887] hover:text-[#020887] transition-colors"
-                        aria-label="Edit room"
+                        aria-label={M.editRoomAriaLabel}
                       >
                         <Pencil size={14} />
                       </button>
                       <button
                         onClick={() => setDeleteTarget(room)}
                         className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E2E8F0] text-[#64748B] hover:border-[#EF4444] hover:text-[#EF4444] transition-colors"
-                        aria-label="Delete room"
+                        aria-label={M.deleteRoomAriaLabel}
                       >
                         <Trash2 size={14} />
                       </button>
@@ -221,7 +224,7 @@ export default function AdminRoomsPage() {
                     colSpan={5}
                     className="px-5 py-10 text-center text-[14px] text-[#94A3B8]"
                   >
-                    No rooms match your search or filters
+                    {M.noRoomsFound}
                   </td>
                 </tr>
               )}

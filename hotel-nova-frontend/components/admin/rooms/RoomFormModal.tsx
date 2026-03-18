@@ -1,11 +1,14 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { X, ChevronDown, UploadCloud, ImageIcon, Trash2 } from 'lucide-react';
 import { RoomFormModalProps } from '@/type/interface';
+import { ADMIN_DASHBOARD_MESSAGES } from '@/constants/messages';
+
+const M = ADMIN_DASHBOARD_MESSAGES;
 
 
 const roomSchema = z.object({
@@ -52,7 +55,7 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     formState: { errors },
   } = useForm<RoomFormData>({
     resolver: zodResolver(roomSchema),
@@ -69,7 +72,7 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
       : { type: 'Standard', status: 'Available' },
   });
 
-  const imageUrlValue = watch('imageUrl');
+  const imageUrlValue = useWatch({ control, name: 'imageUrl' });
 
   const previewSrc =
     uploadedFile && uploadPreview
@@ -113,28 +116,26 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
       <button
         className="absolute inset-0 w-full h-full bg-black/50 cursor-default"
         onClick={onClose}
-        aria-label="Close panel"
+        aria-label={M.closePanelAriaLabel}
       />
 
       {/* Drawer */}
-      <div className="relative flex flex-col bg-[#F8FAFC] w-full sm:w-[600px] h-full shadow-2xl">
+      <div className="relative flex flex-col bg-[#F8FAFC] w-full sm:w-[600px] h-full shadow-2xl animate-slide-in-right">
 
         {/* ── Header ─────────────────────────────────────── */}
         <div className="shrink-0 flex items-start justify-between px-7 py-6 bg-white border-b border-[#E5E7EB]">
           <div>
             <h2 className="text-[20px] font-bold text-[#0D0F2B] leading-tight">
-              {isEdit ? 'Edit Room' : 'Add New Room'}
+              {isEdit ? M.roomFormEditTitle : M.roomFormAddTitle}
             </h2>
             <p className="text-[14px] text-[#6B7280] mt-1">
-              {isEdit
-                ? 'Update the room details and availability status'
-                : 'Fill in the details below to add a new room to the inventory'}
+              {isEdit ? M.roomFormEditSubtitle : M.roomFormAddSubtitle}
             </p>
           </div>
           <button
             onClick={onClose}
             className="w-9 h-9 flex items-center justify-center rounded-lg text-[#6B7280] hover:bg-[#F3F4F6] transition-colors shrink-0 ml-4"
-            aria-label="Close"
+            aria-label={M.closeAriaLabel}
           >
             <X size={20} />
           </button>
@@ -150,15 +151,15 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
           {/* ─ Section: Basic Info ─ */}
           <div className="bg-white rounded-xl border border-[#E5E7EB] p-5 space-y-5">
             <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#9CA3AF]">
-              Basic Information
+              {M.roomSectionBasicInfo}
             </p>
 
             {/* Room Name */}
             <div>
-              <label className={labelCls}>Room Name</label>
+              <label className={labelCls}>{M.roomLabelName}</label>
               <input
                 {...register('name')}
-                placeholder="e.g. Deluxe King Suite 302"
+                placeholder={M.roomPlaceholderName}
                 className={inputCls}
                 autoComplete="off"
               />
@@ -168,20 +169,20 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
             {/* Room Code + Type — 2 col */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className={labelCls}>Room Code</label>
+                <label className={labelCls}>{M.roomLabelCode}</label>
                 <input
                   {...register('roomCode')}
-                  placeholder="e.g. RN-302-DX"
+                  placeholder={M.roomPlaceholderCode}
                   className={inputCls}
                   style={{ textTransform: 'uppercase' }}
                   autoComplete="off"
                 />
-                <span className={hintCls}>Uppercase letters, numbers &amp; hyphens only</span>
+                <span className={hintCls}>{M.roomHintCode}</span>
                 {errors.roomCode && <span className={errorCls}>{errors.roomCode.message}</span>}
               </div>
 
               <div>
-                <label className={labelCls}>Room Type</label>
+                <label className={labelCls}>{M.roomLabelType}</label>
                 <div className="relative">
                   <select {...register('type')} className={selectCls}>
                     <option value="Standard">Standard</option>
@@ -202,12 +203,12 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
           {/* ─ Section: Pricing & Status ─ */}
           <div className="bg-white rounded-xl border border-[#E5E7EB] p-5 space-y-5">
             <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#9CA3AF]">
-              Pricing &amp; Availability
+              {M.roomSectionPricing}
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className={labelCls}>Price per Night</label>
+                <label className={labelCls}>{M.roomLabelPrice}</label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[14px] font-semibold text-[#6B7280] pointer-events-none select-none">
                     ₦
@@ -224,7 +225,7 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
               </div>
 
               <div>
-                <label className={labelCls}>Availability Status</label>
+                <label className={labelCls}>{M.roomLabelStatus}</label>
                 <div className="relative">
                   <select {...register('status')} className={selectCls}>
                     <option value="Available">Available</option>
@@ -244,15 +245,15 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
           {/* ─ Section: Description ─ */}
           <div className="bg-white rounded-xl border border-[#E5E7EB] p-5">
             <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#9CA3AF] mb-4">
-              Description
+              {M.roomSectionDescription}
               <span className="ml-2 text-[11px] font-normal normal-case tracking-normal text-[#9CA3AF]">
-                (optional)
+                {M.roomDescriptionOptional}
               </span>
             </p>
             <textarea
               {...register('description')}
               rows={5}
-              placeholder="Describe the room — highlight key features, views, furnishings, bed type, and included amenities..."
+              placeholder={M.roomPlaceholderDescription}
               className="block w-full px-4 py-3.5 rounded-lg border border-[#D1D5DB] bg-white text-[14px] text-[#0D0F2B] placeholder:text-[#9CA3AF] outline-none focus:border-[#020887] focus:ring-2 focus:ring-[#020887]/10 resize-none transition-all"
             />
           </div>
@@ -260,7 +261,7 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
           {/* ─ Section: Room Image ─ */}
           <div className="bg-white rounded-xl border border-[#E5E7EB] p-5">
             <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#9CA3AF] mb-4">
-              Room Image
+              {M.roomSectionImage}
             </p>
 
             {/* Upload preview */}
@@ -275,7 +276,7 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
                     className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2 px-4 py-2 bg-white rounded-lg text-[13px] font-semibold text-[#EF4444] shadow-lg hover:bg-[#FEE2E2]"
                   >
                     <Trash2 size={14} />
-                    Remove image
+                    {M.roomRemoveImage}
                   </button>
                 </div>
                 {uploadedFile && (
@@ -307,10 +308,10 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
                     <UploadCloud size={24} className="text-[#020887]" />
                   </div>
                   <p className="text-[14px] font-semibold text-[#111827]">
-                    Click to upload or drag &amp; drop
+                    {M.roomUploadPrompt}
                   </p>
                   <p className="text-[13px] text-[#9CA3AF] mt-1">
-                    PNG, JPG, WebP — max 5 MB
+                    {M.roomUploadFormats}
                   </p>
                 </div>
               </div>
@@ -332,7 +333,7 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
             <div className="flex items-center gap-3 mb-4">
               <div className="flex-1 h-px bg-[#E5E7EB]" />
               <span className="text-[12px] font-semibold text-[#9CA3AF] uppercase tracking-wider">
-                or paste an image URL
+                {M.roomOrPasteUrl}
               </span>
               <div className="flex-1 h-px bg-[#E5E7EB]" />
             </div>
@@ -351,7 +352,7 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
               />
             </div>
             <span className="block text-[12px] text-[#9CA3AF] mt-2">
-              Uploaded file takes priority over URL if both are provided.
+              {M.roomUploadPriority}
             </span>
           </div>
 
@@ -366,14 +367,14 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
             onClick={onClose}
             className="h-10 px-5 rounded-lg border border-[#D1D5DB] text-[13px] font-medium text-[#374151] hover:bg-[#F3F4F6] transition-colors"
           >
-            Cancel
+            {M.cancel}
           </button>
           <button
             type="submit"
             form="room-form"
             className="h-10 px-7 rounded-lg bg-[#020887] text-white text-[13px] font-semibold hover:bg-[#38369A] transition-colors"
           >
-            {isEdit ? 'Save Changes' : 'Add Room'}
+            {isEdit ? M.saveChanges : M.roomSubmitAdd}
           </button>
         </div>
       </div>

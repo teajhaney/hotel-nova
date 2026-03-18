@@ -2,87 +2,17 @@
 
 import { useState } from 'react';
 import { Plus, Tag, Pencil, Trash2, RefreshCw, TrendingUp } from 'lucide-react';
-import { PromoFormModal, type PromoData } from '@/components/admin/promo-codes/PromoFormModal';
+import { PromoFormModal } from '@/components/admin/promo-codes/PromoFormModal';
+import type { PromoData } from '@/type/interface';
 import { DeletePromoModal } from '@/components/admin/promo-codes/DeletePromoModal';
+import { INITIAL_PROMOS } from '@/constants/dummyData';
+import { ADMIN_DASHBOARD_MESSAGES } from '@/constants/messages';
+
+const M = ADMIN_DASHBOARD_MESSAGES;
 
 type Tab = 'Active Codes' | 'Expired Codes' | 'Scheduled';
 
-const INITIAL_PROMOS: PromoData[] = [
-  {
-    code: 'GRAND25',
-    description: '25% off all suites',
-    discount: '25%',
-    discountType: 'percentage',
-    discountValue: 25,
-    usageLimit: 100,
-    used: 67,
-    validFrom: 'Mar 1, 2026',
-    validTo: 'Mar 31, 2026',
-    status: 'Active',
-  },
-  {
-    code: 'WELCOME15',
-    description: '15% off first booking',
-    discount: '15%',
-    discountType: 'percentage',
-    discountValue: 15,
-    usageLimit: 500,
-    used: 312,
-    validFrom: 'Jan 1, 2026',
-    validTo: 'Dec 31, 2026',
-    status: 'Active',
-  },
-  {
-    code: 'WEEKEND50K',
-    description: '₦50,000 off weekend stays',
-    discount: '₦50,000',
-    discountType: 'fixed',
-    discountValue: 50000,
-    usageLimit: 50,
-    used: 50,
-    validFrom: 'Feb 1, 2026',
-    validTo: 'Feb 28, 2026',
-    status: 'Inactive',
-  },
-  {
-    code: 'VIP2026',
-    description: '30% off for VIP members',
-    discount: '30%',
-    discountType: 'percentage',
-    discountValue: 30,
-    usageLimit: 200,
-    used: 88,
-    validFrom: 'Jan 15, 2026',
-    validTo: 'Jun 30, 2026',
-    status: 'Active',
-  },
-  {
-    code: 'EASTER100K',
-    description: '₦100,000 off Easter holiday',
-    discount: '₦100,000',
-    discountType: 'fixed',
-    discountValue: 100000,
-    usageLimit: 75,
-    used: 0,
-    validFrom: 'Apr 17, 2026',
-    validTo: 'Apr 20, 2026',
-    status: 'Scheduled',
-  },
-  {
-    code: 'NEWYR2025',
-    description: 'New Year special offer',
-    discount: '20%',
-    discountType: 'percentage',
-    discountValue: 20,
-    usageLimit: 300,
-    used: 300,
-    validFrom: 'Dec 28, 2025',
-    validTo: 'Jan 2, 2026',
-    status: 'Inactive',
-  },
-];
-
-const TABS: Tab[] = ['Active Codes', 'Expired Codes', 'Scheduled'];
+const TABS: Tab[] = [M.promoTabActive, M.promoTabExpired, M.promoTabScheduled];
 
 export default function AdminPromoCodesPage() {
   const [promos, setPromos] = useState<PromoData[]>(INITIAL_PROMOS);
@@ -123,15 +53,15 @@ export default function AdminPromoCodesPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-7">
         <div>
-          <h1 className="text-[24px] font-bold text-[#0D0F2B]">Promo Codes</h1>
-          <p className="text-[14px] text-[#64748B] mt-1">Create and manage discount codes for guests</p>
+          <h1 className="text-[24px] font-bold text-[#0D0F2B]">{M.promoTitle}</h1>
+          <p className="text-[14px] text-[#64748B] mt-1">{M.promoSubtitle}</p>
         </div>
         <button
           onClick={() => setAddOpen(true)}
           className="flex items-center gap-1.5 h-10 px-4 rounded-lg bg-[#020887] text-white text-[13px] font-medium hover:bg-[#38369A] transition-colors"
         >
           <Plus size={16} />
-          Add New Code
+          {M.addNewCode}
         </button>
       </div>
 
@@ -158,12 +88,12 @@ export default function AdminPromoCodesPage() {
           <table className="w-full">
             <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0]">
               <tr>
-                <th className="admin-table-th">Code Name</th>
-                <th className="admin-table-th">Discount Value</th>
-                <th className="admin-table-th">Usage</th>
-                <th className="admin-table-th">Validity Period</th>
-                <th className="admin-table-th">Status</th>
-                <th className="admin-table-th">Actions</th>
+                <th className="admin-table-th">{M.promoColCodeName}</th>
+                <th className="admin-table-th">{M.promoColDiscountValue}</th>
+                <th className="admin-table-th">{M.promoColUsage}</th>
+                <th className="admin-table-th">{M.promoColValidityPeriod}</th>
+                <th className="admin-table-th">{M.promoColStatus}</th>
+                <th className="admin-table-th">{M.promoColActions}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#F1F5F9]">
@@ -222,7 +152,7 @@ export default function AdminPromoCodesPage() {
                           <button
                             onClick={() => setEditTarget(promo)}
                             className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E2E8F0] text-[#64748B] hover:border-[#020887] hover:text-[#020887] transition-colors"
-                            aria-label="Renew / reactivate"
+                            aria-label={M.renewPromoAriaLabel}
                           >
                             <RefreshCw size={14} />
                           </button>
@@ -230,7 +160,7 @@ export default function AdminPromoCodesPage() {
                           <button
                             onClick={() => setEditTarget(promo)}
                             className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E2E8F0] text-[#64748B] hover:border-[#020887] hover:text-[#020887] transition-colors"
-                            aria-label="Edit"
+                            aria-label={M.editPromoAriaLabel}
                           >
                             <Pencil size={14} />
                           </button>
@@ -238,7 +168,7 @@ export default function AdminPromoCodesPage() {
                         <button
                           onClick={() => setDeleteTarget(promo)}
                           className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E2E8F0] text-[#64748B] hover:border-[#EF4444] hover:text-[#EF4444] transition-colors"
-                          aria-label="Delete"
+                          aria-label={M.deletePromoAriaLabel}
                         >
                           <Trash2 size={14} />
                         </button>
@@ -262,9 +192,9 @@ export default function AdminPromoCodesPage() {
       {/* Bottom stat cards */}
       <div className="grid grid-cols-3 gap-4">
         {[
-          { label: 'Total Redemptions', value: '1,402', icon: TrendingUp, color: 'text-[#10B981]', bg: 'bg-[#D1FAE5]' },
-          { label: 'Active Discount Value', value: '₦4.2M', icon: Tag, color: 'text-[#020887]', bg: 'bg-[#EEF0FF]' },
-          { label: 'Average Conv. Rate', value: '8.4%', icon: TrendingUp, color: 'text-[#F59E0B]', bg: 'bg-[#FEF3C7]' },
+          { label: M.promoStatRedemptions,   value: '1,402', icon: TrendingUp, color: 'text-[#10B981]', bg: 'bg-[#D1FAE5]' },
+          { label: M.promoStatDiscountValue, value: '₦4.2M', icon: Tag,        color: 'text-[#020887]', bg: 'bg-[#EEF0FF]' },
+          { label: M.promoStatConvRate,      value: '8.4%',  icon: TrendingUp, color: 'text-[#F59E0B]', bg: 'bg-[#FEF3C7]' },
         ].map(({ label, value, icon: Icon, color, bg }) => (
           <div key={label} className="admin-stat-card flex items-center gap-4">
             <div className={`w-10 h-10 rounded-lg ${bg} flex items-center justify-center shrink-0`}>

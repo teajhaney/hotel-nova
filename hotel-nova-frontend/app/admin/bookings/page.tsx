@@ -13,6 +13,9 @@ import {
 } from 'lucide-react';
 import { BookingStatusModal, type BookingData } from '@/components/admin/bookings/BookingStatusModal';
 import { DeleteBookingModal } from '@/components/admin/bookings/DeleteBookingModal';
+import { ADMIN_DASHBOARD_MESSAGES } from '@/constants/messages';
+
+const M = ADMIN_DASHBOARD_MESSAGES;
 
 const INITIAL_BOOKINGS: BookingData[] = [
   { id: 'BK-2026-0182', guest: 'Amara Okonkwo',    room: 'Deluxe King 302',        checkIn: 'Mar 18, 2026', checkOut: 'Mar 22, 2026', amount: 700000,   status: 'Confirmed'   },
@@ -31,9 +34,9 @@ const AVATAR_COLORS     = ['#EEF0FF','#D1FAE5','#FFEDD5','#DBEAFE','#FEE2E2','#F
 const AVATAR_TEXT_COLORS = ['#020887','#10B981','#F97316','#1D4ED8','#DC2626','#B45309','#7C3AED','#059669','#EA580C','#2563EB'];
 
 const MINI_STATS = [
-  { label: 'Total Bookings', value: '1,284', change: '+12%', positive: true  },
-  { label: 'Pending',        value: '45',    change: '-5%',  positive: false },
-  { label: 'Checked-In',    value: '182',   change: '+8%',  positive: true  },
+  { label: M.bookingStatTotalBookings, value: '1,284', change: '+12%', positive: true  },
+  { label: M.bookingStatPending,       value: '45',    change: '-5%',  positive: false },
+  { label: M.bookingStatCheckedIn,     value: '182',   change: '+8%',  positive: true  },
 ];
 
 function StatusBadge({ status }: { status: string }) {
@@ -49,14 +52,14 @@ function StatusBadge({ status }: { status: string }) {
 
 export default function AdminBookingsPage() {
   const [bookings, setBookings] = useState<BookingData[]>(INITIAL_BOOKINGS);
-  const [statusFilter, setStatusFilter] = useState('All Statuses');
-  const [typeFilter, setTypeFilter] = useState('All Room Types');
+  const [statusFilter, setStatusFilter] = useState<string>(M.allStatuses);
+  const [typeFilter, setTypeFilter] = useState<string>(M.allRoomTypes);
 
   const [editTarget, setEditTarget]   = useState<BookingData | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<BookingData | null>(null);
 
   const filtered = bookings.filter((b) => {
-    const matchStatus = statusFilter === 'All Statuses' || b.status === statusFilter;
+    const matchStatus = statusFilter === M.allStatuses || b.status === statusFilter;
     return matchStatus;
   });
 
@@ -75,8 +78,8 @@ export default function AdminBookingsPage() {
     <div className="admin-page-container">
       {/* Header — no Add Booking button */}
       <div className="mb-7">
-        <h1 className="text-[24px] font-bold text-[#0D0F2B]">All Bookings</h1>
-        <p className="text-[14px] text-[#64748B] mt-1">Manage and track all hotel reservations</p>
+        <h1 className="text-[24px] font-bold text-[#0D0F2B]">{M.bookingsTitle}</h1>
+        <p className="text-[14px] text-[#64748B] mt-1">{M.bookingsSubtitle}</p>
       </div>
 
       {/* Mini stat cards */}
@@ -102,28 +105,28 @@ export default function AdminBookingsPage() {
         </div>
         <div className="relative">
           <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="h-10 pl-3 pr-8 rounded-lg border border-[#E2E8F0] bg-white text-[13px] text-[#0D0F2B] outline-none appearance-none cursor-pointer">
-            <option>All Statuses</option>
-            <option>Confirmed</option>
-            <option>Pending</option>
-            <option>Checked In</option>
-            <option>Checked Out</option>
-            <option>Cancelled</option>
+            <option>{M.allStatuses}</option>
+            <option>{M.statusConfirmed}</option>
+            <option>{M.statusPending}</option>
+            <option>{M.statusCheckedIn}</option>
+            <option>{M.statusCheckedOut}</option>
+            <option>{M.statusCancelled}</option>
           </select>
           <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#94A3B8] pointer-events-none" />
         </div>
         <div className="relative">
           <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="h-10 pl-3 pr-8 rounded-lg border border-[#E2E8F0] bg-white text-[13px] text-[#0D0F2B] outline-none appearance-none cursor-pointer">
-            <option>All Room Types</option>
-            <option>Deluxe</option>
-            <option>Suite</option>
-            <option>Standard</option>
-            <option>Executive</option>
+            <option>{M.allRoomTypes}</option>
+            <option>{M.typeDeluxe}</option>
+            <option>{M.typeSuite}</option>
+            <option>{M.typeStandard}</option>
+            <option>{M.typeExecutive}</option>
           </select>
           <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#94A3B8] pointer-events-none" />
         </div>
         <div className="ml-auto flex items-center gap-2">
-          <button className="admin-action-btn" aria-label="Download"><Download size={15} /></button>
-          <button className="admin-action-btn" aria-label="Print"><Printer size={15} /></button>
+          <button className="admin-action-btn" aria-label={M.downloadAriaLabel}><Download size={15} /></button>
+          <button className="admin-action-btn" aria-label={M.printAriaLabel}><Printer size={15} /></button>
         </div>
       </div>
 
@@ -133,13 +136,13 @@ export default function AdminBookingsPage() {
           <table className="w-full">
             <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0]">
               <tr>
-                <th className="admin-table-th">Booking ID</th>
-                <th className="admin-table-th">Guest Name</th>
-                <th className="admin-table-th">Room</th>
-                <th className="admin-table-th">Check-in / Out</th>
-                <th className="admin-table-th">Amount</th>
-                <th className="admin-table-th">Status</th>
-                <th className="admin-table-th">Actions</th>
+                <th className="admin-table-th">{M.bookingsColBookingId}</th>
+                <th className="admin-table-th">{M.bookingsColGuestName}</th>
+                <th className="admin-table-th">{M.bookingsColRoom}</th>
+                <th className="admin-table-th">{M.bookingsColCheckInOut}</th>
+                <th className="admin-table-th">{M.bookingsColAmount}</th>
+                <th className="admin-table-th">{M.bookingsColStatus}</th>
+                <th className="admin-table-th">{M.bookingsColActions}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#F1F5F9]">
@@ -169,10 +172,10 @@ export default function AdminBookingsPage() {
                   <td className="admin-table-td"><StatusBadge status={b.status} /></td>
                   <td className="admin-table-td">
                     <div className="flex items-center gap-2">
-                      <button onClick={() => setEditTarget(b)} className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E2E8F0] text-[#64748B] hover:border-[#020887] hover:text-[#020887] transition-colors" aria-label="Edit status">
+                      <button onClick={() => setEditTarget(b)} className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E2E8F0] text-[#64748B] hover:border-[#020887] hover:text-[#020887] transition-colors" aria-label={M.editStatusAriaLabel}>
                         <Pencil size={14} />
                       </button>
-                      <button onClick={() => setDeleteTarget(b)} className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E2E8F0] text-[#64748B] hover:border-[#EF4444] hover:text-[#EF4444] transition-colors" aria-label="Delete booking">
+                      <button onClick={() => setDeleteTarget(b)} className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E2E8F0] text-[#64748B] hover:border-[#EF4444] hover:text-[#EF4444] transition-colors" aria-label={M.deleteBookingAriaLabel}>
                         <Trash2 size={14} />
                       </button>
                     </div>
@@ -181,7 +184,7 @@ export default function AdminBookingsPage() {
               ))}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-5 py-10 text-center text-[14px] text-[#94A3B8]">No bookings match the current filter</td>
+                  <td colSpan={7} className="px-5 py-10 text-center text-[14px] text-[#94A3B8]">{M.noBookingsFound}</td>
                 </tr>
               )}
             </tbody>

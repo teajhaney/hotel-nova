@@ -4,6 +4,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { X, ChevronDown } from 'lucide-react';
+import { ADMIN_DASHBOARD_MESSAGES } from '@/constants/messages';
+
+const M = ADMIN_DASHBOARD_MESSAGES;
 
 const STATUSES = ['Pending', 'Confirmed', 'Checked In', 'Checked Out', 'Cancelled'] as const;
 
@@ -52,16 +55,16 @@ export function BookingStatusModal({ booking, onClose, onSave }: BookingStatusMo
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <button className="absolute inset-0 w-full h-full bg-black/50 cursor-default" onClick={onClose} aria-label="Close" />
+      <button className="absolute inset-0 w-full h-full bg-black/50 cursor-default" onClick={onClose} aria-label={M.closeAriaLabel} />
 
-      <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md">
+      <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md animate-scale-in">
         {/* Header */}
         <div className="flex items-start justify-between px-6 py-5 border-b border-[#E5E7EB]">
           <div>
-            <h2 className="text-[17px] font-bold text-[#0D0F2B]">Update Booking Status</h2>
-            <p className="text-[13px] text-[#6B7280] mt-0.5">Change the status for this reservation</p>
+            <h2 className="text-[17px] font-bold text-[#0D0F2B]">{M.bookingStatusTitle}</h2>
+            <p className="text-[13px] text-[#6B7280] mt-0.5">{M.bookingStatusSubtitle}</p>
           </div>
-          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-lg text-[#6B7280] hover:bg-[#F3F4F6] transition-colors shrink-0 ml-3" aria-label="Close">
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-lg text-[#6B7280] hover:bg-[#F3F4F6] transition-colors shrink-0 ml-3" aria-label={M.closeAriaLabel}>
             <X size={18} />
           </button>
         </div>
@@ -86,7 +89,7 @@ export function BookingStatusModal({ booking, onClose, onSave }: BookingStatusMo
 
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="px-6 py-5">
-          <label className="block text-[13px] font-semibold text-[#374151] mb-2">Update Status To</label>
+          <label className="block text-[13px] font-semibold text-[#374151] mb-2">{M.bookingStatusLabel}</label>
           <div className="relative">
             <select {...register('status')} className={selectCls}>
               {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
@@ -97,10 +100,10 @@ export function BookingStatusModal({ booking, onClose, onSave }: BookingStatusMo
 
           <div className="flex items-center justify-end gap-3 mt-5 pt-4 border-t border-[#E5E7EB]">
             <button type="button" onClick={onClose} className="h-10 px-5 rounded-lg border border-[#D1D5DB] text-[13px] font-medium text-[#374151] hover:bg-[#F3F4F6] transition-colors">
-              Cancel
+              {M.cancel}
             </button>
             <button type="submit" className="h-10 px-6 rounded-lg bg-[#020887] text-white text-[13px] font-semibold hover:bg-[#38369A] transition-colors">
-              Update Status
+              {M.bookingStatusSubmit}
             </button>
           </div>
         </form>

@@ -63,14 +63,16 @@ export function Navbar() {
             aria-expanded={isOpen}
             aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
           >
-            {isOpen ? <X size={22} aria-hidden="true" /> : <Menu size={22} aria-hidden="true" />}
+            <span className="block transition-transform duration-300" style={{ transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>
+              {isOpen ? <X size={22} aria-hidden="true" /> : <Menu size={22} aria-hidden="true" />}
+            </span>
           </button>
         </div>
       </nav>
 
       {/* Mobile dropdown menu */}
       {isOpen && (
-        <div className="lg:hidden bg-white border-t border-[#E2E8F0] shadow-[0_4px_16px_rgba(0,0,0,0.08)]">
+        <div className="lg:hidden bg-white border-t border-[#E2E8F0] shadow-[0_4px_16px_rgba(0,0,0,0.08)] animate-slide-down">
           <ul className="page-container py-[12px] flex flex-col gap-[2px] list-none m-0 p-y-[12px]" role="list">
             {NAV_LINKS.map(({ href, label }) => (
               <li key={href}>
