@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { motion } from 'motion/react';
 import { AdminSidebar } from './AdminSidebar';
 import { AdminMobileNav } from './AdminMobileNav';
 import { Menu, Bell, HelpCircle, Search } from 'lucide-react';
@@ -21,34 +22,34 @@ export function AdminDashboardShell({
         <AdminSidebar />
       </aside>
 
-      {/* Mobile drawer — always in DOM for smooth enter + exit transitions */}
-      <div
-        className={`fixed inset-0 z-[60] lg:hidden transition-[visibility] duration-400 ${
-          drawerOpen ? 'visible' : 'invisible'
-        }`}
+      {/* Mobile drawer — always in DOM, animated with motion */}
+      <motion.div
+        className="fixed inset-0 z-[60] lg:hidden"
+        animate={{ opacity: drawerOpen ? 1 : 0, pointerEvents: drawerOpen ? 'auto' : 'none' }}
+        initial={false}
+        transition={{ duration: 0.25 }}
       >
         {/* Backdrop */}
         <button
-          className={`absolute inset-0 w-full h-full bg-black/50 cursor-default transition-opacity duration-400 ${
-            drawerOpen ? 'opacity-100' : 'opacity-0'
-          }`}
+          className="absolute inset-0 w-full h-full bg-black/50 cursor-default"
           onClick={() => setDrawerOpen(false)}
           aria-label={ADMIN_DASHBOARD_MESSAGES.closeMenuAriaLabel}
           tabIndex={drawerOpen ? 0 : -1}
         />
-        {/* Drawer panel — slides in from left */}
-        <aside
-          className={`admin-sidebar flex flex-col absolute left-0 top-0 bottom-0 w-[240px] shadow-2xl z-10 transition-transform duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-            drawerOpen ? 'translate-x-0' : '-translate-x-full'
-          }`}
+        {/* Drawer panel — springs in from left */}
+        <motion.aside
+          className="admin-sidebar flex flex-col absolute left-0 top-0 bottom-0 w-[240px] shadow-2xl z-10"
+          animate={{ x: drawerOpen ? 0 : '-100%' }}
+          initial={false}
+          transition={{ type: 'spring', damping: 30, stiffness: 300 }}
         >
           <AdminSidebar onClose={() => setDrawerOpen(false)} />
-        </aside>
-      </div>
+        </motion.aside>
+      </motion.div>
 
       <div className="flex-1 min-w-0 flex flex-col">
         {/* Desktop top bar */}
-        <header className="hidden lg:flex sticky top-0 z-40 items-center justify-between h-16 px-6 bg-white border-b border-[#E2E8F0]">
+        <header className="hidden lg:flex sticky top-0 z-40 items-center justify-between h-14 px-6 bg-white border-b border-[#E2E8F0]">
           {/* Left: Search */}
           <div className="flex items-center gap-2 w-72 h-9 px-3 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC]">
             <Search size={15} className="text-[#94A3B8] shrink-0" />

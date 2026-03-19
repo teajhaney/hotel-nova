@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Plus, TrendingUp, TrendingDown, Pencil, Trash2 } from 'lucide-react';
+import { AnimatePresence } from 'motion/react';
 import { UserFormModal, type UserData } from '@/components/admin/users/UserFormModal';
 import { DeleteUserModal } from '@/components/admin/users/DeleteUserModal';
 import { ADMIN_DASHBOARD_MESSAGES } from '@/constants/messages';
@@ -261,22 +262,28 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Add / Edit Modal */}
-      {modalMode && (
-        <UserFormModal
-          user={selectedUser}
-          onClose={handleCloseModal}
-          onSave={handleSave}
-        />
-      )}
+      <AnimatePresence>
+        {modalMode && (
+          <UserFormModal
+            key="user-form"
+            user={selectedUser}
+            onClose={handleCloseModal}
+            onSave={handleSave}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Delete Confirmation */}
-      {deleteTarget && (
-        <DeleteUserModal
-          userName={deleteTarget.name}
-          onClose={() => setDeleteTarget(null)}
-          onConfirm={handleDeleteConfirm}
-        />
-      )}
+      <AnimatePresence>
+        {deleteTarget && (
+          <DeleteUserModal
+            key="delete-user"
+            userName={deleteTarget.name}
+            onClose={() => setDeleteTarget(null)}
+            onConfirm={handleDeleteConfirm}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

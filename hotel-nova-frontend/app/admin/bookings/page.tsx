@@ -11,6 +11,7 @@ import {
   TrendingUp,
   TrendingDown,
 } from 'lucide-react';
+import { AnimatePresence } from 'motion/react';
 import { BookingStatusModal, type BookingData } from '@/components/admin/bookings/BookingStatusModal';
 import { DeleteBookingModal } from '@/components/admin/bookings/DeleteBookingModal';
 import { ADMIN_DASHBOARD_MESSAGES } from '@/constants/messages';
@@ -201,12 +202,16 @@ export default function AdminBookingsPage() {
         </div>
       </div>
 
-      {editTarget && (
-        <BookingStatusModal booking={editTarget} onClose={() => setEditTarget(null)} onSave={handleStatusSave} />
-      )}
-      {deleteTarget && (
-        <DeleteBookingModal bookingId={deleteTarget.id} guestName={deleteTarget.guest} onClose={() => setDeleteTarget(null)} onConfirm={handleDeleteConfirm} />
-      )}
+      <AnimatePresence>
+        {editTarget && (
+          <BookingStatusModal key="booking-status" booking={editTarget} onClose={() => setEditTarget(null)} onSave={handleStatusSave} />
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {deleteTarget && (
+          <DeleteBookingModal key="delete-booking" bookingId={deleteTarget.id} guestName={deleteTarget.guest} onClose={() => setDeleteTarget(null)} onConfirm={handleDeleteConfirm} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

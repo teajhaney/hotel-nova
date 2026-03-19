@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Plus, Search, Pencil, Trash2, ChevronDown } from 'lucide-react';
 import Image from 'next/image';
+import { AnimatePresence } from 'motion/react';
 import { RoomFormModal, } from '@/components/admin/rooms/RoomFormModal';
 import { DeleteRoomModal } from '@/components/admin/rooms/DeleteRoomModal';
 import { INITIAL_ROOMS } from '@/constants/dummyData';
@@ -255,22 +256,28 @@ export default function AdminRoomsPage() {
       </div>
 
       {/* Add / Edit Modal */}
-      {modalMode && (
-        <RoomFormModal
-          room={selectedRoom}
-          onClose={handleCloseModal}
-          onSave={handleSave}
-        />
-      )}
+      <AnimatePresence>
+        {modalMode && (
+          <RoomFormModal
+            key="room-form"
+            room={selectedRoom}
+            onClose={handleCloseModal}
+            onSave={handleSave}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Delete Confirmation */}
-      {deleteTarget && (
-        <DeleteRoomModal
-          roomName={deleteTarget.name}
-          onClose={() => setDeleteTarget(null)}
-          onConfirm={handleDeleteConfirm}
-        />
-      )}
+      <AnimatePresence>
+        {deleteTarget && (
+          <DeleteRoomModal
+            key="delete-room"
+            roomName={deleteTarget.name}
+            onClose={() => setDeleteTarget(null)}
+            onConfirm={handleDeleteConfirm}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

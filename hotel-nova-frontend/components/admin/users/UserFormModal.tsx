@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { X, ChevronDown, Mail, User, ShieldCheck, CalendarDays, Info, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
+import { motion } from 'motion/react';
 import { ADMIN_DASHBOARD_MESSAGES } from '@/constants/messages';
 
 const M = ADMIN_DASHBOARD_MESSAGES;
@@ -285,7 +286,13 @@ export function UserFormModal({ user, onClose, onSave }: UserFormModalProps) {
   const isEdit = !!user;
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end">
+    <motion.div
+      className="fixed inset-0 z-50 flex justify-end"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+    >
       {/* Backdrop */}
       <button
         className="absolute inset-0 w-full h-full bg-black/50 cursor-default"
@@ -294,7 +301,13 @@ export function UserFormModal({ user, onClose, onSave }: UserFormModalProps) {
       />
 
       {/* Drawer */}
-      <div className="relative flex flex-col bg-[#F8FAFC] w-full sm:w-[500px] h-full shadow-2xl animate-slide-in-right">
+      <motion.div
+        className="relative flex flex-col bg-[#F8FAFC] w-full sm:w-[500px] h-full shadow-2xl"
+        initial={{ x: '100%' }}
+        animate={{ x: 0 }}
+        exit={{ x: '100%' }}
+        transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+      >
         {/* Header */}
         <div className="shrink-0 flex items-start justify-between px-7 py-6 bg-white border-b border-[#E5E7EB]">
           <div>
@@ -338,7 +351,7 @@ export function UserFormModal({ user, onClose, onSave }: UserFormModalProps) {
             {isEdit ? M.saveChanges : M.userSubmitCreateAdmin}
           </button>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { X, ChevronDown } from 'lucide-react';
+import { motion } from 'motion/react';
 import { PromoFormModalProps } from '@/type/interface';
 import { ADMIN_DASHBOARD_MESSAGES } from '@/constants/messages';
 
@@ -99,10 +100,22 @@ export function PromoFormModal({ promo, onClose, onSave }: PromoFormModalProps) 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end">
+    <motion.div
+      className="fixed inset-0 z-50 flex justify-end"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+    >
       <button className="absolute inset-0 w-full h-full bg-black/50 cursor-default" onClick={onClose} aria-label={M.closePanelAriaLabel} />
 
-      <div className="relative flex flex-col bg-[#F8FAFC] w-full sm:w-[540px] h-full shadow-2xl animate-slide-in-right">
+      <motion.div
+        className="relative flex flex-col bg-[#F8FAFC] w-full sm:w-[540px] h-full shadow-2xl"
+        initial={{ x: '100%' }}
+        animate={{ x: 0 }}
+        exit={{ x: '100%' }}
+        transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+      >
         {/* Header */}
         <div className="shrink-0 flex items-start justify-between px-7 py-6 bg-white border-b border-[#E5E7EB]">
           <div>
@@ -235,7 +248,7 @@ export function PromoFormModal({ promo, onClose, onSave }: PromoFormModalProps) 
             {isEdit ? M.saveChanges : M.promoSubmitCreate}
           </button>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Plus, Tag, Pencil, Trash2, RefreshCw, TrendingUp } from 'lucide-react';
+import { AnimatePresence } from 'motion/react';
 import { PromoFormModal } from '@/components/admin/promo-codes/PromoFormModal';
 import type { PromoData } from '@/type/interface';
 import { DeletePromoModal } from '@/components/admin/promo-codes/DeletePromoModal';
@@ -209,23 +210,30 @@ export default function AdminPromoCodesPage() {
       </div>
 
       {/* Add Modal */}
-      {addOpen && (
-        <PromoFormModal promo={null} onClose={() => setAddOpen(false)} onSave={handleSave} />
-      )}
+      <AnimatePresence>
+        {addOpen && (
+          <PromoFormModal key="promo-add" promo={null} onClose={() => setAddOpen(false)} onSave={handleSave} />
+        )}
+      </AnimatePresence>
 
       {/* Edit Modal */}
-      {editTarget && (
-        <PromoFormModal promo={editTarget} onClose={() => setEditTarget(null)} onSave={handleSave} />
-      )}
+      <AnimatePresence>
+        {editTarget && (
+          <PromoFormModal key="promo-edit" promo={editTarget} onClose={() => setEditTarget(null)} onSave={handleSave} />
+        )}
+      </AnimatePresence>
 
       {/* Delete Modal */}
-      {deleteTarget && (
-        <DeletePromoModal
-          promoCode={deleteTarget.code}
-          onClose={() => setDeleteTarget(null)}
-          onConfirm={handleDeleteConfirm}
-        />
-      )}
+      <AnimatePresence>
+        {deleteTarget && (
+          <DeletePromoModal
+            key="delete-promo"
+            promoCode={deleteTarget.code}
+            onClose={() => setDeleteTarget(null)}
+            onConfirm={handleDeleteConfirm}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

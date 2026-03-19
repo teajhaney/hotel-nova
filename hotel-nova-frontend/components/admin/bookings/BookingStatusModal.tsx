@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { X, ChevronDown } from 'lucide-react';
+import { motion } from 'motion/react';
 import { ADMIN_DASHBOARD_MESSAGES } from '@/constants/messages';
 
 const M = ADMIN_DASHBOARD_MESSAGES;
@@ -54,10 +55,22 @@ export function BookingStatusModal({ booking, onClose, onSave }: BookingStatusMo
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <motion.div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+    >
       <button className="absolute inset-0 w-full h-full bg-black/50 cursor-default" onClick={onClose} aria-label={M.closeAriaLabel} />
 
-      <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md animate-scale-in">
+      <motion.div
+        className="relative bg-white rounded-xl shadow-2xl w-full max-w-md"
+        initial={{ opacity: 0, scale: 0.95, y: 8 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 8 }}
+        transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+      >
         {/* Header */}
         <div className="flex items-start justify-between px-6 py-5 border-b border-[#E5E7EB]">
           <div>
@@ -107,7 +120,7 @@ export function BookingStatusModal({ booking, onClose, onSave }: BookingStatusMo
             </button>
           </div>
         </form>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

@@ -41,7 +41,7 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
   return (
     <div className="flex flex-col w-full h-full">
       {/* Logo area */}
-      <div className="px-5 py-5 border-b border-[#E2E8F0] flex items-center justify-between gap-3">
+      <div className="px-5 py-5 h-14 border-b border-[#E2E8F0] flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-9 h-9 rounded-lg bg-[#020887] flex items-center justify-center shrink-0">
             <LayoutDashboard size={20} color="white" />

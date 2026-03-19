@@ -1,6 +1,7 @@
 'use client';
 
 import { Tag } from 'lucide-react';
+import { motion } from 'motion/react';
 import { ADMIN_DASHBOARD_MESSAGES } from '@/constants/messages';
 
 const M = ADMIN_DASHBOARD_MESSAGES;
@@ -13,13 +14,25 @@ interface DeletePromoModalProps {
 
 export function DeletePromoModal({ promoCode, onClose, onConfirm }: DeletePromoModalProps) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <motion.div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+    >
       <button
         className="absolute inset-0 w-full h-full bg-black/50 cursor-default"
         onClick={onClose}
         aria-label={M.closeModalAriaLabel}
       />
-      <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-sm p-6 text-center animate-scale-in">
+      <motion.div
+        className="relative bg-white rounded-xl shadow-2xl w-full max-w-sm p-6 text-center"
+        initial={{ opacity: 0, scale: 0.95, y: 8 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 8 }}
+        transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+      >
         <div className="w-12 h-12 rounded-full bg-[#FEE2E2] flex items-center justify-center mx-auto mb-4">
           <Tag size={22} className="text-[#EF4444]" />
         </div>
@@ -43,7 +56,7 @@ export function DeletePromoModal({ promoCode, onClose, onConfirm }: DeletePromoM
             {M.deletePromoConfirm}
           </button>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

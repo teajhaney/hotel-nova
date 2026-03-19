@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
+import { motion } from 'motion/react';
 import { GuestSidebar } from './GuestSidebar';
 import { GuestMobileNav } from './GuestMobileNav';
 import { Menu, Bell } from 'lucide-react';
@@ -33,30 +34,30 @@ export function GuestDashboardShell({
         <GuestSidebar />
       </aside>
 
-      {/* Mobile drawer — always in DOM for smooth enter + exit transitions */}
-      <div
-        className={`fixed inset-0 z-[60] lg:hidden transition-[visibility] duration-400 ${
-          drawerOpen ? 'visible' : 'invisible'
-        }`}
+      {/* Mobile drawer — always in DOM, animated with motion */}
+      <motion.div
+        className="fixed inset-0 z-[60] lg:hidden"
+        animate={{ opacity: drawerOpen ? 1 : 0, pointerEvents: drawerOpen ? 'auto' : 'none' }}
+        initial={false}
+        transition={{ duration: 0.25 }}
       >
         {/* Backdrop */}
         <button
-          className={`absolute inset-0 w-full h-full bg-black/40 cursor-default transition-opacity duration-400 ${
-            drawerOpen ? 'opacity-100' : 'opacity-0'
-          }`}
+          className="absolute inset-0 w-full h-full bg-black/40 cursor-default"
           onClick={() => setDrawerOpen(false)}
           aria-label="Close menu"
           tabIndex={drawerOpen ? 0 : -1}
         />
-        {/* Drawer panel — slides in from left */}
-        <aside
-          className={`guest-sidebar flex absolute left-0 top-0 bottom-0 shadow-2xl z-10 transition-transform duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-            drawerOpen ? 'translate-x-0' : '-translate-x-full'
-          }`}
+        {/* Drawer panel — springs in from left */}
+        <motion.aside
+          className="guest-sidebar flex absolute left-0 top-0 bottom-0 shadow-2xl z-10"
+          animate={{ x: drawerOpen ? 0 : '-100%' }}
+          initial={false}
+          transition={{ type: 'spring', damping: 30, stiffness: 300 }}
         >
           <GuestSidebar onClose={() => setDrawerOpen(false)} />
-        </aside>
-      </div>
+        </motion.aside>
+      </motion.div>
 
       {/* Right: header + content + bottom nav */}
       <div className="flex-1 min-w-0 flex flex-col">

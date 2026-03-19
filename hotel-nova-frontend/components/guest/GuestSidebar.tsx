@@ -10,7 +10,7 @@ import {
   Bell,
   LogOut,
   X,
-  Building2,
+  LayoutDashboard,
 } from 'lucide-react';
 import { GUEST_DASHBOARD_MESSAGES } from '@/constants/messages';
 
@@ -58,10 +58,10 @@ export function GuestSidebar({ onClose }: GuestSidebarProps) {
   return (
     <div className="flex flex-col w-full h-full">
       {/* Logo + optional close button (mobile) */}
-      <div className="px-5 py-5 border-b border-[#E2E8F0] flex items-center justify-between gap-3">
+      <div className="px-5 py-5 h-14 border-b border-[#E2E8F0] flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-9 h-9 rounded-lg bg-[#020887] flex items-center justify-center shrink-0">
-            <Building2 size={20} color="white" />
+            <LayoutDashboard size={20} color="white" />
           </div>
           <div className="min-w-0">
             <p className="text-[13px] font-bold text-[#0D0F2B] leading-tight tracking-wide uppercase truncate">
