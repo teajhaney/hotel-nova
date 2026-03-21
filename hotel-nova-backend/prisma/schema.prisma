@@ -1,13 +1,273 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+// ─────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────
+
+enum Role {
+  GUEST
+  ADMIN
+}
+
+enum UserStatus {
+  Active
+  Inactive
+  Suspended
+}
+
+enum RoomType {
+  Standard
+  Deluxe
+  Executive
+  Suite
+}
+
+enum RoomStatus {
+  Available
+  Occupied
+  Maintenance
+}
+
+enum BookingStatus {
+  Pending
+  Confirmed
+  CheckedIn
+  CheckedOut
+  Cancelled
+}
+
+enum PaymentStatus {
+  Pending
+  Paid
+  Failed
+  Refunded
+}
+
+enum DiscountType {
+  percentage
+  fixed
+}
+
+enum PromoStatus {
+  Active
+  Inactive
+  Scheduled
+}
+
+enum ReviewStatus {
+  Pending
+  Approved
+  Hidden
+}
+
+enum NotificationType {
+  booking_confirmed
+  checkout_reminder
+  payment_received
+  review_prompt
+  new_booking
+  new_user_registered
+  new_review_submitted
+  room_status_changed
+  security_alert
+  general
+}
+
+// ─────────────────────────────────────────────
+// USER
+// ─────────────────────────────────────────────
+
+model User {
+  id        String     @id @default(uuid())
+  email     String     @unique
+  password  String
+  fullName  String
+  phone     String?
+  country   String?
+  role      Role       @default(GUEST)
+  status    UserStatus @default(Active)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bookings      Booking[]
+  reviews       Review[]
+  notifications Notification[]
+
+  @@map("users")
+}
+
+// ─────────────────────────────────────────────
+// ROOM
+// ─────────────────────────────────────────────
+
+model Room {
+  id      String @id @default(uuid())
+  roomRef String @unique
+
+  name        String
+  type        RoomType
+  price       Int
+  status      RoomStatus @default(Available)
+  description String?
+  imageUrl    String?
+  beds        String?
+  maxGuests   Int        @default(2)
+  sqm         Int?
+  amenities   String[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bookings Booking[]
+  reviews  Review[]
+
+  @@map("rooms")
+}
+
+// ─────────────────────────────────────────────
+// BOOKING
+// ─────────────────────────────────────────────
+
+model Booking {
+  id         String @id @default(uuid())
+  bookingRef String @unique
+
+  guestId String
+  guest   User   @relation(fields: [guestId], references: [id], onDelete: Cascade)
+
+  roomId String
+  room   Room   @relation(fields: [roomId], references: [id])
+
+  guestName    String
+  guestEmail   String
+  guestPhone   String
+  guestCountry String?
+
+  checkIn  DateTime
+  checkOut DateTime
+  nights   Int
+  adults   Int      @default(1)
+  children Int      @default(0)
+
+  pricePerNight Int
+  subtotal      Int
+  serviceCharge Int
+  vat           Int
+  promoDiscount Int @default(0)
+  totalAmount   Int
+
+  promoCodeId String?
+  promoCode   PromoCode? @relation(fields: [promoCodeId], references: [id])
+
+  specialRequests String?
+
+  status        BookingStatus @default(Pending)
+  paymentStatus PaymentStatus @default(Pending)
+  paymentReference String?   @unique
+  paymentMethod    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  review        Review?
+  notifications Notification[]
+
+  @@index([guestId])
+  @@index([roomId])
+  @@index([checkIn, checkOut])
+  @@index([status])
+  @@map("bookings")
+}
+
+// ─────────────────────────────────────────────
+// REVIEW
+// ─────────────────────────────────────────────
+
+model Review {
+  id String @id @default(uuid())
+
+  guestId String
+  guest   User   @relation(fields: [guestId], references: [id], onDelete: Cascade)
+
+  roomId String
+  room   Room   @relation(fields: [roomId], references: [id])
+
+  bookingId String  @unique
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  rating     Int
+  reviewText String
+
+  status ReviewStatus @default(Pending)
+
+  submittedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([roomId])
+  @@index([guestId])
+  @@index([status])
+  @@map("reviews")
+}
+
+// ─────────────────────────────────────────────
+// PROMO CODE
+// ─────────────────────────────────────────────
+
+model PromoCode {
+  id            String       @id @default(uuid())
+  code          String       @unique
+  description   String
+  discountType  DiscountType
+  discountValue Int
+  usageLimit    Int
+  used          Int          @default(0)
+  validFrom     DateTime
+  validTo       DateTime
+  status        PromoStatus  @default(Active)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bookings Booking[]
+
+  @@index([code])
+  @@index([status])
+  @@map("promo_codes")
+}
+
+// ─────────────────────────────────────────────
+// NOTIFICATION
+// ─────────────────────────────────────────────
+
+model Notification {
+  id String @id @default(uuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  bookingId String?
+  booking   Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+
+  type        NotificationType
+  title       String
+  message     String
+  actionLabel String?
+  actionHref  String?
+
+  read     Boolean @default(false)
+  archived Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([read])
+  @@map("notifications")
 }
