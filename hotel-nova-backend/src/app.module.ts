@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
+import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -10,6 +11,8 @@ import { RolesGuard } from './auth/guards/roles.guard';
 
 @Module({
   imports: [
+    // must be first — loads .env before any other module initializes
+    ConfigModule.forRoot({ isGlobal: true }),
     PrismaModule,
     AuthModule,
     ThrottlerModule.forRoot([
@@ -28,11 +31,11 @@ import { RolesGuard } from './auth/guards/roles.guard';
     },
     {
       provide: APP_GUARD,
-      useClass: JwtAuthGuard, // Global JWT Guard
+      useClass: JwtAuthGuard,
     },
     {
       provide: APP_GUARD,
-      useClass: RolesGuard, // Global RBAC Guard
+      useClass: RolesGuard,
     },
   ],
 })

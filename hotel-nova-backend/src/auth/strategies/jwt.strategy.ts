@@ -1,6 +1,10 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
+import { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { COOKIES } from '../../common/constants/auth.constants';
+import { AUTH_MESSAGES } from '../../common/constants/messages';
+import type { AuthUser } from '../interfaces/auth-user.interface';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
 
 @Injectable()
@@ -8,20 +12,17 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        (request: any) => {
-          let token = null;
+        (request: Request): string | null => {
+          // prefer the httpOnly cookie, fall back to Bearer for Postman/testing
+          const cookies = request.cookies as Record<string, string | undefined>;
+          const fromCookie =
+            cookies[COOKIES.ACCESS_TOKEN] ?? cookies[COOKIES.JWT_FALLBACK];
+          if (fromCookie) return fromCookie;
 
-          // Extract from HttpOnly Cookies
-          if (request && request.cookies) {
-            token = request.cookies['accessToken'] || request.cookies['jwt'];
-          }
+          const authHeader = request.headers.authorization;
+          if (authHeader) return authHeader.replace('Bearer ', '');
 
-          // Fallback to common Bearer token approach for easy testing/Postman
-          if (!token && request.headers.authorization) {
-            token = request.headers.authorization.replace('Bearer ', '');
-          }
-
-          return token;
+          return null;
         },
       ]),
       ignoreExpiration: false,
@@ -30,16 +31,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: JwtPayload) {
-    // This payload is automatically validated by the super() call above.
-    // If the token is invalid or expired, JwtStrategy throws a 401 automatically before this function runs.
-    if (!payload || !payload.sub || !payload.email || !payload.role) {
-      throw new UnauthorizedException(
-        'Invalid token payload or missing claims.',
-      );
+  // VALIDATE TOKEN PAYLOAD
+  validate(payload: JwtPayload): AuthUser {
+    if (!payload?.sub || !payload?.email || !payload?.role) {
+      throw new UnauthorizedException(AUTH_MESSAGES.INVALID_TOKEN_PAYLOAD);
     }
 
-    // Attach user to request via req.user
     return {
       id: payload.sub,
       fullName: payload.fullName,

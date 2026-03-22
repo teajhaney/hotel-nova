@@ -5,14 +5,25 @@ import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import cookieParser from 'cookie-parser';
 
+const REQUIRED_ENV = ['DATABASE_URL', 'JWT_SECRET'];
+
+function validateEnv() {
+  const missing = REQUIRED_ENV.filter((key) => !process.env[key]);
+  if (missing.length > 0) {
+    throw new Error(
+      `Missing required environment variables: ${missing.join(', ')}. Check your .env file.`,
+    );
+  }
+}
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const logger = new Logger('Bootstrap');
 
-  // Enable Cookie Parser for HttpOnly Cookies
+  validateEnv();
+
   app.use(cookieParser());
 
-  // Enable CORS
   app.enableCors({
     origin: process.env.FRONTEND_URL || 'http://localhost:3000',
     credentials: true,
@@ -25,16 +36,15 @@ async function bootstrap() {
       transform: true,
     }),
   );
-  // Catch every unhandled exception and return a consistent error shape
-  app.useGlobalFilters(new GlobalExceptionFilter());
 
-  // Log every incoming request and outgoing response with timing
+  app.useGlobalFilters(new GlobalExceptionFilter());
   app.useGlobalInterceptors(new LoggingInterceptor());
 
   const port = process.env.PORT ?? 3001;
   await app.listen(port);
   logger.log(`Application running on http://localhost:${port}`);
 }
+
 bootstrap().catch((err) => {
   console.error('Failed to start application:', err);
   process.exit(1);
