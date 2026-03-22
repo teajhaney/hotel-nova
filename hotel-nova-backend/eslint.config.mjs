@@ -32,4 +32,12 @@ export default tseslint.config(
       "prettier/prettier": ["error", { endOfLine: "auto" }],
     },
   },
+  {
+    // unbound-method is a false positive in Jest — toHaveBeenCalledWith etc.
+    // are accessed as chain methods on expect(), not bound to a class instance
+    files: ['**/*.spec.ts'],
+    rules: {
+      '@typescript-eslint/unbound-method': 'off',
+    },
+  },
 );

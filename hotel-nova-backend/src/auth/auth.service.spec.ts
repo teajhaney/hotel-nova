@@ -35,13 +35,6 @@ const mockRefreshToken = {
   createdAt: new Date(),
 };
 
-const expectedUser = {
-  id: mockUser.id,
-  email: mockUser.email,
-  fullName: mockUser.fullName,
-  role: mockUser.role,
-};
-
 const mockPrisma = {
   user: {
     findUnique: jest.fn(),
@@ -91,11 +84,11 @@ describe('AuthService', () => {
 
       const result = await service.signup(dto);
 
-      expect(mockPrisma.user.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({ email: dto.email }),
-        }),
-      );
+      expect(mockPrisma.user.create).toHaveBeenCalled();
+      const [callArg] = mockPrisma.user.create.mock.calls[0] as [
+        { data: { email: string } },
+      ];
+      expect(callArg.data.email).toBe(dto.email);
       expect(result).toHaveProperty('accessToken');
       expect(result).toHaveProperty('refreshToken');
     });

@@ -95,7 +95,12 @@ describe('AuthController', () => {
   // ─── logout ────────────────────────────────────────────────────────────────
 
   describe('logout', () => {
-    const mockUser = { id: 'user-1', email: 'y@e.com', fullName: 'Y', role: 'GUEST' as const };
+    const mockUser = {
+      id: 'user-1',
+      email: 'y@e.com',
+      fullName: 'Y',
+      role: 'GUEST' as const,
+    };
 
     it('calls authService.logout and clears cookies', async () => {
       const req = mockReq({ refreshToken: 'token-id.raw-secret' });
@@ -132,7 +137,9 @@ describe('AuthController', () => {
 
       const result = await controller.refresh(req, res);
 
-      expect(mockAuthService.refresh).toHaveBeenCalledWith('token-id.raw-secret');
+      expect(mockAuthService.refresh).toHaveBeenCalledWith(
+        'token-id.raw-secret',
+      );
       expect(res.cookie).toHaveBeenCalledTimes(2);
       expect(result).toEqual({ message: 'Token refreshed' });
     });
