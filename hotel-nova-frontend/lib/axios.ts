@@ -57,18 +57,23 @@ apiClient.interceptors.response.use(
       const url = config?.url ?? '';
       const currentPath = window.location.pathname;
 
+      // isAuthMe: the /auth/me endpoint is called on every page load to
+      // rehydrate the user. If the access token has expired, it returns 401.
+      // We DO want to refresh in that case so the user stays logged in after
+      // a page reload. If the refresh also fails, we silently reject without
+      // redirecting (the user just isn't logged in — could be a public page).
       const isAuthMe = url.includes('/auth/me');
+
       const isOnAuthPage =
         currentPath === '/login' ||
         currentPath === '/signup' ||
         currentPath === '/admin/login' ||
         currentPath === '/admin/signup';
 
-      // These cases should never trigger a refresh attempt:
-      //  - /auth/me: expected to fail when not logged in (handled silently)
-      //  - auth pages: no point refreshing if we're already on a login screen
-      //  - _retry set: request already replayed once — refreshing again won't help
-      if (isAuthMe || isOnAuthPage || config?._retry) {
+      // Don't try to refresh if:
+      //  - we're already on a login screen (no point)
+      //  - this request has already been retried once (refresh didn't help)
+      if (isOnAuthPage || config?._retry) {
         return Promise.reject(error);
       }
 
@@ -104,7 +109,14 @@ apiClient.interceptors.response.use(
         return apiClient(config);
       } catch (refreshError) {
         flushQueue(refreshError);
-        redirectToLogin();
+
+        // For /auth/me failures, don't force a redirect — a failed refresh
+        // here just means the user has no session (e.g. first visit, or
+        // truly expired). Redirecting would break public pages.
+        if (!isAuthMe) {
+          redirectToLogin();
+        }
+
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

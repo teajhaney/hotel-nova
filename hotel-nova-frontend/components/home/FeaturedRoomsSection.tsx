@@ -1,10 +1,38 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { RoomCard } from './RoomCard';
-import { FEATURED_ROOMS } from '@/constants/dummyData';
 import { FEATURED_ROOMS_MESSAGES } from '@/constants/messages';
+import type { Room, RoomsPage } from '@/type/api';
 
-export function FeaturedRoomsSection() {
+const FALLBACK_IMAGE =
+  'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=128&h=128&fit=crop&auto=format';
+
+function shuffle<T>(items: T[]) {
+  const array = items.slice();
+  for (let i = array.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+async function getFeaturedRooms(): Promise<Room[]> {
+  if (!process.env.BACKEND_URL) return [];
+
+  const res = await fetch(`${process.env.BACKEND_URL}/rooms?limit=50`, {
+    cache: 'no-store',
+  });
+
+  if (!res.ok) return [];
+
+  const payload = (await res.json()) as RoomsPage;
+  const rooms = payload.data ?? [];
+  return shuffle(rooms).slice(0, 3);
+}
+
+export async function FeaturedRoomsSection() {
+  const rooms = await getFeaturedRooms();
+
   return (
     <section className="section-pad bg-white" aria-labelledby="rooms-heading">
       <div className="page-container">
@@ -32,8 +60,15 @@ export function FeaturedRoomsSection() {
 
         {/* Cards grid */}
         <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[24px]">
-          {FEATURED_ROOMS.map((room) => (
-            <RoomCard key={room.id} {...room} />
+          {rooms.map((room) => (
+            <RoomCard
+              key={room.id}
+              id={room.id}
+              image={room.imageUrl ?? FALLBACK_IMAGE}
+              name={room.name}
+              description={room.description ?? ''}
+              priceFrom={room.price}
+            />
           ))}
         </div>
       </div>

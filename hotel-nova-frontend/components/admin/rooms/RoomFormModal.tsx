@@ -1,10 +1,11 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { X, ChevronDown, UploadCloud, Trash2, Loader2 } from 'lucide-react';
+import { X, ChevronDown, UploadCloud, Trash2, Loader2, Plus } from 'lucide-react';
 import { motion } from 'motion/react';
 import { isAxiosError } from 'axios';
 import { RoomFormModalProps } from '@/type/interface';
@@ -20,14 +21,13 @@ const roomSchema = z.object({
   price: z.number().min(1000, 'Minimum price is ₦1,000'),
   status: z.enum(['Available', 'Occupied', 'Maintenance']),
   description: z.string().optional(),
+  beds: z.string().optional(),
+  maxGuests: z.number().int().min(1).optional(),
+  sqm: z.number().int().min(1).optional(),
 });
 
 type RoomFormData = z.infer<typeof roomSchema>;
 
-const DEFAULT_IMAGE =
-  'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=128&h=128&fit=crop&auto=format';
-
-// Reusable inline styles to avoid Tailwind v4 @apply display issues
 const inputCls =
   'block w-full h-12 px-4 rounded-lg border border-[#D1D5DB] bg-white text-[14px] text-[#0D0F2B] placeholder:text-[#9CA3AF] outline-none focus:border-[#020887] focus:ring-2 focus:ring-[#020887]/10 transition-all';
 
@@ -43,17 +43,30 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
 
   const { mutateAsync: createRoom, isPending: isCreating } = useCreateRoom();
   const { mutateAsync: updateRoom, isPending: isUpdating } = useUpdateRoom();
-  const { mutateAsync: uploadPhoto } = useUploadRoomPhoto();
+  const { mutateAsync: uploadPhoto, isPending: isUploading } =
+    useUploadRoomPhoto();
 
-  const isSaving = isCreating || isUpdating;
+  const isSaving = isCreating || isUpdating || isUploading;
 
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [uploadPreview, setUploadPreview] = useState<string>(
     isEdit ? room.image : '',
   );
-  const [serverError, setServerError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [amenities, setAmenities] = useState<string[]>(room?.amenities ?? []);
+  const [amenityInput, setAmenityInput] = useState('');
+  const [serverError, setServerError] = useState<string | null>(null);
+
+  // Lock body scroll while the modal is open
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
 
   const {
     register,
@@ -69,11 +82,12 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
           price: room.price,
           status: room.status as RoomFormData['status'],
           description: room.description ?? '',
+          beds: room.beds ?? '',
+          maxGuests: room.maxGuests ?? undefined,
+          sqm: room.sqm ?? undefined,
         }
-      : { type: 'Standard', status: 'Available' },
+      : { type: 'Standard', status: 'Available', maxGuests: 2 },
   });
-
-  const previewSrc = uploadPreview;
 
   const handleFileSelect = (file: File) => {
     if (!file.type.startsWith('image/')) return;
@@ -87,6 +101,28 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  const addAmenity = () => {
+    const trimmed = amenityInput.trim().replace(/,$/, '');
+    if (trimmed && !amenities.includes(trimmed)) {
+      setAmenities((prev) => [...prev, trimmed]);
+    }
+    setAmenityInput('');
+  };
+
+  const handleAmenityKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      addAmenity();
+    }
+    if (e.key === 'Backspace' && amenityInput === '' && amenities.length > 0) {
+      setAmenities((prev) => prev.slice(0, -1));
+    }
+  };
+
+  const removeAmenity = (index: number) => {
+    setAmenities((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const onSubmit = async (data: RoomFormData) => {
     setServerError(null);
     try {
@@ -96,7 +132,11 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
         type: data.type,
         price: data.price,
         status: data.status,
-        description: data.description,
+        description: data.description || undefined,
+        beds: data.beds || undefined,
+        maxGuests: data.maxGuests,
+        sqm: data.sqm,
+        amenities,
       };
 
       let savedId: string;
@@ -109,7 +149,6 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
         savedId = created.id;
       }
 
-      // If a new image file was picked, upload it after save
       if (uploadedFile) {
         await uploadPhoto({ id: savedId, file: uploadedFile });
       }
@@ -124,30 +163,48 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
     }
   };
 
-  return (
-    <motion.div
-      className="fixed inset-0 z-50 flex justify-end"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.2 }}
-    >
+  // WHY createPortal:
+  // Framer Motion applies CSS transforms to motion.div elements during animation.
+  // CSS rule: any element with a transform becomes the containing block for ALL
+  // position:fixed descendants — breaking viewport-relative fixed positioning.
+  // createPortal renders the modal directly under document.body, completely
+  // outside the React tree's admin layout (which may have motion ancestors).
+  //
+  // WHY flex flex-col h-screen on the drawer (NOT overflow-y-auto on the drawer):
+  // The drawer itself must be exactly viewport height. Inside it, we use a
+  // flex column: fixed-height header → flex-1 scrollable content area → fixed-height footer.
+  // This gives independent scrolling for just the form content, with the header
+  // and footer always visible.
+
+  // createPortal requires the DOM — bail out during SSR
+  if (typeof window === 'undefined') return null;
+
+  return createPortal(
+    <>
       {/* Backdrop */}
-      <button
-        className="absolute inset-0 w-full h-full bg-black/50 cursor-default"
+      <motion.div
+        className="fixed inset-0 z-[49] bg-black/50 cursor-default"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
         onClick={onClose}
+        role="button"
         aria-label={M.closePanelAriaLabel}
+        tabIndex={-1}
       />
 
-      {/* Drawer */}
+      {/* Drawer — slides in from the right.
+          flex flex-col h-screen keeps it exactly viewport-tall.
+          The content area (flex-1 + overflow-y-auto) is the ONLY part that scrolls. */}
       <motion.div
-        className="relative flex flex-col bg-[#F8FAFC] w-full sm:w-[600px] h-full shadow-2xl"
+        className="fixed top-0 right-0 z-50 h-screen w-full sm:w-[600px] flex flex-col bg-[#F8FAFC] shadow-2xl"
         initial={{ x: '100%' }}
         animate={{ x: 0 }}
         exit={{ x: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
       >
-        {/* ── Header ─────────────────────────────────────── */}
+        {/* Header — always visible at the top */}
         <div className="shrink-0 flex items-start justify-between px-7 py-6 bg-white border-b border-[#E5E7EB]">
           <div>
             <h2 className="text-[20px] font-bold text-[#0D0F2B] leading-tight">
@@ -166,19 +223,19 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
           </button>
         </div>
 
-        {/* ── Scrollable Body ─────────────────────────────── */}
+        {/* Scrollable content area — this is the ONLY thing that scrolls */}
+        <div className="flex-1 overflow-y-auto overscroll-contain">
         <form
           id="room-form"
           onSubmit={handleSubmit(onSubmit)}
-          className="flex-1 overflow-y-auto px-7 py-6 space-y-5"
+          className="px-7 py-6 space-y-5"
         >
-          {/* ─ Section: Basic Info ─ */}
+          {/* ─ Basic Info ─ */}
           <div className="bg-white rounded-xl border border-[#E5E7EB] p-5 space-y-5">
             <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#9CA3AF]">
               {M.roomSectionBasicInfo}
             </p>
 
-            {/* Room Name */}
             <div>
               <label className={labelCls}>{M.roomLabelName}</label>
               <input
@@ -192,7 +249,6 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
               )}
             </div>
 
-            {/* Room Code + Type — 2 col */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className={labelCls}>{M.roomLabelCode}</label>
@@ -204,6 +260,9 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
                   min={1}
                   autoComplete="off"
                 />
+                <span className="block text-[11px] text-[#9CA3AF] mt-1.5">
+                  {M.roomHintCode}
+                </span>
                 {errors.roomNumber && (
                   <span className={errorCls}>{errors.roomNumber.message}</span>
                 )}
@@ -230,7 +289,7 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
             </div>
           </div>
 
-          {/* ─ Section: Pricing & Status ─ */}
+          {/* ─ Pricing & Status ─ */}
           <div className="bg-white rounded-xl border border-[#E5E7EB] p-5 space-y-5">
             <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#9CA3AF]">
               {M.roomSectionPricing}
@@ -276,7 +335,119 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
             </div>
           </div>
 
-          {/* ─ Section: Description ─ */}
+          {/* ─ Room Details ─ */}
+          <div className="bg-white rounded-xl border border-[#E5E7EB] p-5 space-y-5">
+            <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#9CA3AF]">
+              {M.roomSectionDetails}{' '}
+              <span className="ml-1 text-[11px] font-normal normal-case tracking-normal">
+                {M.roomDescriptionOptional}
+              </span>
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className={labelCls}>{M.roomLabelBeds}</label>
+                <input
+                  {...register('beds')}
+                  placeholder={M.roomPlaceholderBeds}
+                  className={inputCls}
+                  autoComplete="off"
+                />
+                {errors.beds && (
+                  <span className={errorCls}>{errors.beds.message}</span>
+                )}
+              </div>
+
+              <div>
+                <label className={labelCls}>{M.roomLabelMaxGuests}</label>
+                <input
+                  {...register('maxGuests', { valueAsNumber: true })}
+                  type="number"
+                  placeholder="2"
+                  className={inputCls}
+                  min={1}
+                />
+                {errors.maxGuests && (
+                  <span className={errorCls}>{errors.maxGuests.message}</span>
+                )}
+              </div>
+            </div>
+
+            <div className="sm:w-1/2 sm:pr-2">
+              <label className={labelCls}>{M.roomLabelSqm}</label>
+              <div className="relative">
+                <input
+                  {...register('sqm', { valueAsNumber: true })}
+                  type="number"
+                  placeholder="e.g. 42"
+                  className={`${inputCls} pr-14`}
+                  min={1}
+                />
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[13px] text-[#9CA3AF] pointer-events-none select-none">
+                  sqm
+                </span>
+              </div>
+              {errors.sqm && (
+                <span className={errorCls}>{errors.sqm.message}</span>
+              )}
+            </div>
+          </div>
+
+          {/* ─ Amenities ─ */}
+          <div className="bg-white rounded-xl border border-[#E5E7EB] p-5">
+            <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#9CA3AF] mb-4">
+              {M.roomSectionAmenities}{' '}
+              <span className="ml-1 text-[11px] font-normal normal-case tracking-normal">
+                {M.roomDescriptionOptional}
+              </span>
+            </p>
+
+            {amenities.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-3">
+                {amenities.map((tag, i) => (
+                  <span
+                    key={i}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EEF0FF] text-[#020887] text-[13px] font-medium"
+                  >
+                    {tag}
+                    <button
+                      type="button"
+                      onClick={() => removeAmenity(i)}
+                      className="hover:text-[#EF4444] transition-colors"
+                      aria-label={`Remove ${tag}`}
+                    >
+                      <X size={12} />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={amenityInput}
+                onChange={(e) => setAmenityInput(e.target.value)}
+                onKeyDown={handleAmenityKeyDown}
+                placeholder={M.roomAmenitiesPlaceholder}
+                className={inputCls}
+              />
+              <button
+                type="button"
+                onClick={addAmenity}
+                disabled={!amenityInput.trim()}
+                className="shrink-0 w-12 h-12 flex items-center justify-center rounded-lg bg-[#020887] text-white hover:bg-[#38369A] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                aria-label="Add amenity"
+              >
+                <Plus size={18} />
+              </button>
+            </div>
+            <p className="text-[12px] text-[#9CA3AF] mt-2">
+              {M.roomAmenitiesHint}
+            </p>
+          </div>
+
+          {/* ─ Description ─ */}
           <div className="bg-white rounded-xl border border-[#E5E7EB] p-5">
             <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#9CA3AF] mb-4">
               {M.roomSectionDescription}
@@ -292,18 +463,17 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
             />
           </div>
 
-          {/* ─ Section: Room Image ─ */}
+          {/* ─ Room Image ─ */}
           <div className="bg-white rounded-xl border border-[#E5E7EB] p-5">
             <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#9CA3AF] mb-4">
               {M.roomSectionImage}
             </p>
 
-            {/* Upload preview */}
-            {previewSrc ? (
+            {uploadPreview ? (
               <div className="relative w-full h-52 rounded-xl overflow-hidden border border-[#E5E7EB] group mb-4">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={previewSrc}
+                  src={uploadPreview}
                   alt="Room preview"
                   className="w-full h-full object-cover"
                 />
@@ -324,7 +494,6 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
                 )}
               </div>
             ) : (
-              /* Drag-and-drop zone */
               <div
                 className={`block w-full rounded-xl border-2 border-dashed transition-colors cursor-pointer mb-4 ${
                   isDragging
@@ -332,12 +501,12 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
                     : 'border-[#D1D5DB] bg-[#F9FAFB] hover:border-[#020887] hover:bg-[#EEF0FF]'
                 }`}
                 onClick={() => fileInputRef.current?.click()}
-                onDragOver={e => {
+                onDragOver={(e) => {
                   e.preventDefault();
                   setIsDragging(true);
                 }}
                 onDragLeave={() => setIsDragging(false)}
-                onDrop={e => {
+                onDrop={(e) => {
                   e.preventDefault();
                   setIsDragging(false);
                   const file = e.dataTransfer.files?.[0];
@@ -358,27 +527,29 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
               </div>
             )}
 
-            {/* Hidden file input */}
             <input
               ref={fileInputRef}
               type="file"
               accept="image/png,image/jpeg,image/webp"
               className="hidden"
-              onChange={e => {
+              onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) handleFileSelect(file);
               }}
             />
           </div>
 
-          {/* Bottom padding so footer doesn't cover last field */}
+          {/* Space so footer doesn't overlap last field */}
           <div className="h-2" />
         </form>
+        </div>
 
-        {/* ── Fixed Footer ────────────────────────────────── */}
+        {/* Footer — always visible at the bottom */}
         <div className="shrink-0 px-7 py-4 border-t border-[#E5E7EB] bg-white">
           {serverError && (
-            <p className="text-[12px] text-[#EF4444] mb-3 text-right">{serverError}</p>
+            <p className="text-[12px] text-[#EF4444] mb-3 text-right">
+              {serverError}
+            </p>
           )}
           <div className="flex items-center justify-end gap-3">
             <button
@@ -401,6 +572,7 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
           </div>
         </div>
       </motion.div>
-    </motion.div>
+    </>,
+    document.body
   );
 }

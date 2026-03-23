@@ -68,7 +68,7 @@ export class RoomsService {
         where,
         skip,
         take: limit,
-        orderBy: { roomNumber: 'asc' },
+        orderBy: [{ createdAt: 'desc' }, { roomNumber: 'asc' }],
       }),
     ]);
 

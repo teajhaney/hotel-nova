@@ -7,6 +7,7 @@ import { AdminMobileNav } from './AdminMobileNav';
 import { Menu, Bell, HelpCircle, Search } from 'lucide-react';
 import Link from 'next/link';
 import { ADMIN_DASHBOARD_MESSAGES } from '@/constants/messages';
+import { useAuthStore } from '@/stores/auth-store';
 
 export function AdminDashboardShell({
   children,
@@ -14,6 +15,17 @@ export function AdminDashboardShell({
   children: React.ReactNode;
 }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const user = useAuthStore(s => s.user);
+
+  // Build initials from the user's full name (e.g. "John Doe" → "JD")
+  const initials = user?.fullName
+    ? user.fullName
+        .split(' ')
+        .map(n => n[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase()
+    : '?';
 
   return (
     <div className="flex min-h-screen bg-[#F8FAFC]">
@@ -25,7 +37,10 @@ export function AdminDashboardShell({
       {/* Mobile drawer — always in DOM, animated with motion */}
       <motion.div
         className="fixed inset-0 z-[60] lg:hidden"
-        animate={{ opacity: drawerOpen ? 1 : 0, pointerEvents: drawerOpen ? 'auto' : 'none' }}
+        animate={{
+          opacity: drawerOpen ? 1 : 0,
+          pointerEvents: drawerOpen ? 'auto' : 'none',
+        }}
         initial={false}
         transition={{ duration: 0.25 }}
       >
@@ -102,7 +117,9 @@ export function AdminDashboardShell({
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#EF4444] rounded-full" />
             </Link>
             <div className="w-9 h-9 rounded-full bg-[#020887] flex items-center justify-center">
-              <span className="text-white text-[12px] font-bold">JD</span>
+              <span className="text-white text-[12px] font-bold">
+                {initials}
+              </span>
             </div>
           </div>
         </header>

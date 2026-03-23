@@ -40,6 +40,10 @@ function toFormData(room: Room): RoomData {
     status: room.status,
     image: room.imageUrl ?? FALLBACK_IMAGE,
     description: room.description ?? '',
+    beds: room.beds ?? '',
+    maxGuests: room.maxGuests,
+    sqm: room.sqm ?? undefined,
+    amenities: room.amenities,
   };
 }
 
@@ -66,11 +70,15 @@ export default function AdminRoomsPage() {
   const meta = data?.meta;
 
   // Client-side search filter on top of the server-side type/status filters
-  const filtered = rooms.filter(
-    (r) =>
-      r.name.toLowerCase().includes(search.toLowerCase()) ||
-      String(r.roomNumber).includes(search),
-  );
+  const normalizedSearch = search.trim().toLowerCase();
+  const filtered = rooms.filter((r) => {
+    if (!normalizedSearch) return true;
+    return (
+      r.name.toLowerCase().includes(normalizedSearch) ||
+      String(r.roomNumber).includes(normalizedSearch) ||
+      (r.description ?? '').toLowerCase().includes(normalizedSearch)
+    );
+  });
 
   // Modal state
   const [modalMode, setModalMode] = useState<'add' | 'edit' | null>(null);

@@ -805,6 +805,14 @@ export const ADMIN_DASHBOARD_MESSAGES = {
   roomUploadPriority:
     'Uploaded file takes priority over URL if both are provided.',
   roomSubmitAdd: 'Add Room',
+  roomSectionDetails: 'Room Details',
+  roomLabelBeds: 'Bed Configuration',
+  roomPlaceholderBeds: 'e.g. 1 King Bed',
+  roomLabelMaxGuests: 'Max Guests',
+  roomLabelSqm: 'Size (sqm)',
+  roomSectionAmenities: 'Amenities',
+  roomAmenitiesPlaceholder: 'Type an amenity and press Enter',
+  roomAmenitiesHint: 'Press Enter or comma to add',
 
   // ── DeleteRoomModal ───────────────────────────────────────────
   deleteRoomTitle: 'Delete Room',

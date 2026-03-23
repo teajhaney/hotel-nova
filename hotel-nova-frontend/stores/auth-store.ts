@@ -8,12 +8,16 @@ import type { User } from '@/type/api';
 // cookie managed by the server.
 interface AuthStore {
   user: User | null;
+  isHydrated: boolean;
   setUser: (user: User | null) => void;
   clearUser: () => void;
+  setHydrated: (value: boolean) => void;
 }
 
 export const useAuthStore = create<AuthStore>((set) => ({
   user: null,
-  setUser: (user) => set({ user }),
-  clearUser: () => set({ user: null }),
+  isHydrated: false,
+  setUser: (user) => set({ user, isHydrated: true }),
+  clearUser: () => set({ user: null, isHydrated: true }),
+  setHydrated: (value) => set({ isHydrated: value }),
 }));

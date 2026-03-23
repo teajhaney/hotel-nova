@@ -9,6 +9,10 @@ export interface RoomData {
   status: string;
   image: string;
   description?: string;
+  beds?: string;
+  maxGuests?: number;
+  sqm?: number;
+  amenities?: string[];
 }
 
 export interface RoomFormModalProps {

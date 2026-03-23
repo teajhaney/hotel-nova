@@ -1,14 +1,47 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useGetMe } from '@/hooks/use-auth';
+import { useAuthStore } from '@/stores/auth-store';
 
 // Sits inside QueryClientProvider so it can safely call useQuery hooks.
 // It fires GET /api/auth/me once on mount to rehydrate the auth store
 // after a hard refresh — the result is cached for 60 s by TanStack Query.
 function AuthRehydrator({ children }: { children: React.ReactNode }) {
   useGetMe();
+  const user = useAuthStore((s) => s.user);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const refresh = async () => {
+      try {
+        await fetch('/api/auth/refresh', { method: 'POST' });
+      } catch {
+        // Ignore — interceptor or next request will handle auth failures
+      }
+    };
+
+    // Refresh immediately, then on a steady cadence
+    void refresh();
+    const intervalId = window.setInterval(refresh, 10 * 60 * 1000);
+
+    const handleFocus = () => void refresh();
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') void refresh();
+    };
+
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [user]);
+
   return <>{children}</>;
 }
 

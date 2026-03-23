@@ -39,3 +39,20 @@ export const ROOMS_MESSAGES = {
   ROOM_NUMBER_TYPE_IN_USE:
     'A room with this number and type already exists. Use a different room number.',
 } as const;
+
+// ─────────────────────────────────────────────
+// BOOKINGS
+// ─────────────────────────────────────────────
+
+export const BOOKING_MESSAGES = {
+  // errors
+  BOOKING_NOT_FOUND: 'Booking not found.',
+  ROOM_UNAVAILABLE: 'This room is not available for the selected dates.',
+  ROOM_UNDER_MAINTENANCE: 'This room is currently under maintenance and cannot be booked.',
+  INVALID_DATE_RANGE: 'Check-out must be after check-in.',
+  CHECK_IN_PAST: 'Check-in date must be today or in the future.',
+  INVALID_PROMO_CODE: 'This promo code is invalid or has expired.',
+  PROMO_CODE_LIMIT_REACHED: 'This promo code has reached its usage limit.',
+  CANNOT_CANCEL: 'Only Pending or Confirmed bookings can be cancelled.',
+  NOT_YOUR_BOOKING: 'You can only manage your own bookings.',
+} as const;

@@ -2,6 +2,8 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { isAxiosError } from 'axios';
+import { useEffect } from 'react';
 import apiClient from '@/lib/axios';
 import { useAuthStore } from '@/stores/auth-store';
 import type { AuthResponse, User } from '@/type/api';
@@ -11,19 +13,50 @@ import type { AuthResponse, User } from '@/type/api';
 // We call this on app load to rehydrate the auth store after a page refresh.
 export function useGetMe() {
   const setUser = useAuthStore((s) => s.setUser);
+  const setHydrated = useAuthStore((s) => s.setHydrated);
 
-  return useQuery({
+  const query = useQuery<User | null>({
     queryKey: ['auth', 'me'],
     queryFn: async () => {
-      const { data } = await apiClient.get<User>('/auth/me');
-      setUser(data);
-      return data;
+      try {
+        const { data } = await apiClient.get<User>('/auth/me');
+        setUser(data);
+        return data;
+      } catch (err) {
+        if (isAxiosError(err) && err.response?.status === 401) {
+          try {
+            const refreshRes = await fetch('/api/auth/refresh', {
+              method: 'POST',
+            });
+            if (refreshRes.ok) {
+              const { data } = await apiClient.get<User>('/auth/me');
+              setUser(data);
+              return data;
+            }
+          } catch {
+            // fall through to null
+          }
+
+          setUser(null);
+          return null;
+        }
+
+        throw err;
+      }
     },
     // Don't retry on 401 — it just means the user isn't logged in
     retry: false,
     // Don't refetch just because the window gets focus
     refetchOnWindowFocus: false,
   });
+
+  useEffect(() => {
+    if (query.status === 'success' || query.status === 'error') {
+      setHydrated(true);
+    }
+  }, [query.status, setHydrated]);
+
+  return query;
 }
 
 // ─── login ───────────────────────────────────────────────────────────────────

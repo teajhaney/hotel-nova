@@ -33,9 +33,11 @@ export function RoomListingCard({
         )}
 
         {/* Room type badge */}
-        <span className="absolute top-3 left-3 px-2.5 py-1 rounded-sm
+        <span
+          className="absolute top-3 left-3 px-2.5 py-1 rounded-sm
                          text-[11px] font-semibold uppercase tracking-[0.06em]
-                         bg-[#020887] text-white">
+                         bg-[#020887] text-white"
+        >
           {type}
         </span>
       </div>
@@ -61,21 +63,35 @@ export function RoomListingCard({
         <div className="flex flex-wrap items-center gap-3 mb-4">
           {beds && (
             <div className="flex items-center gap-1">
-              <BedDouble size={14} className="text-[#7CA5B8]" aria-hidden="true" />
+              <BedDouble
+                size={14}
+                className="text-[#7CA5B8]"
+                aria-hidden="true"
+              />
               <span className="text-[12px] text-[#64748B]">{beds}</span>
             </div>
           )}
           <div className="flex items-center gap-1">
             <Users size={14} className="text-[#7CA5B8]" aria-hidden="true" />
-            <span className="text-[12px] text-[#64748B]">{maxGuests} Guests</span>
+            <span className="text-[12px] text-[#64748B]">
+              {maxGuests} Guests
+            </span>
           </div>
           {sqm && (
             <div className="flex items-center gap-1">
-              <Maximize2 size={14} className="text-[#7CA5B8]" aria-hidden="true" />
+              <Maximize2
+                size={14}
+                className="text-[#7CA5B8]"
+                aria-hidden="true"
+              />
               <span className="text-[12px] text-[#64748B]">{sqm} sqm</span>
             </div>
           )}
-          {amenities.slice(0, 3).map((a) => (
+        </div>
+
+        {/* Amenities row */}
+        <div className="flex flex-wrap items-center gap-3 mb-4">
+          {amenities.slice(0, 3).map(a => (
             <span
               key={a}
               className="text-[12px] text-[#020887] font-medium
