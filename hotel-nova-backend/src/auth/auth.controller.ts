@@ -9,7 +9,14 @@ import {
   Res,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
+import {
+  ApiGetMe,
+  ApiLogin,
+  ApiLogout,
+  ApiRefreshToken,
+  ApiSignup,
+} from './auth.swagger';
 import type { Request, Response } from 'express';
 import { COOKIES, TOKEN_TTL } from '../common/constants/auth.constants';
 import { AUTH_MESSAGES } from '../common/constants/messages';
@@ -28,7 +35,7 @@ export class AuthController {
   // SIGN UP
   @Public()
   @Post('signup')
-  @ApiOperation({ summary: 'Register a new user' })
+  @ApiSignup()
   async signup(
     @Body() dto: SignupDto,
     @Res({ passthrough: true }) res: Response,
@@ -42,7 +49,7 @@ export class AuthController {
   @Public()
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Log in with email and password' })
+  @ApiLogin()
   async login(
     @Body() dto: LoginDto,
     @Res({ passthrough: true }) res: Response,
@@ -55,7 +62,7 @@ export class AuthController {
   // LOG OUT
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Log out and invalidate refresh token' })
+  @ApiLogout()
   async logout(
     @CurrentUser() user: AuthUser,
     @Req() req: Request,
@@ -75,7 +82,7 @@ export class AuthController {
   @Public()
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Get a new access token using the refresh cookie' })
+  @ApiRefreshToken()
   async refresh(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
@@ -94,7 +101,7 @@ export class AuthController {
 
   // GET CURRENT USER
   @Get('me')
-  @ApiOperation({ summary: 'Get the currently authenticated user' })
+  @ApiGetMe()
   me(@CurrentUser('id') userId: string) {
     return this.authService.getMe(userId);
   }

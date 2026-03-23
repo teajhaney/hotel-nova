@@ -13,6 +13,11 @@ const prisma: PrismaClient = new PrismaClient({ adapter });
 // HELPERS
 // ─────────────────────────────────────────────
 
+// Extracts the numeric room number from a roomRef like 'RN-109-SD' → 109.
+function roomNumberFromRef(roomRef: string): number {
+  return parseInt(roomRef.split('-')[1], 10);
+}
+
 // Converts naira to kobo. All money in the DB is stored as integers (kobo).
 // e.g. naira(75_000) → 7_500_000
 function naira(amount: number): number {
@@ -891,7 +896,11 @@ async function main() {
     await prisma.room.upsert({
       where: { roomRef: room.roomRef },
       update: {},
-      create: { ...room, status: 'Available' },
+      create: {
+        ...room,
+        roomNumber: roomNumberFromRef(room.roomRef),
+        status: 'Available',
+      },
     });
     console.log(`  ✓ ${room.name}`);
   }

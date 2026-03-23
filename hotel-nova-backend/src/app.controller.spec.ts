@@ -14,9 +14,14 @@ describe('AppController', () => {
     appController = app.get<AppController>(AppController);
   });
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+  describe('health', () => {
+    it('returns a healthy status object', () => {
+      const result = appController.health();
+
+      expect(result.status).toBe('healthy');
+      expect(result.service).toBe('HotelNova Backend server');
+      expect(result).toHaveProperty('uptime');
+      expect(result).toHaveProperty('timestamp');
     });
   });
 });

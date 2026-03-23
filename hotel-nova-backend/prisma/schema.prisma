@@ -125,15 +125,17 @@ model RefreshToken {
 // ─────────────────────────────────────────────
 
 model Room {
-  id      String @id @default(uuid())
-  roomRef String @unique
+  id         String @id @default(uuid())
+  roomNumber Int
+  roomRef    String @unique
 
   name        String
   type        RoomType
   price       Int
   status      RoomStatus @default(Available)
-  description String?
-  imageUrl    String?
+  description     String?
+  imageUrl        String?
+  imagePublicId   String?
   beds        String?
   maxGuests   Int        @default(2)
   sqm         Int?
@@ -145,6 +147,9 @@ model Room {
   bookings Booking[]
   reviews  Review[]
 
+  // prevents two rooms of the same type sharing the same number
+  // e.g. you can't have two Standard rooms numbered 109
+  @@unique([roomNumber, type])
   @@map("rooms")
 }
 

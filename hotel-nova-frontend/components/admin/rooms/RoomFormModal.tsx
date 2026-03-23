@@ -1,33 +1,26 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { X, ChevronDown, UploadCloud, ImageIcon, Trash2 } from 'lucide-react';
+import { X, ChevronDown, UploadCloud, Trash2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { RoomFormModalProps } from '@/type/interface';
 import { ADMIN_DASHBOARD_MESSAGES } from '@/constants/messages';
 
 const M = ADMIN_DASHBOARD_MESSAGES;
 
-
 const roomSchema = z.object({
   name: z.string().min(2, 'Room name is required'),
-  roomCode: z
-    .string()
-    .min(2, 'Room code is required')
-    .regex(/^[A-Z0-9-]+$/, 'Use uppercase letters, numbers, and hyphens (e.g. RN-302-DX)'),
+  roomNumber: z.number().int().min(1, 'Room number must be at least 1'),
   type: z.enum(['Standard', 'Deluxe', 'Executive', 'Suite']),
   price: z.number().min(1000, 'Minimum price is ₦1,000'),
   status: z.enum(['Available', 'Occupied', 'Maintenance']),
   description: z.string().optional(),
-  imageUrl: z.string().optional(),
 });
 
 type RoomFormData = z.infer<typeof roomSchema>;
-
-
 
 const DEFAULT_IMAGE =
   'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=128&h=128&fit=crop&auto=format';
@@ -43,44 +36,35 @@ const labelCls = 'block text-[13px] font-semibold text-[#374151] mb-2';
 
 const errorCls = 'block text-[12px] text-[#EF4444] mt-1.5';
 
-const hintCls = 'block text-[12px] text-[#9CA3AF] mt-1.5';
-
 export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
   const isEdit = !!room;
 
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [uploadPreview, setUploadPreview] = useState<string>(isEdit ? room.image : '');
+  const [uploadPreview, setUploadPreview] = useState<string>(
+    isEdit ? room.image : ''
+  );
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
     register,
     handleSubmit,
-    control,
     formState: { errors },
   } = useForm<RoomFormData>({
     resolver: zodResolver(roomSchema),
     defaultValues: room
       ? {
           name: room.name,
-          roomCode: room.id,
+          roomNumber: room.roomNumber,
           type: room.type as RoomFormData['type'],
           price: room.price,
           status: room.status as RoomFormData['status'],
           description: room.description ?? '',
-          imageUrl: room.image.startsWith('http') ? room.image : '',
         }
       : { type: 'Standard', status: 'Available' },
   });
 
-  const imageUrlValue = useWatch({ control, name: 'imageUrl' });
-
-  const previewSrc =
-    uploadedFile && uploadPreview
-      ? uploadPreview
-      : imageUrlValue?.trim()
-      ? imageUrlValue.trim()
-      : uploadPreview || '';
+  const previewSrc = uploadPreview;
 
   const handleFileSelect = (file: File) => {
     if (!file.type.startsWith('image/')) return;
@@ -95,13 +79,10 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
   };
 
   const onSubmit = (data: RoomFormData) => {
-    const resolvedImage =
-      uploadedFile && uploadPreview
-        ? uploadPreview
-        : data.imageUrl?.trim() || DEFAULT_IMAGE;
+    const resolvedImage = uploadPreview || DEFAULT_IMAGE;
 
     onSave({
-      id: data.roomCode,
+      roomNumber: data.roomNumber,
       name: data.name,
       type: data.type,
       price: data.price,
@@ -134,7 +115,6 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
         exit={{ x: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
       >
-
         {/* ── Header ─────────────────────────────────────── */}
         <div className="shrink-0 flex items-start justify-between px-7 py-6 bg-white border-b border-[#E5E7EB]">
           <div>
@@ -160,7 +140,6 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
           onSubmit={handleSubmit(onSubmit)}
           className="flex-1 overflow-y-auto px-7 py-6 space-y-5"
         >
-
           {/* ─ Section: Basic Info ─ */}
           <div className="bg-white rounded-xl border border-[#E5E7EB] p-5 space-y-5">
             <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#9CA3AF]">
@@ -176,7 +155,9 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
                 className={inputCls}
                 autoComplete="off"
               />
-              {errors.name && <span className={errorCls}>{errors.name.message}</span>}
+              {errors.name && (
+                <span className={errorCls}>{errors.name.message}</span>
+              )}
             </div>
 
             {/* Room Code + Type — 2 col */}
@@ -184,14 +165,16 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
               <div>
                 <label className={labelCls}>{M.roomLabelCode}</label>
                 <input
-                  {...register('roomCode')}
-                  placeholder={M.roomPlaceholderCode}
+                  {...register('roomNumber', { valueAsNumber: true })}
+                  type="number"
+                  placeholder="e.g. 302"
                   className={inputCls}
-                  style={{ textTransform: 'uppercase' }}
+                  min={1}
                   autoComplete="off"
                 />
-                <span className={hintCls}>{M.roomHintCode}</span>
-                {errors.roomCode && <span className={errorCls}>{errors.roomCode.message}</span>}
+                {errors.roomNumber && (
+                  <span className={errorCls}>{errors.roomNumber.message}</span>
+                )}
               </div>
 
               <div>
@@ -208,7 +191,9 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none"
                   />
                 </div>
-                {errors.type && <span className={errorCls}>{errors.type.message}</span>}
+                {errors.type && (
+                  <span className={errorCls}>{errors.type.message}</span>
+                )}
               </div>
             </div>
           </div>
@@ -234,7 +219,9 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
                     min={0}
                   />
                 </div>
-                {errors.price && <span className={errorCls}>{errors.price.message}</span>}
+                {errors.price && (
+                  <span className={errorCls}>{errors.price.message}</span>
+                )}
               </div>
 
               <div>
@@ -250,7 +237,9 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none"
                   />
                 </div>
-                {errors.status && <span className={errorCls}>{errors.status.message}</span>}
+                {errors.status && (
+                  <span className={errorCls}>{errors.status.message}</span>
+                )}
               </div>
             </div>
           </div>
@@ -281,7 +270,11 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
             {previewSrc ? (
               <div className="relative w-full h-52 rounded-xl overflow-hidden border border-[#E5E7EB] group mb-4">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={previewSrc} alt="Room preview" className="w-full h-full object-cover" />
+                <img
+                  src={previewSrc}
+                  alt="Room preview"
+                  className="w-full h-full object-cover"
+                />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/35 transition-colors flex items-center justify-center">
                   <button
                     type="button"
@@ -307,9 +300,12 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
                     : 'border-[#D1D5DB] bg-[#F9FAFB] hover:border-[#020887] hover:bg-[#EEF0FF]'
                 }`}
                 onClick={() => fileInputRef.current?.click()}
-                onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                onDragOver={e => {
+                  e.preventDefault();
+                  setIsDragging(true);
+                }}
                 onDragLeave={() => setIsDragging(false)}
-                onDrop={(e) => {
+                onDrop={e => {
                   e.preventDefault();
                   setIsDragging(false);
                   const file = e.dataTransfer.files?.[0];
@@ -336,37 +332,11 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
               type="file"
               accept="image/png,image/jpeg,image/webp"
               className="hidden"
-              onChange={(e) => {
+              onChange={e => {
                 const file = e.target.files?.[0];
                 if (file) handleFileSelect(file);
               }}
             />
-
-            {/* OR divider */}
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex-1 h-px bg-[#E5E7EB]" />
-              <span className="text-[12px] font-semibold text-[#9CA3AF] uppercase tracking-wider">
-                {M.roomOrPasteUrl}
-              </span>
-              <div className="flex-1 h-px bg-[#E5E7EB]" />
-            </div>
-
-            {/* URL input */}
-            <div className="relative">
-              <ImageIcon
-                size={16}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none"
-              />
-              <input
-                {...register('imageUrl')}
-                placeholder="https://images.unsplash.com/photo-..."
-                className={`${inputCls} pl-10`}
-                autoComplete="off"
-              />
-            </div>
-            <span className="block text-[12px] text-[#9CA3AF] mt-2">
-              {M.roomUploadPriority}
-            </span>
           </div>
 
           {/* Bottom padding so footer doesn't cover last field */}

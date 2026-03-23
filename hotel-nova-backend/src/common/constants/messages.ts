@@ -1,4 +1,12 @@
 // ─────────────────────────────────────────────
+// UPLOAD
+// ─────────────────────────────────────────────
+
+export const UPLOAD_MESSAGES = {
+  UPLOAD_FAILED: 'File upload failed. Please try again.',
+} as const;
+
+// ─────────────────────────────────────────────
 // AUTH
 // ─────────────────────────────────────────────
 
@@ -19,4 +27,15 @@ export const AUTH_MESSAGES = {
   LOGIN_SUCCESS: 'Login successful',
   LOGOUT_SUCCESS: 'Logged out',
   TOKEN_REFRESHED: 'Token refreshed',
+} as const;
+
+// ─────────────────────────────────────────────
+// ROOMS
+// ─────────────────────────────────────────────
+
+export const ROOMS_MESSAGES = {
+  // errors
+  ROOM_NOT_FOUND: 'Room not found.',
+  ROOM_NUMBER_TYPE_IN_USE:
+    'A room with this number and type already exists. Use a different room number.',
 } as const;

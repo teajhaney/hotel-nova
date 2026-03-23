@@ -1,7 +1,8 @@
 
 
 export interface RoomData {
-  id: string;
+  id?: string;
+  roomNumber: number;
   name: string;
   type: string;
   price: number;
