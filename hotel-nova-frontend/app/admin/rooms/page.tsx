@@ -1,17 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Search, Pencil, Trash2, ChevronDown } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, ChevronDown, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { AnimatePresence } from 'motion/react';
-import { RoomFormModal, } from '@/components/admin/rooms/RoomFormModal';
+import { isAxiosError } from 'axios';
+import { RoomFormModal } from '@/components/admin/rooms/RoomFormModal';
 import { DeleteRoomModal } from '@/components/admin/rooms/DeleteRoomModal';
-import { INITIAL_ROOMS } from '@/constants/dummyData';
+import { useRooms, useDeleteRoom } from '@/hooks/use-rooms';
 import { RoomData } from '@/type/interface';
+import type { Room, RoomFilters } from '@/type/api';
 import { ADMIN_DASHBOARD_MESSAGES } from '@/constants/messages';
 
 const M = ADMIN_DASHBOARD_MESSAGES;
-
 
 const STATUS_DOT: Record<string, string> = {
   Available: 'bg-[#10B981]',
@@ -25,33 +26,64 @@ const STATUS_TEXT: Record<string, string> = {
   Maintenance: 'text-[#F59E0B]',
 };
 
+const FALLBACK_IMAGE =
+  'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=128&h=128&fit=crop&auto=format';
+
+// Maps a backend Room to the RoomData shape the form modal expects
+function toFormData(room: Room): RoomData {
+  return {
+    id: room.id,
+    roomNumber: room.roomNumber,
+    name: room.name,
+    type: room.type,
+    price: room.price,
+    status: room.status,
+    image: room.imageUrl ?? FALLBACK_IMAGE,
+    description: room.description ?? '',
+  };
+}
+
 export default function AdminRoomsPage() {
-  const [rooms, setRooms] = useState<RoomData[]>(INITIAL_ROOMS);
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>(M.allTypes);
   const [statusFilter, setStatusFilter] = useState<string>(M.allStatuses);
+  const [page, setPage] = useState(1);
+
+  // Build the filters object that gets passed to the query
+  const filters: RoomFilters = {
+    page,
+    limit: 20,
+    ...(typeFilter !== M.allTypes && { type: typeFilter as Room['type'] }),
+    ...(statusFilter !== M.allStatuses && {
+      status: statusFilter as Room['status'],
+    }),
+  };
+
+  const { data, isLoading, isError } = useRooms(filters);
+  const { mutate: deleteRoom, isPending: isDeleting } = useDeleteRoom();
+
+  const rooms = data?.data ?? [];
+  const meta = data?.meta;
+
+  // Client-side search filter on top of the server-side type/status filters
+  const filtered = rooms.filter(
+    (r) =>
+      r.name.toLowerCase().includes(search.toLowerCase()) ||
+      String(r.roomNumber).includes(search),
+  );
 
   // Modal state
   const [modalMode, setModalMode] = useState<'add' | 'edit' | null>(null);
   const [selectedRoom, setSelectedRoom] = useState<RoomData | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<RoomData | null>(null);
-
-  const filtered = rooms.filter((r) => {
-    const matchSearch =
-      r.name.toLowerCase().includes(search.toLowerCase()) ||
-      r.id.toLowerCase().includes(search.toLowerCase());
-    const matchType = typeFilter === M.allTypes || r.type === typeFilter;
-    const matchStatus = statusFilter === M.allStatuses || r.status === statusFilter;
-    return matchSearch && matchType && matchStatus;
-  });
+  const [deleteTarget, setDeleteTarget] = useState<Room | null>(null);
 
   const handleOpenAdd = () => {
     setSelectedRoom(null);
     setModalMode('add');
   };
 
-  const handleOpenEdit = (room: RoomData) => {
-    setSelectedRoom(room);
+  const handleOpenEdit = (room: Room) => {
+    setSelectedRoom(toFormData(room));
     setModalMode('edit');
   };
 
@@ -60,19 +92,21 @@ export default function AdminRoomsPage() {
     setSelectedRoom(null);
   };
 
-  const handleSave = (data: RoomData) => {
-    if (modalMode === 'add') {
-      setRooms((prev) => [data, ...prev]);
-    } else {
-      setRooms((prev) => prev.map((r) => (r.id === data.id ? data : r)));
-    }
-    handleCloseModal();
-  };
+  // After create/update succeeds the modal calls this — we just close it.
+  // TanStack Query handles the cache invalidation and re-fetch automatically.
+  const handleSave = () => handleCloseModal();
 
   const handleDeleteConfirm = () => {
     if (!deleteTarget) return;
-    setRooms((prev) => prev.filter((r) => r.id !== deleteTarget.id));
-    setDeleteTarget(null);
+    deleteRoom(deleteTarget.id, {
+      onSuccess: () => setDeleteTarget(null),
+      onError: (err) => {
+        const msg = isAxiosError(err)
+          ? (err.response?.data as { message?: string })?.message
+          : undefined;
+        alert(msg ?? 'Failed to delete room. Please try again.');
+      },
+    });
   };
 
   return (
@@ -82,7 +116,7 @@ export default function AdminRoomsPage() {
         <div>
           <h1 className="text-[24px] font-bold text-[#0D0F2B]">{M.roomsTitle}</h1>
           <p className="text-[14px] text-[#64748B] mt-1">
-            {rooms.length} rooms in inventory
+            {meta ? `${meta.total} rooms in inventory` : 'Loading...'}
           </p>
         </div>
         <button
@@ -101,7 +135,7 @@ export default function AdminRoomsPage() {
           <input
             type="text"
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
             placeholder={M.searchRoomsPlaceholder}
             className="flex-1 text-[14px] bg-transparent border-none outline-none text-[#0D0F2B] placeholder:text-[#94A3B8]"
           />
@@ -109,7 +143,7 @@ export default function AdminRoomsPage() {
         <div className="relative">
           <select
             value={typeFilter}
-            onChange={e => setTypeFilter(e.target.value)}
+            onChange={(e) => { setTypeFilter(e.target.value); setPage(1); }}
             className="h-10 pl-3 pr-8 rounded-lg border border-[#E2E8F0] bg-white text-[13px] text-[#0D0F2B] outline-none appearance-none cursor-pointer"
           >
             <option>{M.allTypes}</option>
@@ -118,15 +152,12 @@ export default function AdminRoomsPage() {
             <option>{M.typeStandard}</option>
             <option>{M.typeExecutive}</option>
           </select>
-          <ChevronDown
-            size={14}
-            className="hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 text-[#94A3B8] pointer-events-none"
-          />
+          <ChevronDown size={14} className="hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 text-[#94A3B8] pointer-events-none" />
         </div>
         <div className="relative">
           <select
             value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value)}
+            onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
             className="h-10 pl-3 pr-8 rounded-lg border border-[#E2E8F0] bg-white text-[13px] text-[#0D0F2B] outline-none appearance-none cursor-pointer"
           >
             <option>{M.allStatuses}</option>
@@ -134,10 +165,7 @@ export default function AdminRoomsPage() {
             <option>{M.statusOccupied}</option>
             <option>{M.statusMaintenance}</option>
           </select>
-          <ChevronDown
-            size={14}
-            className="hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 text-[#94A3B8] pointer-events-none"
-          />
+          <ChevronDown size={14} className="hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 text-[#94A3B8] pointer-events-none" />
         </div>
       </div>
 
@@ -155,16 +183,29 @@ export default function AdminRoomsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#F1F5F9]">
-              {filtered.map(room => (
-                <tr
-                  key={room.id}
-                  className="hover:bg-[#F8FAFC] transition-colors"
-                >
+              {isLoading && (
+                <tr>
+                  <td colSpan={5} className="px-5 py-10 text-center">
+                    <Loader2 className="mx-auto animate-spin text-[#94A3B8]" size={24} />
+                  </td>
+                </tr>
+              )}
+
+              {isError && (
+                <tr>
+                  <td colSpan={5} className="px-5 py-10 text-center text-[14px] text-[#EF4444]">
+                    Failed to load rooms. Please refresh the page.
+                  </td>
+                </tr>
+              )}
+
+              {!isLoading && !isError && filtered.map((room) => (
+                <tr key={room.id} className="hover:bg-[#F8FAFC] transition-colors">
                   <td className="admin-table-td">
                     <div className="flex items-center gap-3">
                       <div className="w-16 h-12 rounded-lg overflow-hidden shrink-0 relative">
                         <Image
-                          src={room.image}
+                          src={room.imageUrl ?? FALLBACK_IMAGE}
                           alt={room.name}
                           fill
                           className="object-cover"
@@ -176,7 +217,7 @@ export default function AdminRoomsPage() {
                           {room.name}
                         </p>
                         <p className="text-[11px] text-[#94A3B8] mt-0.5">
-                          {room.id}
+                          {room.roomRef}
                         </p>
                       </div>
                     </div>
@@ -189,12 +230,8 @@ export default function AdminRoomsPage() {
                   </td>
                   <td className="admin-table-td">
                     <div className="flex items-center gap-1.5">
-                      <span
-                        className={`w-2 h-2 rounded-full shrink-0 ${STATUS_DOT[room.status]}`}
-                      />
-                      <span
-                        className={`text-[13px] font-medium ${STATUS_TEXT[room.status]}`}
-                      >
+                      <span className={`w-2 h-2 rounded-full shrink-0 ${STATUS_DOT[room.status]}`} />
+                      <span className={`text-[13px] font-medium ${STATUS_TEXT[room.status]}`}>
                         {room.status}
                       </span>
                     </div>
@@ -219,12 +256,10 @@ export default function AdminRoomsPage() {
                   </td>
                 </tr>
               ))}
-              {filtered.length === 0 && (
+
+              {!isLoading && !isError && filtered.length === 0 && (
                 <tr>
-                  <td
-                    colSpan={5}
-                    className="px-5 py-10 text-center text-[14px] text-[#94A3B8]"
-                  >
+                  <td colSpan={5} className="px-5 py-10 text-center text-[14px] text-[#94A3B8]">
                     {M.noRoomsFound}
                   </td>
                 </tr>
@@ -234,25 +269,28 @@ export default function AdminRoomsPage() {
         </div>
 
         {/* Pagination */}
-        <div className="px-5 py-4 border-t border-[#E2E8F0] flex items-center justify-between">
-          <p className="text-[13px] text-[#64748B]">
-            Showing {filtered.length} of {rooms.length} rooms
-          </p>
-          <div className="flex items-center gap-1">
-            {[1, 2, 3, '...', 13].map((p, i) => (
-              <button
-                key={i}
-                className={`w-8 h-8 flex items-center justify-center rounded-lg text-[13px] font-medium transition-colors ${
-                  p === 1
-                    ? 'bg-[#020887] text-white'
-                    : 'text-[#64748B] hover:bg-[#EEF0FF] hover:text-[#020887]'
-                }`}
-              >
-                {p}
-              </button>
-            ))}
+        {meta && meta.totalPages > 1 && (
+          <div className="px-5 py-4 border-t border-[#E2E8F0] flex items-center justify-between">
+            <p className="text-[13px] text-[#64748B]">
+              Showing {filtered.length} of {meta.total} rooms
+            </p>
+            <div className="flex items-center gap-1">
+              {Array.from({ length: meta.totalPages }, (_, i) => i + 1).map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setPage(p)}
+                  className={`w-8 h-8 flex items-center justify-center rounded-lg text-[13px] font-medium transition-colors ${
+                    p === page
+                      ? 'bg-[#020887] text-white'
+                      : 'text-[#64748B] hover:bg-[#EEF0FF] hover:text-[#020887]'
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Add / Edit Modal */}
@@ -275,6 +313,7 @@ export default function AdminRoomsPage() {
             roomName={deleteTarget.name}
             onClose={() => setDeleteTarget(null)}
             onConfirm={handleDeleteConfirm}
+            isLoading={isDeleting}
           />
         )}
       </AnimatePresence>

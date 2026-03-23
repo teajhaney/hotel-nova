@@ -7,6 +7,7 @@ import { GuestSidebar } from './GuestSidebar';
 import { GuestMobileNav } from './GuestMobileNav';
 import { Menu, Bell } from 'lucide-react';
 import Link from 'next/link';
+import { useAuthStore } from '@/stores/auth-store';
 
 function getPageTitle(pathname: string): string {
   if (pathname === '/dashboard/guest') return 'My Bookings';
@@ -26,6 +27,10 @@ export function GuestDashboardShell({
 }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const pathname = usePathname();
+  const user = useAuthStore((s) => s.user);
+  const initials = user?.fullName
+    ? user.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
+    : '?';
 
   return (
     <div className="flex min-h-screen bg-[#F8FAFC]">
@@ -85,7 +90,7 @@ export function GuestDashboardShell({
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#EF4444] rounded-full" />
             </Link>
             <div className="w-9 h-9 rounded-full bg-[#020887] flex items-center justify-center">
-              <span className="text-white text-[12px] font-bold">JD</span>
+              <span className="text-white text-[12px] font-bold">{initials}</span>
             </div>
           </div>
         </header>

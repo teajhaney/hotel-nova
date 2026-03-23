@@ -16,6 +16,8 @@ import {
   X,
 } from 'lucide-react';
 import { ADMIN_DASHBOARD_MESSAGES } from '@/constants/messages';
+import { useAuthStore } from '@/stores/auth-store';
+import { useLogout } from '@/hooks/use-auth';
 
 const M = ADMIN_DASHBOARD_MESSAGES;
 
@@ -37,6 +39,18 @@ interface AdminSidebarProps {
 
 export function AdminSidebar({ onClose }: AdminSidebarProps) {
   const pathname = usePathname();
+  const user = useAuthStore((s) => s.user);
+  const { mutate: logout } = useLogout();
+
+  // Build initials from the user's full name (e.g. "John Doe" → "JD")
+  const initials = user?.fullName
+    ? user.fullName
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase()
+    : '?';
 
   return (
     <div className="flex flex-col w-full h-full">
@@ -94,15 +108,16 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
       <div className="px-4 pb-5 border-t border-[#E2E8F0] pt-4">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-full bg-[#020887] flex items-center justify-center shrink-0">
-            <span className="text-white text-[13px] font-bold">JD</span>
+            <span className="text-white text-[13px] font-bold">{initials}</span>
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-[13px] font-semibold text-[#0D0F2B] leading-tight truncate">
-              {M.adminName}
+              {user?.fullName ?? M.adminName}
             </p>
             <p className="text-[11px] text-[#64748B] truncate">{M.adminRole}</p>
           </div>
           <button
+            onClick={() => logout()}
             className="w-8 h-8 flex items-center justify-center rounded-lg text-[#EF4444] hover:bg-[#FEF2F2] transition-colors"
             aria-label={M.logoutAriaLabel}
           >

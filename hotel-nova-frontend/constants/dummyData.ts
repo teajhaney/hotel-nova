@@ -780,96 +780,16 @@ export const GUEST_REVIEWS: GuestReview[] = [
 
 
 export const INITIAL_ROOMS: RoomData[] = [
-  {
-    id: 'RN-302-DX',
-    name: 'Deluxe King 302',
-    type: 'Deluxe',
-    price: 175000,
-    status: 'Available',
-    image:
-      'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=128&h=128&fit=crop&auto=format',
-  },
-  {
-    id: 'RN-501-PS',
-    name: 'Presidential Suite 501',
-    type: 'Suite',
-    price: 600000,
-    status: 'Occupied',
-    image:
-      'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=128&h=128&fit=crop&auto=format',
-  },
-  {
-    id: 'RN-215-ST',
-    name: 'Standard Double 215',
-    type: 'Standard',
-    price: 90000,
-    status: 'Maintenance',
-    image:
-      'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=128&h=128&fit=crop&auto=format',
-  },
-  {
-    id: 'RN-410-EX',
-    name: 'Executive View 410',
-    type: 'Executive',
-    price: 275000,
-    status: 'Available',
-    image:
-      'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=128&h=128&fit=crop&auto=format',
-  },
-  {
-    id: 'RN-601-GS',
-    name: 'Grand Suite 601',
-    type: 'Suite',
-    price: 850000,
-    status: 'Available',
-    image:
-      'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=128&h=128&fit=crop&auto=format',
-  },
-  {
-    id: 'RN-118-DT',
-    name: 'Deluxe Twin 118',
-    type: 'Deluxe',
-    price: 155000,
-    status: 'Occupied',
-    image:
-      'https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=128&h=128&fit=crop&auto=format',
-  },
-  {
-    id: 'RN-210-SS',
-    name: 'Standard Single 210',
-    type: 'Standard',
-    price: 75000,
-    status: 'Available',
-    image:
-      'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=128&h=128&fit=crop&auto=format',
-  },
-  {
-    id: 'RN-315-EC',
-    name: 'Executive Corner 315',
-    type: 'Executive',
-    price: 320000,
-    status: 'Maintenance',
-    image:
-      'https://images.unsplash.com/photo-1560185893-a55cbc8c57e3?w=128&h=128&fit=crop&auto=format',
-  },
-  {
-    id: 'RN-420-PN',
-    name: 'Penthouse North 420',
-    type: 'Suite',
-    price: 1200000,
-    status: 'Available',
-    image:
-      'https://images.unsplash.com/photo-1596178065887-1198b6148b2b?w=128&h=128&fit=crop&auto=format',
-  },
-  {
-    id: 'RN-108-SQ',
-    name: 'Standard Queen 108',
-    type: 'Standard',
-    price: 82000,
-    status: 'Occupied',
-    image:
-      'https://images.unsplash.com/photo-1565791380713-1756b9a05343?w=128&h=128&fit=crop&auto=format',
-  },
+  { id: 'RN-302-DX', roomNumber: 302, name: 'Deluxe King 302', type: 'Deluxe', price: 175000, status: 'Available', image: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=128&h=128&fit=crop&auto=format' },
+  { id: 'RN-501-PS', roomNumber: 501, name: 'Presidential Suite 501', type: 'Suite', price: 600000, status: 'Occupied', image: 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=128&h=128&fit=crop&auto=format' },
+  { id: 'RN-215-ST', roomNumber: 215, name: 'Standard Double 215', type: 'Standard', price: 90000, status: 'Maintenance', image: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=128&h=128&fit=crop&auto=format' },
+  { id: 'RN-410-EX', roomNumber: 410, name: 'Executive View 410', type: 'Executive', price: 275000, status: 'Available', image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=128&h=128&fit=crop&auto=format' },
+  { id: 'RN-601-GS', roomNumber: 601, name: 'Grand Suite 601', type: 'Suite', price: 850000, status: 'Available', image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=128&h=128&fit=crop&auto=format' },
+  { id: 'RN-118-DT', roomNumber: 118, name: 'Deluxe Twin 118', type: 'Deluxe', price: 155000, status: 'Occupied', image: 'https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=128&h=128&fit=crop&auto=format' },
+  { id: 'RN-210-SS', roomNumber: 210, name: 'Standard Single 210', type: 'Standard', price: 75000, status: 'Available', image: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=128&h=128&fit=crop&auto=format' },
+  { id: 'RN-315-EC', roomNumber: 315, name: 'Executive Corner 315', type: 'Executive', price: 320000, status: 'Maintenance', image: 'https://images.unsplash.com/photo-1560185893-a55cbc8c57e3?w=128&h=128&fit=crop&auto=format' },
+  { id: 'RN-420-PN', roomNumber: 420, name: 'Penthouse North 420', type: 'Suite', price: 1200000, status: 'Available', image: 'https://images.unsplash.com/photo-1596178065887-1198b6148b2b?w=128&h=128&fit=crop&auto=format' },
+  { id: 'RN-108-SQ', roomNumber: 108, name: 'Standard Queen 108', type: 'Standard', price: 82000, status: 'Occupied', image: 'https://images.unsplash.com/photo-1565791380713-1756b9a05343?w=128&h=128&fit=crop&auto=format' },
 ];
 
 

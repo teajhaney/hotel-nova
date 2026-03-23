@@ -22,6 +22,8 @@ async function bootstrap() {
 
   validateEnv();
 
+  app.setGlobalPrefix('api/v1');
+
   app.use(cookieParser());
 
   app.enableCors({

@@ -1,13 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { isAxiosError } from 'axios';
 import { FormInput } from '@/components/auth/FormInput';
 import { PasswordInput } from '@/components/auth/PasswordInput';
 import { LOGIN_MESSAGES, VALIDATION_MESSAGES, ROUTES } from '@/constants/messages';
+import { useLogin } from '@/hooks/use-auth';
 
 const guestLoginSchema = z.object({
   email: z
@@ -19,22 +20,25 @@ const guestLoginSchema = z.object({
 type GuestLoginValues = z.infer<typeof guestLoginSchema>;
 
 export function GuestLoginForm() {
-  const router = useRouter();
+  const { mutateAsync: login } = useLogin('GUEST');
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<GuestLoginValues>({ resolver: zodResolver(guestLoginSchema) });
 
   const onSubmit = async (data: GuestLoginValues) => {
-    /** TODO: POST /api/auth/login { role: 'GUEST' } */
-    console.log('[GuestLogin]', { role: 'GUEST', ...data });
-
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // Redirect to homepage
-    router.push(ROUTES.home);
+    try {
+      await login(data);
+    } catch (err) {
+      // Show the server error message under the password field
+      const message =
+        isAxiosError(err) && typeof err.response?.data?.message === 'string'
+          ? err.response.data.message
+          : 'Invalid email or password.';
+      setError('password', { message });
+    }
   };
 
   return (

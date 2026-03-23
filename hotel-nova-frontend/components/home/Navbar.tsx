@@ -5,11 +5,15 @@ import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 import { HotelNovaLogo } from '@/components/auth/HotelNovaLogo';
 import { NAV_LINKS } from '@/constants/dummyData';
-
-
+import { useAuthStore } from '@/stores/auth-store';
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const user = useAuthStore((s) => s.user);
+
+  // Point logged-in users to their role-appropriate dashboard
+  const dashboardHref =
+    user?.role === 'ADMIN' ? '/admin/overview' : '/dashboard/guest';
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-[#E2E8F0]">
@@ -36,24 +40,27 @@ export function Navbar() {
 
         {/* Right actions */}
         <div className="flex items-center gap-[12px]">
-          {/* Desktop Book Now */}
-          <Link href="/rooms" className="hidden lg:inline-flex items-center justify-center
+          {/* Desktop CTA — Dashboard if logged in, otherwise Sign In */}
+          <Link
+            href={user ? dashboardHref : '/login'}
+            className="hidden lg:inline-flex items-center justify-center
                        px-[24px] py-[10px] min-h-[44px] rounded-[999px]
                        bg-[#020887] text-white
                        text-[14px] font-semibold tracking-[0.04em]
-                       hover:bg-[#38369A] transition-colors duration-150">
-            Book Now
+                       hover:bg-[#38369A] transition-colors duration-150"
+          >
+            {user ? 'Dashboard' : 'Sign In'}
           </Link>
 
-          {/* Mobile Book Now */}
+          {/* Mobile CTA */}
           <Link
-            href="/rooms"
+            href={user ? dashboardHref : '/login'}
             className="lg:hidden inline-flex items-center justify-center
                        px-[14px] py-[8px] min-h-[36px] rounded-[999px]
                        bg-[#020887] text-white text-[13px] font-medium tracking-[0.04em]
                        hover:bg-[#38369A] transition-colors duration-150"
           >
-            Book Now
+            {user ? 'Dashboard' : 'Sign In'}
           </Link>
 
           {/* Hamburger — mobile only */}

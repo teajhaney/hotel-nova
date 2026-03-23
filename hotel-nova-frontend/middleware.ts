@@ -1,74 +1,102 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+// Decodes the JWT payload without verifying the signature.
+// We only use this for routing decisions — the backend always verifies
+// the real signature on every API call, so this is safe.
+function decodeJwtPayload(
+  token: string,
+): { role?: string; exp?: number } | null {
+  try {
+    const base64 = token.split('.')[1];
+    if (!base64) return null;
+    // atob is available in the Next.js edge runtime
+    const padded = base64 + '='.repeat((4 - (base64.length % 4)) % 4);
+    const decoded = atob(padded);
+    return JSON.parse(decoded) as { role?: string; exp?: number };
+  } catch {
+    return null;
+  }
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  
-  // Note: Adjust the cookie names based on the actual backend implementation.
-  // Using 'jwt' or 'accessToken' as common defaults, and a separate 'role' cookie.
-  const token = request.cookies.get('accessToken') || request.cookies.get('jwt');
-  const role = request.cookies.get('role')?.value;
 
-  // 1. Guest Auth Routes (public login/signup)
-  if (pathname === '/login' || pathname === '/signup') {
-    if (token && role === 'GUEST') {
-      return NextResponse.redirect(new URL('/', request.url));
-    }
+  const token = request.cookies.get('accessToken')?.value;
+  const payload = token ? decodeJwtPayload(token) : null;
+  const role = payload?.role;
+
+  // ── Root page (/) ───────────────────────────────────────────────────────
+  // Admins have no reason to be on the guest-facing marketing homepage —
+  // send them straight to the admin dashboard.
+  // Guests are welcome to browse the home page while logged in.
+  if (pathname === '/' && token && role === 'ADMIN') {
+    return NextResponse.redirect(new URL('/admin/overview', request.url));
   }
 
-  // 2. Admin Auth Routes (/admin/login, /admin/signup)
-  if (pathname === '/admin/login' || pathname === '/admin/signup') {
+  // ── Admin auth pages (/admin/login, /admin/signup) ──────────────────────
+  // If already logged in as admin, no need to show the login page again.
+  const isAdminAuthPage =
+    pathname === '/admin/login' || pathname === '/admin/signup';
+
+  if (isAdminAuthPage) {
     if (token && role === 'ADMIN') {
       return NextResponse.redirect(new URL('/admin/overview', request.url));
     }
+    return NextResponse.next();
+  }
+ 
+  // ── Admin protected routes (/admin/*) ───────────────────────────────────
+  // Must be logged in as ADMIN. Anyone else gets sent to the admin login page.
+  if (pathname.startsWith('/admin')) {
+    if (!token || role !== 'ADMIN') {
+      const loginUrl = new URL('/admin/login', request.url);
+      loginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+    return NextResponse.next();
   }
 
-  // 3. Admin Protected Routes (/admin/* except auth)
-  // TODO: Re-enable once admin login flow with redirect-back is implemented.
-  // When re-enabling, the admin login form must read the `redirect` search param
-  // and navigate there on successful login instead of going to '/admin/overview'.
-  // if (pathname.startsWith('/admin') && pathname !== '/admin/login' && pathname !== '/admin/signup') {
-  //   if (!token || role !== 'ADMIN') {
-  //     return NextResponse.redirect(new URL('/admin/login', request.url));
-  //   }
-  // }
+  // ── Guest auth pages (/login, /signup) ──────────────────────────────────
+  // If already logged in as a guest, send them to the homepage.
+  const isGuestAuthPage = pathname === '/login' || pathname === '/signup';
 
-  // 4. Guest Protected Routes (/dashboard)
-  // TODO: Re-enable once login flow with redirect-back is implemented.
-  // When re-enabling, the login form must read the `redirect` search param
-  // and navigate there on successful login instead of going to '/'.
-  // if (pathname.startsWith('/dashboard')) {
-  //   if (!token || role !== 'GUEST') {
-  //     const loginUrl = new URL('/login', request.url);
-  //     loginUrl.searchParams.set('redirect', pathname);
-  //     return NextResponse.redirect(loginUrl);
-  //   }
-  // }
+  if (isGuestAuthPage) {
+    if (token && role === 'GUEST') {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+    return NextResponse.next();
+  }
 
-  // 5. Booking payment and confirmation require guest auth
-  // TODO: Re-enable once login flow with redirect-back is implemented.
-  // When re-enabling, the login form must read the `redirect` search param
-  // and navigate there on successful login instead of going to '/'.
-  // if (pathname === '/book/payment' || pathname === '/book/confirmation') {
-  //   if (!token || role !== 'GUEST') {
-  //     const loginUrl = new URL('/login', request.url);
-  //     loginUrl.searchParams.set('redirect', pathname);
-  //     return NextResponse.redirect(loginUrl);
-  //   }
-  // }
+  // ── Guest protected routes (/dashboard/*) ───────────────────────────────
+  // Must be logged in as GUEST. Redirect to login with a `redirect` param
+  // so the user lands back where they were after signing in.
+  if (pathname.startsWith('/dashboard')) {
+    if (!token || role !== 'GUEST') {
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+    return NextResponse.next();
+  }
+
+  // ── Booking pages that require guest auth ────────────────────────────────
+  const isProtectedBookingPage =
+    pathname === '/book/payment' || pathname === '/book/confirmation';
+
+  if (isProtectedBookingPage) {
+    if (!token || role !== 'GUEST') {
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+  }
 
   return NextResponse.next();
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico, sitemap.xml, robots.txt (metadata files)
-     */
     '/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
   ],
 };

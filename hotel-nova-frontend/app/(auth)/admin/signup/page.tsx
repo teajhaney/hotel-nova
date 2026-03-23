@@ -4,14 +4,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { ArrowRight } from 'lucide-react';
+import { isAxiosError } from 'axios';
 import { FormInput } from '@/components/auth/FormInput';
 import { PasswordInput } from '@/components/auth/PasswordInput';
-import {
-  SIGNUP_MESSAGES,
-  VALIDATION_MESSAGES,
-
-} from '@/constants/messages';
+import { SIGNUP_MESSAGES, VALIDATION_MESSAGES } from '@/constants/messages';
 import { HotelNovaLogo } from '@/components/auth/HotelNovaLogo';
+import { useSignup } from '@/hooks/use-auth';
 
 const adminSignupSchema = z
   .object({
@@ -36,15 +34,29 @@ const adminSignupSchema = z
 type AdminSignupValues = z.infer<typeof adminSignupSchema>;
 
 export default function AdminSignupPage() {
+  const { mutateAsync: signup } = useSignup();
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<AdminSignupValues>({ resolver: zodResolver(adminSignupSchema) });
 
   const onSubmit = async (data: AdminSignupValues) => {
-    /** TODO: POST /api/auth/signup { role: 'ADMIN' } → router.push(ROUTES.adminOverview) */
-   console.log('[AdminSignup]', { role: 'ADMIN', ...data });
+    try {
+      await signup({
+        fullName: data.name,
+        email: data.email,
+        password: data.password,
+        role: 'ADMIN',
+      });
+    } catch (err) {
+      const message =
+        isAxiosError(err) && typeof err.response?.data?.message === 'string'
+          ? err.response.data.message
+          : 'Something went wrong. Please try again.';
+      setError('email', { message });
+    }
   };
 
   return (

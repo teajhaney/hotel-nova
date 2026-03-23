@@ -3,13 +3,12 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { isAxiosError } from 'axios';
 import { FormInput } from '@/components/auth/FormInput';
 import { PasswordInput } from '@/components/auth/PasswordInput';
-import {
-  LOGIN_MESSAGES,
-  VALIDATION_MESSAGES,
-} from '@/constants/messages';
+import { LOGIN_MESSAGES, VALIDATION_MESSAGES } from '@/constants/messages';
 import { HotelNovaLogo } from '@/components/auth/HotelNovaLogo';
+import { useLogin } from '@/hooks/use-auth';
 
 const adminLoginSchema = z.object({
   email: z
@@ -22,15 +21,24 @@ const adminLoginSchema = z.object({
 type AdminLoginValues = z.infer<typeof adminLoginSchema>;
 
 export default function AdminLoginPage() {
+  const { mutateAsync: login } = useLogin('ADMIN');
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<AdminLoginValues>({ resolver: zodResolver(adminLoginSchema) });
 
   const onSubmit = async (data: AdminLoginValues) => {
-    /** TODO: POST /api/auth/login { role: 'ADMIN' } → router.push(ROUTES.adminOverview) */
-    console.log('[AdminLogin]', { role: 'ADMIN', ...data });
+    try {
+      await login(data);
+    } catch (err) {
+      const message =
+        isAxiosError(err) && typeof err.response?.data?.message === 'string'
+          ? err.response.data.message
+          : 'Invalid email or password.';
+      setError('password', { message });
+    }
   };
 
   return (

@@ -1,14 +1,14 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, CalendarDays, User, Star } from 'lucide-react';
+import { Search, CalendarDays, User, Star } from 'lucide-react';
 import { GUEST_DASHBOARD_MESSAGES } from '@/constants/messages';
 
 const MOBILE_NAV = [
   {
-    href: '/',
-    label: GUEST_DASHBOARD_MESSAGES.mobileHome,
-    icon: Home,
+    href: '/rooms',
+    label: 'Browse',
+    icon: Search,
   },
   {
     href: '/dashboard/guest/history',

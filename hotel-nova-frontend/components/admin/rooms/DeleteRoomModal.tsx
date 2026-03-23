@@ -1,6 +1,6 @@
 'use client';
 
-import { Trash2 } from 'lucide-react';
+import { Trash2, Loader2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { ADMIN_DASHBOARD_MESSAGES } from '@/constants/messages';
 
@@ -10,9 +10,10 @@ interface DeleteRoomModalProps {
   roomName: string;
   onClose: () => void;
   onConfirm: () => void;
+  isLoading?: boolean;
 }
 
-export function DeleteRoomModal({ roomName, onClose, onConfirm }: DeleteRoomModalProps) {
+export function DeleteRoomModal({ roomName, onClose, onConfirm, isLoading = false }: DeleteRoomModalProps) {
   return (
     <motion.div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -56,9 +57,14 @@ export function DeleteRoomModal({ roomName, onClose, onConfirm }: DeleteRoomModa
           </button>
           <button
             onClick={onConfirm}
-            className="flex-1 h-10 rounded-lg bg-[#EF4444] text-white text-[13px] font-medium hover:bg-[#DC2626] transition-colors"
+            disabled={isLoading}
+            className="flex-1 h-10 rounded-lg bg-[#EF4444] text-white text-[13px] font-medium hover:bg-[#DC2626] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            {M.deleteRoomConfirm}
+            {isLoading ? (
+              <><Loader2 size={14} className="animate-spin" /> Deleting...</>
+            ) : (
+              M.deleteRoomConfirm
+            )}
           </button>
         </div>
       </motion.div>

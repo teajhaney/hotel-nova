@@ -4,10 +4,12 @@ import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { X, ChevronDown, UploadCloud, Trash2 } from 'lucide-react';
+import { X, ChevronDown, UploadCloud, Trash2, Loader2 } from 'lucide-react';
 import { motion } from 'motion/react';
+import { isAxiosError } from 'axios';
 import { RoomFormModalProps } from '@/type/interface';
 import { ADMIN_DASHBOARD_MESSAGES } from '@/constants/messages';
+import { useCreateRoom, useUpdateRoom, useUploadRoomPhoto } from '@/hooks/use-rooms';
 
 const M = ADMIN_DASHBOARD_MESSAGES;
 
@@ -39,10 +41,17 @@ const errorCls = 'block text-[12px] text-[#EF4444] mt-1.5';
 export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
   const isEdit = !!room;
 
+  const { mutateAsync: createRoom, isPending: isCreating } = useCreateRoom();
+  const { mutateAsync: updateRoom, isPending: isUpdating } = useUpdateRoom();
+  const { mutateAsync: uploadPhoto } = useUploadRoomPhoto();
+
+  const isSaving = isCreating || isUpdating;
+
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [uploadPreview, setUploadPreview] = useState<string>(
-    isEdit ? room.image : ''
+    isEdit ? room.image : '',
   );
+  const [serverError, setServerError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -78,18 +87,41 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const onSubmit = (data: RoomFormData) => {
-    const resolvedImage = uploadPreview || DEFAULT_IMAGE;
+  const onSubmit = async (data: RoomFormData) => {
+    setServerError(null);
+    try {
+      const payload = {
+        roomNumber: data.roomNumber,
+        name: data.name,
+        type: data.type,
+        price: data.price,
+        status: data.status,
+        description: data.description,
+      };
 
-    onSave({
-      roomNumber: data.roomNumber,
-      name: data.name,
-      type: data.type,
-      price: data.price,
-      status: data.status,
-      description: data.description,
-      image: resolvedImage,
-    });
+      let savedId: string;
+
+      if (isEdit && room.id) {
+        const updated = await updateRoom({ id: room.id, payload });
+        savedId = updated.id;
+      } else {
+        const created = await createRoom(payload);
+        savedId = created.id;
+      }
+
+      // If a new image file was picked, upload it after save
+      if (uploadedFile) {
+        await uploadPhoto({ id: savedId, file: uploadedFile });
+      }
+
+      onSave();
+    } catch (err) {
+      const message =
+        isAxiosError(err) && typeof err.response?.data?.message === 'string'
+          ? err.response.data.message
+          : 'Something went wrong. Please try again.';
+      setServerError(message);
+    }
   };
 
   return (
@@ -344,21 +376,29 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
         </form>
 
         {/* ── Fixed Footer ────────────────────────────────── */}
-        <div className="shrink-0 px-7 py-4 border-t border-[#E5E7EB] bg-white flex items-center justify-end gap-3">
-          <button
-            type="button"
-            onClick={onClose}
-            className="h-10 px-5 rounded-lg border border-[#D1D5DB] text-[13px] font-medium text-[#374151] hover:bg-[#F3F4F6] transition-colors"
-          >
-            {M.cancel}
-          </button>
-          <button
-            type="submit"
-            form="room-form"
-            className="h-10 px-7 rounded-lg bg-[#020887] text-white text-[13px] font-semibold hover:bg-[#38369A] transition-colors"
-          >
-            {isEdit ? M.saveChanges : M.roomSubmitAdd}
-          </button>
+        <div className="shrink-0 px-7 py-4 border-t border-[#E5E7EB] bg-white">
+          {serverError && (
+            <p className="text-[12px] text-[#EF4444] mb-3 text-right">{serverError}</p>
+          )}
+          <div className="flex items-center justify-end gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isSaving}
+              className="h-10 px-5 rounded-lg border border-[#D1D5DB] text-[13px] font-medium text-[#374151] hover:bg-[#F3F4F6] transition-colors disabled:opacity-50"
+            >
+              {M.cancel}
+            </button>
+            <button
+              type="submit"
+              form="room-form"
+              disabled={isSaving}
+              className="h-10 px-7 rounded-lg bg-[#020887] text-white text-[13px] font-semibold hover:bg-[#38369A] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              {isSaving && <Loader2 size={14} className="animate-spin" />}
+              {isEdit ? M.saveChanges : M.roomSubmitAdd}
+            </button>
+          </div>
         </div>
       </motion.div>
     </motion.div>

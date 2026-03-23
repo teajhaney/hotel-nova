@@ -14,7 +14,7 @@ export interface RoomData {
 export interface RoomFormModalProps {
   room?: RoomData | null;
   onClose: () => void;
-  onSave: (data: RoomData) => void;
+  onSave: () => void;
 }
 
 export interface CalendarMonthProps {
