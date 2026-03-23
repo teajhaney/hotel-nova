@@ -1,22 +1,45 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Search } from 'lucide-react';
+import { Search, Loader2 } from 'lucide-react';
 import { RoomFilters } from './RoomFilters';
 import { RoomListingCard } from './RoomListingCard';
 import { Pagination } from './Pagination';
-import { ROOM_LISTINGS } from '@/constants/dummyData';
+import { useRooms } from '@/hooks/use-rooms';
 import { ROOMS_PAGE_MESSAGES } from '@/constants/messages';
 
-const ROOMS_PER_PAGE = 4;
+const ROOMS_PER_PAGE = 6;
 
 export function RoomsContent() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [priceRange, setPriceRange] = useState<[number, number]>([200000, 2000000]);
+  // priceRange[1] === 0 means "no upper limit set yet — show everything"
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 0]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
+
+  // Fetch all available rooms — client-side filtering is fine for a single hotel
+  const { data, isLoading, isError } = useRooms({ status: 'Available', limit: 100 });
+  const rooms = data?.data ?? [];
+
+  // Derive the highest price from loaded rooms and round up to the nearest 50k
+  const maxRoomPrice = useMemo(() => {
+    if (rooms.length === 0) return 0;
+    const highest = Math.max(...rooms.map((r) => r.price));
+    return Math.ceil(highest / 50000) * 50000;
+  }, [rooms]);
+
+  // Pull room types that are actually in the data — no hardcoded list
+  const availableTypes = useMemo(() => {
+    return [...new Set(rooms.map((r) => r.type))].sort();
+  }, [rooms]);
+
+  // Pull amenities that are actually in the data — guarantees filter values
+  // always match exactly what's stored in the database
+  const availableAmenities = useMemo(() => {
+    return [...new Set(rooms.flatMap((r) => r.amenities))].sort();
+  }, [rooms]);
 
   const handleTypeToggle = (type: string) => {
     setSelectedTypes((prev) =>
@@ -34,28 +57,49 @@ export function RoomsContent() {
 
   const handleClear = () => {
     setSearchQuery('');
-    setPriceRange([200000, 2000000]);
+    setPriceRange([0, 0]);
     setSelectedTypes([]);
     setSelectedAmenities([]);
     setCurrentPage(1);
   };
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Scroll to the top of the page so the user sees the new results
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const filteredRooms = useMemo(() => {
-    return ROOM_LISTINGS.filter((room) => {
-      // Search filter
+    // priceRange[1] === 0 means not yet adjusted — include all
+    const effectiveMax = priceRange[1] === 0 ? Infinity : priceRange[1];
+
+    return rooms.filter((room) => {
       if (searchQuery.trim()) {
-        const query = searchQuery.toLowerCase();
-        const matchesName = room.name.toLowerCase().includes(query);
-		  if (!matchesName) return false;
-		  
+        const q = searchQuery.toLowerCase();
+        // Match against the fields that are indexed or key identifiers:
+        //  - name       → display name (e.g. "Deluxe King Suite")
+        //  - type       → enum, part of the composite unique index (e.g. "Suite")
+        //  - roomRef    → unique-indexed reference code (e.g. "RN-109-SU")
+        //  - description → keyword matching ("pool view", "king bed", etc.)
+        const matchesName = room.name.toLowerCase().includes(q);
+        const matchesType = room.type.toLowerCase().includes(q);
+        const matchesRef  = room.roomRef.toLowerCase().includes(q);
+        const matchesDesc = room.description?.toLowerCase().includes(q) ?? false;
+        if (!matchesName && !matchesType && !matchesRef && !matchesDesc) return false;
       }
 
-      // Price filter
-      if (room.price < priceRange[0] || room.price > priceRange[1]) return false;
+      if (room.price < priceRange[0] || room.price > effectiveMax) return false;
+
+      if (selectedTypes.length > 0 && !selectedTypes.includes(room.type)) return false;
+
+      if (selectedAmenities.length > 0) {
+        const hasAll = selectedAmenities.every((a) => room.amenities.includes(a));
+        if (!hasAll) return false;
+      }
 
       return true;
     });
-  }, [searchQuery, priceRange]);
+  }, [rooms, searchQuery, priceRange, selectedTypes, selectedAmenities]);
 
   const totalPages = Math.ceil(filteredRooms.length / ROOMS_PER_PAGE);
   const paginatedRooms = filteredRooms.slice(
@@ -70,6 +114,9 @@ export function RoomsContent() {
         <div className="hidden lg:block w-70 shrink-0">
           <RoomFilters
             priceRange={priceRange}
+            maxRoomPrice={maxRoomPrice}
+            availableTypes={availableTypes}
+            availableAmenities={availableAmenities}
             onPriceChange={setPriceRange}
             selectedTypes={selectedTypes}
             onTypeToggle={handleTypeToggle}
@@ -132,11 +179,13 @@ export function RoomsContent() {
               </button>
             </div>
 
-            {/* Mobile filters panel */}
             {showFilters && (
               <div className="mb-6">
                 <RoomFilters
                   priceRange={priceRange}
+                  maxRoomPrice={maxRoomPrice}
+                  availableTypes={availableTypes}
+                  availableAmenities={availableAmenities}
                   onPriceChange={setPriceRange}
                   selectedTypes={selectedTypes}
                   onTypeToggle={handleTypeToggle}
@@ -148,30 +197,48 @@ export function RoomsContent() {
             )}
           </div>
 
-          {/* Room grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {paginatedRooms.map((room) => (
-              <RoomListingCard key={room.id} {...room} />
-            ))}
-          </div>
+          {/* Loading state */}
+          {isLoading && (
+            <div className="flex items-center justify-center py-24">
+              <Loader2 size={32} className="animate-spin text-[#020887]" />
+            </div>
+          )}
 
-          {/* Empty state */}
-          {filteredRooms.length === 0 && (
+          {/* Error state */}
+          {isError && (
             <div className="text-center py-16">
-              <p className="text-[18px] font-medium text-[#64748B]">
-                {searchQuery.trim()
-                  ? `No rooms found matching "${searchQuery}". Try a different search term.`
-                  : 'No rooms match your filters. Try adjusting your criteria.'}
+              <p className="text-[16px] font-medium text-[#EF4444]">
+                Failed to load rooms. Please try refreshing the page.
               </p>
             </div>
           )}
 
-          {/* Pagination */}
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
+          {/* Room grid */}
+          {!isLoading && !isError && (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {paginatedRooms.map((room) => (
+                  <RoomListingCard key={room.id} {...room} />
+                ))}
+              </div>
+
+              {filteredRooms.length === 0 && (
+                <div className="text-center py-16">
+                  <p className="text-[18px] font-medium text-[#64748B]">
+                    {searchQuery.trim()
+                      ? `No rooms found matching "${searchQuery}". Try a different search term.`
+                      : 'No rooms match your filters. Try adjusting your criteria.'}
+                  </p>
+                </div>
+              )}
+
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+            </>
+          )}
         </div>
       </div>
     </div>

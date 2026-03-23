@@ -68,6 +68,17 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // ── Rooms browsing page (/rooms, /rooms/*) ──────────────────────────────
+  // Must be logged in (any role). Unauthenticated visitors get sent to login.
+  if (pathname.startsWith('/rooms')) {
+    if (!token) {
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+    return NextResponse.next();
+  }
+
   // ── Guest protected routes (/dashboard/*) ───────────────────────────────
   // Must be logged in as GUEST. Redirect to login with a `redirect` param
   // so the user lands back where they were after signing in.
