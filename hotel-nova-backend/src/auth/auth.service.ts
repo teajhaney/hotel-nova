@@ -143,15 +143,43 @@ export class AuthService {
 
   // ─── Guest: Update Own Profile ────────────────────────────────────────────
   // Lets the authenticated user update their name, phone, and country.
-  // Email is excluded intentionally — changing email needs a separate
-  // verification flow to prevent account-takeover abuse.
+  // Optionally changes the password: if newPassword is supplied the caller
+  // must also supply currentPassword, which we verify against the stored hash
+  // before accepting the change. Email updates are excluded — those need a
+  // separate verification flow.
   async updateProfile(userId: string, dto: UpdateProfileDto) {
+    const wantsPasswordChange = !!dto.newPassword;
+    let passwordHash: string | undefined;
+
+    if (wantsPasswordChange) {
+      // currentPassword is required to prove the caller knows the old one
+      if (!dto.currentPassword) {
+        throw new BadRequestException(
+          AUTH_MESSAGES.PASSWORD_CHANGE_REQUIRES_CURRENT,
+        );
+      }
+
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { password: true },
+      });
+
+      if (!user) throw new UnauthorizedException(AUTH_MESSAGES.USER_NOT_FOUND);
+
+      const valid = await verify(user.password, dto.currentPassword);
+      if (!valid)
+        throw new BadRequestException(AUTH_MESSAGES.INCORRECT_CURRENT_PASSWORD);
+
+      passwordHash = await hash(dto.newPassword as string);
+    }
+
     return this.prisma.user.update({
       where: { id: userId },
       data: {
         ...(dto.fullName !== undefined && { fullName: dto.fullName }),
         ...(dto.phone !== undefined && { phone: dto.phone }),
         ...(dto.country !== undefined && { country: dto.country }),
+        ...(passwordHash !== undefined && { password: passwordHash }),
       },
       select: {
         id: true,

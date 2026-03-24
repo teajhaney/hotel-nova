@@ -15,6 +15,8 @@ export function useUpdateProfile() {
       fullName?: string;
       phone?: string;
       country?: string;
+      currentPassword?: string;
+      newPassword?: string;
     }) => {
       const { data } = await apiClient.patch<User>('/auth/me', payload);
       return data;

@@ -163,9 +163,15 @@ export default function ProfileSettingsPage() {
   }
 
   function onPasswordSave(data: PasswordForm) {
-    // Password change endpoint to be wired once the backend route exists
-    console.log('Password update:', data);
-    toast.info('Password change coming soon.');
+    updateProfile.mutate(
+      { currentPassword: data.currentPassword, newPassword: data.newPassword },
+      {
+        onSuccess: () => {
+          passwordForm.reset();
+          toast.success('Password updated successfully.');
+        },
+      },
+    );
   }
 
   function handleDeleteConfirm() {
@@ -312,6 +318,7 @@ export default function ProfileSettingsPage() {
                 <input
                   {...passwordForm.register('currentPassword')}
                   type="password"
+                  autoComplete="off"
                   className={`field-input ${passwordForm.formState.errors.currentPassword ? 'field-input-error' : 'field-input-valid'}`}
                 />
                 {passwordForm.formState.errors.currentPassword && (
@@ -324,6 +331,7 @@ export default function ProfileSettingsPage() {
                   <input
                     {...passwordForm.register('newPassword')}
                     type="password"
+                    autoComplete="new-password"
                     className={`field-input ${passwordForm.formState.errors.newPassword ? 'field-input-error' : 'field-input-valid'}`}
                   />
                   {passwordForm.formState.errors.newPassword && (
@@ -335,6 +343,7 @@ export default function ProfileSettingsPage() {
                   <input
                     {...passwordForm.register('confirmNewPassword')}
                     type="password"
+                    autoComplete="new-password"
                     className={`field-input ${passwordForm.formState.errors.confirmNewPassword ? 'field-input-error' : 'field-input-valid'}`}
                   />
                   {passwordForm.formState.errors.confirmNewPassword && (
@@ -345,9 +354,11 @@ export default function ProfileSettingsPage() {
               <div className="flex justify-end">
                 <button
                   onClick={passwordForm.handleSubmit(onPasswordSave)}
-                  className="flex items-center gap-2 px-4 h-10 rounded-lg bg-[#020887] text-white text-[13px] font-semibold hover:bg-[#38369A] transition-colors"
+                  disabled={updateProfile.isPending}
+                  className="flex items-center gap-2 px-4 h-10 rounded-lg bg-[#020887] text-white text-[13px] font-semibold hover:bg-[#38369A] transition-colors disabled:opacity-60"
                 >
-                  {GUEST_DASHBOARD_MESSAGES.updatePassword}
+                  {updateProfile.isPending && <Loader2 size={14} className="animate-spin" />}
+                  {updateProfile.isPending ? 'Updating...' : GUEST_DASHBOARD_MESSAGES.updatePassword}
                 </button>
               </div>
             </div>

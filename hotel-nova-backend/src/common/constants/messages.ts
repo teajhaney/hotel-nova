@@ -23,6 +23,9 @@ export const AUTH_MESSAGES = {
   NO_REFRESH_TOKEN: 'No refresh token provided.',
 
   CANNOT_DELETE_SELF: 'You cannot delete your own admin account.',
+  INCORRECT_CURRENT_PASSWORD: 'Current password is incorrect.',
+  PASSWORD_CHANGE_REQUIRES_CURRENT:
+    'Please provide your current password to set a new one.',
 
   // success
   SIGNUP_SUCCESS: 'Signup successful',
@@ -50,7 +53,8 @@ export const BOOKING_MESSAGES = {
   // errors
   BOOKING_NOT_FOUND: 'Booking not found.',
   ROOM_UNAVAILABLE: 'This room is not available for the selected dates.',
-  ROOM_UNDER_MAINTENANCE: 'This room is currently under maintenance and cannot be booked.',
+  ROOM_UNDER_MAINTENANCE:
+    'This room is currently under maintenance and cannot be booked.',
   INVALID_DATE_RANGE: 'Check-out must be after check-in.',
   CHECK_IN_PAST: 'Check-in date must be today or in the future.',
   INVALID_PROMO_CODE: 'This promo code is invalid or has expired.',

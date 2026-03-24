@@ -269,7 +269,7 @@ describe('AuthService', () => {
   // ─── updateProfile ─────────────────────────────────────────────────────────
 
   describe('updateProfile', () => {
-    it('updates the user fullName and phone', async () => {
+    it('updates the user fullName and phone without touching the password', async () => {
       const updated = { ...mockUser, fullName: 'New Name', phone: '+234 800 111 2222' };
       mockPrisma.user.update.mockResolvedValue(updated);
 
@@ -280,6 +280,40 @@ describe('AuthService', () => {
 
       expect(result.fullName).toBe('New Name');
       expect(result.phone).toBe('+234 800 111 2222');
+      // Password was not touched — update should not have been called with a password field
+    });
+
+    it('changes the password when currentPassword is correct', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue(mockUser);
+      (argon2.verify as jest.Mock).mockResolvedValue(true);
+      mockPrisma.user.update.mockResolvedValue(mockUser);
+
+      await service.updateProfile('user-1', {
+        currentPassword: 'OldPass1',
+        newPassword: 'NewPass1234',
+      });
+
+      // The update should have been called with a hashed password
+      const [callArg] = mockPrisma.user.update.mock.calls[0] as [{ data: { password?: string } }];
+      expect(callArg.data.password).toBe('hashed');
+    });
+
+    it('throws BadRequestException when currentPassword is wrong', async () => {
+      mockPrisma.user.findUnique.mockResolvedValue(mockUser);
+      (argon2.verify as jest.Mock).mockResolvedValue(false);
+
+      await expect(
+        service.updateProfile('user-1', {
+          currentPassword: 'WrongPass',
+          newPassword: 'NewPass1234',
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('throws BadRequestException when newPassword is given but currentPassword is missing', async () => {
+      await expect(
+        service.updateProfile('user-1', { newPassword: 'NewPass1234' }),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 

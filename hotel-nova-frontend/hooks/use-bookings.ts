@@ -35,7 +35,7 @@ export function useMyBookings() {
       const { data } = await apiClient.get<ApiBooking[]>('/bookings/my');
       return data;
     },
-    refetchInterval: 30_000,
+    refetchInterval: 15_000,
     refetchOnWindowFocus: true,
   });
 }
