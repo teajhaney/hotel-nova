@@ -9,36 +9,24 @@ import {
   Pencil,
   Trash2,
   TrendingUp,
-  TrendingDown,
+  Loader2,
 } from 'lucide-react';
 import { AnimatePresence } from 'motion/react';
 import { BookingStatusModal, type BookingData } from '@/components/admin/bookings/BookingStatusModal';
 import { DeleteBookingModal } from '@/components/admin/bookings/DeleteBookingModal';
 import { ADMIN_DASHBOARD_MESSAGES } from '@/constants/messages';
+import {
+  useAdminBookings,
+  useAdminUpdateBookingStatus,
+  API_TO_DISPLAY,
+  type AdminBookingFilters,
+} from '@/hooks/use-admin-bookings';
+import { formatNgn } from '@/utils/format';
 
 const M = ADMIN_DASHBOARD_MESSAGES;
 
-const INITIAL_BOOKINGS: BookingData[] = [
-  { id: 'BK-2026-0182', guest: 'Amara Okonkwo',    room: 'Deluxe King 302',        checkIn: 'Mar 18, 2026', checkOut: 'Mar 22, 2026', amount: 700000,   status: 'Confirmed'   },
-  { id: 'BK-2026-0181', guest: 'Chidi Eze',         room: 'Presidential Suite 501', checkIn: 'Mar 18, 2026', checkOut: 'Mar 25, 2026', amount: 4200000,  status: 'Checked In'  },
-  { id: 'BK-2026-0180', guest: 'Fatima Al-Hassan',  room: 'Executive View 410',     checkIn: 'Mar 19, 2026', checkOut: 'Mar 21, 2026', amount: 550000,   status: 'Pending'     },
-  { id: 'BK-2026-0179', guest: 'Emmanuel Adeyemi',  room: 'Standard Double 215',    checkIn: 'Mar 17, 2026', checkOut: 'Mar 18, 2026', amount: 90000,    status: 'Checked Out' },
-  { id: 'BK-2026-0178', guest: 'Ngozi Obi',         room: 'Grand Suite 601',        checkIn: 'Mar 15, 2026', checkOut: 'Mar 18, 2026', amount: 2550000,  status: 'Confirmed'   },
-  { id: 'BK-2026-0177', guest: 'Bola Akin',         room: 'Deluxe Twin 118',        checkIn: 'Mar 20, 2026', checkOut: 'Mar 23, 2026', amount: 465000,   status: 'Pending'     },
-  { id: 'BK-2026-0176', guest: 'Yemi Fashola',      room: 'Standard Single 210',    checkIn: 'Mar 16, 2026', checkOut: 'Mar 17, 2026', amount: 75000,    status: 'Cancelled'   },
-  { id: 'BK-2026-0175', guest: 'Zainab Musa',       room: 'Executive Corner 315',   checkIn: 'Mar 21, 2026', checkOut: 'Mar 24, 2026', amount: 960000,   status: 'Confirmed'   },
-  { id: 'BK-2026-0174', guest: 'Tunde Bakare',      room: 'Deluxe King 302',        checkIn: 'Mar 22, 2026', checkOut: 'Mar 26, 2026', amount: 700000,   status: 'Pending'     },
-  { id: 'BK-2026-0173', guest: 'Ifeoma Nwosu',      room: 'Presidential Suite 501', checkIn: 'Mar 14, 2026', checkOut: 'Mar 17, 2026', amount: 1800000,  status: 'Checked Out' },
-];
-
-const AVATAR_COLORS     = ['#EEF0FF','#D1FAE5','#FFEDD5','#DBEAFE','#FEE2E2','#FEF3C7','#F3E8FF','#ECFDF5','#FFF7ED','#EFF6FF'];
+const AVATAR_COLORS      = ['#EEF0FF','#D1FAE5','#FFEDD5','#DBEAFE','#FEE2E2','#FEF3C7','#F3E8FF','#ECFDF5','#FFF7ED','#EFF6FF'];
 const AVATAR_TEXT_COLORS = ['#020887','#10B981','#F97316','#1D4ED8','#DC2626','#B45309','#7C3AED','#059669','#EA580C','#2563EB'];
-
-const MINI_STATS = [
-  { label: M.bookingStatTotalBookings, value: '1,284', change: '+12%', positive: true  },
-  { label: M.bookingStatPending,       value: '45',    change: '-5%',  positive: false },
-  { label: M.bookingStatCheckedIn,     value: '182',   change: '+8%',  positive: true  },
-];
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, string> = {
@@ -52,32 +40,62 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export default function AdminBookingsPage() {
-  const [bookings, setBookings] = useState<BookingData[]>(INITIAL_BOOKINGS);
   const [statusFilter, setStatusFilter] = useState<string>(M.allStatuses);
-  const [typeFilter, setTypeFilter] = useState<string>(M.allRoomTypes);
+  const [page, setPage] = useState(1);
 
-  const [editTarget, setEditTarget]   = useState<BookingData | null>(null);
+  const [editTarget, setEditTarget]     = useState<BookingData | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<BookingData | null>(null);
 
-  const filtered = bookings.filter((b) => {
-    const matchStatus = statusFilter === M.allStatuses || b.status === statusFilter;
-    return matchStatus;
-  });
+  const filters: AdminBookingFilters = { status: statusFilter, page, limit: 20 };
+  const { data, isLoading } = useAdminBookings(filters);
+  const updateStatus = useAdminUpdateBookingStatus();
 
-  const handleStatusSave = (updated: BookingData) => {
-    setBookings((prev) => prev.map((b) => (b.id === updated.id ? updated : b)));
-    setEditTarget(null);
-  };
+  const bookings = data?.data ?? [];
+  const meta = data?.meta;
 
-  const handleDeleteConfirm = () => {
-    if (!deleteTarget) return;
-    setBookings((prev) => prev.filter((b) => b.id !== deleteTarget.id));
+  // Derive mini-stats from the first page load (unfiltered counts not available
+  // from a filtered query, so we show counts from current page data).
+  const pendingCount   = bookings.filter((b) => b.status === 'Pending').length;
+  const checkedInCount = bookings.filter((b) => b.status === 'CheckedIn').length;
+
+  // Convert API booking → BookingData shape that the modal expects
+  function toBookingData(b: (typeof bookings)[number]): BookingData {
+    return {
+      id:       b.bookingRef,
+      guest:    b.guestName,
+      room:     b.room.name,
+      checkIn:  new Date(b.checkIn).toLocaleDateString('en-NG', { month: 'short', day: 'numeric', year: 'numeric' }),
+      checkOut: new Date(b.checkOut).toLocaleDateString('en-NG', { month: 'short', day: 'numeric', year: 'numeric' }),
+      amount:   b.totalAmount,
+      status:   API_TO_DISPLAY[b.status] ?? b.status,
+    };
+  }
+
+  function handleStatusSave(updated: BookingData) {
+    // Find the real booking ID (not the bookingRef we pass to the modal)
+    const found = bookings.find((b) => b.bookingRef === updated.id);
+    if (!found) return;
+
+    updateStatus.mutate(
+      { id: found.id, displayStatus: updated.status },
+      { onSuccess: () => setEditTarget(null) },
+    );
+  }
+
+  function handleDeleteConfirm() {
+    // Deleting bookings via admin is not yet wired — close the modal
     setDeleteTarget(null);
-  };
+  }
+
+  const MINI_STATS = [
+    { label: M.bookingStatTotalBookings, value: isLoading ? '—' : String(meta?.total ?? bookings.length), icon: TrendingUp, positive: true },
+    { label: M.bookingStatPending,       value: isLoading ? '—' : String(pendingCount),   icon: TrendingUp, positive: false },
+    { label: M.bookingStatCheckedIn,     value: isLoading ? '—' : String(checkedInCount), icon: TrendingUp, positive: true },
+  ];
 
   return (
     <div className="admin-page-container">
-      {/* Header — no Add Booking button */}
+      {/* Header */}
       <div className="mb-7">
         <h1 className="text-[24px] font-bold text-[#0D0F2B]">{M.bookingsTitle}</h1>
         <p className="text-[14px] text-[#64748B] mt-1">{M.bookingsSubtitle}</p>
@@ -85,13 +103,13 @@ export default function AdminBookingsPage() {
 
       {/* Mini stat cards */}
       <div className="grid grid-cols-3 gap-4 mb-6">
-        {MINI_STATS.map(({ label, value, change, positive }) => (
+        {MINI_STATS.map(({ label, value, positive }) => (
           <div key={label} className="admin-stat-card">
             <p className="text-[13px] text-[#64748B] mb-1">{label}</p>
             <p className="text-[22px] font-bold text-[#0D0F2B]">{value}</p>
             <div className={`flex items-center gap-1 mt-1 text-[12px] font-medium ${positive ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
-              {positive ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
-              {change} this month
+              <TrendingUp size={13} />
+              Live from database
             </div>
           </div>
         ))}
@@ -99,29 +117,23 @@ export default function AdminBookingsPage() {
 
       {/* Filter bar */}
       <div className="flex flex-wrap items-center gap-3 mb-5">
-        <div className="flex items-center gap-2 h-10 px-3 rounded-lg border border-[#E2E8F0] bg-white text-[13px] text-[#64748B] cursor-pointer">
+        <div className="flex items-center gap-2 h-10 px-3 rounded-lg border border-[#E2E8F0] bg-white text-[13px] text-[#64748B]">
           <CalendarDays size={15} />
-          <span>Mar 1, 2026 – Mar 31, 2026</span>
+          <span>All dates</span>
           <ChevronDown size={14} />
         </div>
         <div className="relative">
-          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="h-10 pl-3 pr-8 rounded-lg border border-[#E2E8F0] bg-white text-[13px] text-[#0D0F2B] outline-none appearance-none cursor-pointer">
+          <select
+            value={statusFilter}
+            onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+            className="h-10 pl-3 pr-8 rounded-lg border border-[#E2E8F0] bg-white text-[13px] text-[#0D0F2B] outline-none appearance-none cursor-pointer"
+          >
             <option>{M.allStatuses}</option>
             <option>{M.statusConfirmed}</option>
             <option>{M.statusPending}</option>
             <option>{M.statusCheckedIn}</option>
             <option>{M.statusCheckedOut}</option>
             <option>{M.statusCancelled}</option>
-          </select>
-          <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#94A3B8] pointer-events-none" />
-        </div>
-        <div className="relative">
-          <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="h-10 pl-3 pr-8 rounded-lg border border-[#E2E8F0] bg-white text-[13px] text-[#0D0F2B] outline-none appearance-none cursor-pointer">
-            <option>{M.allRoomTypes}</option>
-            <option>{M.typeDeluxe}</option>
-            <option>{M.typeSuite}</option>
-            <option>{M.typeStandard}</option>
-            <option>{M.typeExecutive}</option>
           </select>
           <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#94A3B8] pointer-events-none" />
         </div>
@@ -147,69 +159,140 @@ export default function AdminBookingsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#F1F5F9]">
-              {filtered.map((b, i) => (
-                <tr key={b.id} className="hover:bg-[#F8FAFC] transition-colors">
-                  <td className="admin-table-td">
-                    <span className="text-[13px] font-medium text-[#020887]">{b.id}</span>
-                  </td>
-                  <td className="admin-table-td">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: AVATAR_COLORS[i % AVATAR_COLORS.length] }}>
-                        <span className="text-[11px] font-bold" style={{ color: AVATAR_TEXT_COLORS[i % AVATAR_TEXT_COLORS.length] }}>
-                          {b.guest.split(' ').map((n) => n[0]).join('').slice(0, 2)}
-                        </span>
-                      </div>
-                      <span className="text-[13px] font-medium text-[#0D0F2B]">{b.guest}</span>
-                    </div>
-                  </td>
-                  <td className="admin-table-td text-[13px] text-[#64748B]">{b.room}</td>
-                  <td className="admin-table-td">
-                    <p className="text-[12px] text-[#0D0F2B]">{b.checkIn}</p>
-                    <p className="text-[12px] text-[#94A3B8]">{b.checkOut}</p>
-                  </td>
-                  <td className="admin-table-td text-[13px] font-medium text-[#0D0F2B]">
-                    ₦{b.amount.toLocaleString()}
-                  </td>
-                  <td className="admin-table-td"><StatusBadge status={b.status} /></td>
-                  <td className="admin-table-td">
-                    <div className="flex items-center gap-2">
-                      <button onClick={() => setEditTarget(b)} className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E2E8F0] text-[#64748B] hover:border-[#020887] hover:text-[#020887] transition-colors" aria-label={M.editStatusAriaLabel}>
-                        <Pencil size={14} />
-                      </button>
-                      <button onClick={() => setDeleteTarget(b)} className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E2E8F0] text-[#64748B] hover:border-[#EF4444] hover:text-[#EF4444] transition-colors" aria-label={M.deleteBookingAriaLabel}>
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {filtered.length === 0 && (
+              {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="px-5 py-10 text-center text-[14px] text-[#94A3B8]">{M.noBookingsFound}</td>
+                  <td colSpan={7} className="px-5 py-12 text-center">
+                    <Loader2 size={24} className="animate-spin text-[#020887] mx-auto" />
+                  </td>
                 </tr>
+              ) : bookings.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-5 py-10 text-center text-[14px] text-[#94A3B8]">
+                    {M.noBookingsFound}
+                  </td>
+                </tr>
+              ) : (
+                bookings.map((b, i) => {
+                  const displayStatus = API_TO_DISPLAY[b.status] ?? b.status;
+                  const initials = b.guestName
+                    .split(' ')
+                    .map((n) => n[0])
+                    .join('')
+                    .slice(0, 2)
+                    .toUpperCase();
+
+                  return (
+                    <tr key={b.id} className="hover:bg-[#F8FAFC] transition-colors">
+                      <td className="admin-table-td">
+                        <span className="text-[13px] font-medium text-[#020887]">
+                          {b.bookingRef}
+                        </span>
+                      </td>
+                      <td className="admin-table-td">
+                        <div className="flex items-center gap-2.5">
+                          <div
+                            className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+                            style={{ backgroundColor: AVATAR_COLORS[i % AVATAR_COLORS.length] }}
+                          >
+                            <span className="text-[11px] font-bold" style={{ color: AVATAR_TEXT_COLORS[i % AVATAR_TEXT_COLORS.length] }}>
+                              {initials}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="text-[13px] font-medium text-[#0D0F2B]">{b.guestName}</p>
+                            <p className="text-[11px] text-[#94A3B8]">{b.guestEmail}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="admin-table-td text-[13px] text-[#64748B]">
+                        <p>{b.room.name}</p>
+                        <p className="text-[11px] text-[#94A3B8] uppercase tracking-wide">{b.room.type}</p>
+                      </td>
+                      <td className="admin-table-td">
+                        <p className="text-[12px] text-[#0D0F2B]">
+                          {new Date(b.checkIn).toLocaleDateString('en-NG', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </p>
+                        <p className="text-[12px] text-[#94A3B8]">
+                          {new Date(b.checkOut).toLocaleDateString('en-NG', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </p>
+                      </td>
+                      <td className="admin-table-td text-[13px] font-medium text-[#0D0F2B]">
+                        {formatNgn(b.totalAmount)}
+                      </td>
+                      <td className="admin-table-td">
+                        <StatusBadge status={displayStatus} />
+                      </td>
+                      <td className="admin-table-td">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => setEditTarget(toBookingData(b))}
+                            className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E2E8F0] text-[#64748B] hover:border-[#020887] hover:text-[#020887] transition-colors"
+                            aria-label={M.editStatusAriaLabel}
+                          >
+                            <Pencil size={14} />
+                          </button>
+                          <button
+                            onClick={() => setDeleteTarget(toBookingData(b))}
+                            className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E2E8F0] text-[#64748B] hover:border-[#EF4444] hover:text-[#EF4444] transition-colors"
+                            aria-label={M.deleteBookingAriaLabel}
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
         </div>
 
+        {/* Pagination */}
         <div className="px-5 py-4 border-t border-[#E2E8F0] flex items-center justify-between">
-          <p className="text-[13px] text-[#64748B]">Showing {filtered.length} of {bookings.length} bookings</p>
-          <div className="flex items-center gap-1">
-            {[1, 2, 3, '...', 129].map((p, i) => (
-              <button key={i} className={`w-8 h-8 flex items-center justify-center rounded-lg text-[13px] font-medium transition-colors ${p === 1 ? 'bg-[#020887] text-white' : 'text-[#64748B] hover:bg-[#EEF0FF] hover:text-[#020887]'}`}>{p}</button>
-            ))}
-          </div>
+          <p className="text-[13px] text-[#64748B]">
+            Showing {bookings.length} of {meta?.total ?? 0} bookings
+          </p>
+          {meta && meta.totalPages > 1 && (
+            <div className="flex items-center gap-1">
+              {Array.from({ length: Math.min(meta.totalPages, 5) }, (_, i) => i + 1).map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setPage(p)}
+                  className={`w-8 h-8 flex items-center justify-center rounded-lg text-[13px] font-medium transition-colors ${
+                    p === page
+                      ? 'bg-[#020887] text-white'
+                      : 'text-[#64748B] hover:bg-[#EEF0FF] hover:text-[#020887]'
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
       <AnimatePresence>
         {editTarget && (
-          <BookingStatusModal key="booking-status" booking={editTarget} onClose={() => setEditTarget(null)} onSave={handleStatusSave} />
+          <BookingStatusModal
+            key="booking-status"
+            booking={editTarget}
+            onClose={() => setEditTarget(null)}
+            onSave={handleStatusSave}
+            isSaving={updateStatus.isPending}
+          />
         )}
       </AnimatePresence>
       <AnimatePresence>
         {deleteTarget && (
-          <DeleteBookingModal key="delete-booking" bookingId={deleteTarget.id} guestName={deleteTarget.guest} onClose={() => setDeleteTarget(null)} onConfirm={handleDeleteConfirm} />
+          <DeleteBookingModal
+            key="delete-booking"
+            bookingId={deleteTarget.id}
+            guestName={deleteTarget.guest}
+            onClose={() => setDeleteTarget(null)}
+            onConfirm={handleDeleteConfirm}
+          />
         )}
       </AnimatePresence>
     </div>

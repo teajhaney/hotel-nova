@@ -1,17 +1,35 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { X, ChevronDown, Mail, User, ShieldCheck, CalendarDays, Info, Eye, EyeOff } from 'lucide-react';
-import { useState } from 'react';
-import { motion } from 'motion/react';
+import {
+  X,
+  ChevronDown,
+  Mail,
+  User,
+  ShieldCheck,
+  CalendarDays,
+  Info,
+  Eye,
+  EyeOff,
+  Loader2,
+} from 'lucide-react';
 import { ADMIN_DASHBOARD_MESSAGES } from '@/constants/messages';
+import {
+  useAdminCreateUser,
+  useAdminUpdateUser,
+  type AdminApiUser,
+} from '@/hooks/use-admin-users';
 
 const M = ADMIN_DASHBOARD_MESSAGES;
 
-// ── Types ────────────────────────────────────────────────────
+// ── Types ─────────────────────────────────────────────────────
+// UserData is the shape the page uses to display rows in the table.
 export interface UserData {
+  id: string;
   name: string;
   email: string;
   role: 'ADMIN' | 'GUEST';
@@ -22,19 +40,21 @@ export interface UserData {
 interface UserFormModalProps {
   user?: UserData | null; // null / undefined = add mode
   onClose: () => void;
-  onSave: (data: UserData) => void;
+  onSaved: (user: AdminApiUser) => void; // called after a successful API response
 }
 
-// ── Schemas ──────────────────────────────────────────────────
-const addSchema = z.object({
-  name: z.string().min(2, 'Full name is required'),
-  email: z.string().email('Enter a valid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-  confirmPassword: z.string().min(1, 'Please confirm the password'),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: 'Passwords do not match',
-  path: ['confirmPassword'],
-});
+// ── Schemas ───────────────────────────────────────────────────
+const addSchema = z
+  .object({
+    name: z.string().min(2, 'Full name is required'),
+    email: z.string().email('Enter a valid email address'),
+    password: z.string().min(8, 'Password must be at least 8 characters'),
+    confirmPassword: z.string().min(1, 'Please confirm the password'),
+  })
+  .refine((d) => d.password === d.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  });
 
 const editSchema = z.object({
   role: z.enum(['ADMIN', 'GUEST']),
@@ -44,7 +64,7 @@ const editSchema = z.object({
 type AddFormData = z.infer<typeof addSchema>;
 type EditFormData = z.infer<typeof editSchema>;
 
-// ── Shared styles ────────────────────────────────────────────
+// ── Shared styles ─────────────────────────────────────────────
 const inputCls =
   'block w-full h-12 px-4 rounded-lg border border-[#D1D5DB] bg-white text-[14px] text-[#0D0F2B] placeholder:text-[#9CA3AF] outline-none focus:border-[#020887] focus:ring-2 focus:ring-[#020887]/10 transition-all';
 
@@ -58,26 +78,37 @@ const AVATAR_COLORS = ['#EEF0FF', '#D1FAE5', '#FFEDD5', '#DBEAFE', '#FEE2E2', '#
 const AVATAR_TEXT = ['#020887', '#10B981', '#F97316', '#1D4ED8', '#DC2626', '#B45309'];
 
 function getInitials(name: string) {
-  return name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
 }
 
-// ── Add Admin Form ─────────────────────────────────────────────
-function AddForm({ onClose, onSave }: { onClose: () => void; onSave: (d: UserData) => void }) {
+// ── Add Admin Form ────────────────────────────────────────────
+function AddForm({
+  onClose,
+  onSaved,
+}: {
+  onClose: () => void;
+  onSaved: (user: AdminApiUser) => void;
+}) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const createUser = useAdminCreateUser();
 
-  const { register, handleSubmit, formState: { errors } } = useForm<AddFormData>({
-    resolver: zodResolver(addSchema),
-  });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<AddFormData>({ resolver: zodResolver(addSchema) });
 
   const onSubmit = (data: AddFormData) => {
-    onSave({
-      name: data.name,
-      email: data.email,
-      role: 'ADMIN',
-      status: 'Active',
-      joined: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-    });
+    createUser.mutate(
+      { fullName: data.name, email: data.email, password: data.password },
+      { onSuccess: (user) => { onSaved(user); onClose(); } },
+    );
   };
 
   return (
@@ -92,7 +123,12 @@ function AddForm({ onClose, onSave }: { onClose: () => void; onSave: (d: UserDat
           <label className={labelCls}>{M.userLabelFullName}</label>
           <div className="relative">
             <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none" />
-            <input {...register('name')} placeholder={M.userPlaceholderName} className={`${inputCls} pl-10`} autoComplete="off" />
+            <input
+              {...register('name')}
+              placeholder={M.userPlaceholderName}
+              className={`${inputCls} pl-10`}
+              autoComplete="off"
+            />
           </div>
           {errors.name && <span className={errorCls}>{errors.name.message}</span>}
         </div>
@@ -101,7 +137,13 @@ function AddForm({ onClose, onSave }: { onClose: () => void; onSave: (d: UserDat
           <label className={labelCls}>{M.userLabelEmail}</label>
           <div className="relative">
             <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none" />
-            <input {...register('email')} type="email" placeholder={M.userPlaceholderEmail} className={`${inputCls} pl-10`} autoComplete="off" />
+            <input
+              {...register('email')}
+              type="email"
+              placeholder={M.userPlaceholderEmail}
+              className={`${inputCls} pl-10`}
+              autoComplete="off"
+            />
           </div>
           {errors.email && <span className={errorCls}>{errors.email.message}</span>}
         </div>
@@ -154,16 +196,16 @@ function AddForm({ onClose, onSave }: { onClose: () => void; onSave: (d: UserDat
               {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
           </div>
-          {errors.confirmPassword && <span className={errorCls}>{errors.confirmPassword.message}</span>}
+          {errors.confirmPassword && (
+            <span className={errorCls}>{errors.confirmPassword.message}</span>
+          )}
         </div>
       </div>
 
       {/* Info banner */}
       <div className="flex items-start gap-3 px-4 py-3.5 bg-[#EEF0FF] rounded-xl border border-[#C7D2FE]">
         <Info size={16} className="text-[#020887] shrink-0 mt-0.5" />
-        <p className="text-[13px] text-[#374151] leading-relaxed">
-          {M.userAddAdminBanner}
-        </p>
+        <p className="text-[13px] text-[#374151] leading-relaxed">{M.userAddAdminBanner}</p>
       </div>
 
       <div className="h-2" />
@@ -175,24 +217,33 @@ function AddForm({ onClose, onSave }: { onClose: () => void; onSave: (d: UserDat
 function EditForm({
   user,
   onClose,
-  onSave,
+  onSaved,
 }: {
   user: UserData;
   onClose: () => void;
-  onSave: (d: UserData) => void;
+  onSaved: (u: AdminApiUser) => void;
 }) {
-  const { register, handleSubmit, watch, formState: { errors } } = useForm<EditFormData>({
+  const updateUser = useAdminUpdateUser();
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<EditFormData>({
     resolver: zodResolver(editSchema),
     defaultValues: { role: user.role, status: user.status },
   });
 
   const roleValue = watch('role');
   const statusValue = watch('status');
-
   const avatarIndex = user.name.charCodeAt(0) % AVATAR_COLORS.length;
 
   const onSubmit = (data: EditFormData) => {
-    onSave({ ...user, role: data.role, status: data.status });
+    updateUser.mutate(
+      { id: user.id, role: data.role, status: data.status },
+      { onSuccess: (updated) => { onSaved(updated); onClose(); } },
+    );
   };
 
   return (
@@ -220,7 +271,9 @@ function EditForm({
             </div>
             <div className="flex items-center gap-1.5 mt-0.5">
               <CalendarDays size={13} className="text-[#9CA3AF] shrink-0" />
-              <p className="text-[13px] text-[#6B7280]">{M.userJoinedPrefix} {user.joined}</p>
+              <p className="text-[13px] text-[#6B7280]">
+                {M.userJoinedPrefix} {user.joined}
+              </p>
             </div>
           </div>
         </div>
@@ -232,7 +285,6 @@ function EditForm({
           {M.userSectionSettings}
         </p>
 
-        {/* Role */}
         <div>
           <label className={labelCls}>{M.userLabelRole}</label>
           <div className="relative">
@@ -245,9 +297,9 @@ function EditForm({
           <span className="block text-[12px] text-[#9CA3AF] mt-1.5">
             {roleValue === 'ADMIN' ? M.userRoleHintAdmin : M.userRoleHintGuest}
           </span>
+          {errors.role && <span className={errorCls}>{errors.role.message}</span>}
         </div>
 
-        {/* Status */}
         <div>
           <label className={labelCls}>{M.userLabelAccountStatus}</label>
           <div className="relative">
@@ -271,9 +323,7 @@ function EditForm({
       {/* Info note */}
       <div className="flex items-start gap-3 px-4 py-3.5 bg-[#FFFBEB] rounded-xl border border-[#FDE68A]">
         <ShieldCheck size={16} className="text-[#B45309] shrink-0 mt-0.5" />
-        <p className="text-[13px] text-[#374151] leading-relaxed">
-          {M.userEditNote}
-        </p>
+        <p className="text-[13px] text-[#374151] leading-relaxed">{M.userEditNote}</p>
       </div>
 
       <div className="h-2" />
@@ -281,32 +331,38 @@ function EditForm({
   );
 }
 
-// ── Main Modal ────────────────────────────────────────────────
-export function UserFormModal({ user, onClose, onSave }: UserFormModalProps) {
+// ── Main Modal — rendered via createPortal so it always covers the full screen ──
+export function UserFormModal({ user, onClose, onSaved }: UserFormModalProps) {
   const isEdit = !!user;
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
-  return (
-    <motion.div
-      className="fixed inset-0 z-50 flex justify-end"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.2 }}
-    >
+  // Close on Escape key
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [onClose]);
+
+  const createUser = useAdminCreateUser();
+  const updateUser = useAdminUpdateUser();
+  const isSaving = createUser.isPending || updateUser.isPending;
+
+  const panel = (
+    <>
       {/* Backdrop */}
-      <button
-        className="absolute inset-0 w-full h-full bg-black/50 cursor-default"
+      <div
+        className="fixed inset-0 z-[100] bg-black/50"
         onClick={onClose}
-        aria-label={M.closePanelAriaLabel}
+        aria-hidden="true"
       />
 
       {/* Drawer */}
-      <motion.div
-        className="relative flex flex-col bg-[#F8FAFC] w-full sm:w-[500px] h-full shadow-2xl"
-        initial={{ x: '100%' }}
-        animate={{ x: 0 }}
-        exit={{ x: '100%' }}
-        transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={isEdit ? M.userFormEditTitle : M.userFormAddTitle}
+        className="fixed top-0 right-0 z-[101] h-full w-full sm:w-[500px] bg-[#F8FAFC] shadow-2xl flex flex-col animate-slide-in-right"
       >
         {/* Header */}
         <div className="shrink-0 flex items-start justify-between px-7 py-6 bg-white border-b border-[#E5E7EB]">
@@ -327,31 +383,41 @@ export function UserFormModal({ user, onClose, onSave }: UserFormModalProps) {
           </button>
         </div>
 
-        {/* Form (conditionally rendered) */}
+        {/* Form */}
         {isEdit ? (
-          <EditForm user={user} onClose={onClose} onSave={onSave} />
+          <EditForm user={user} onClose={onClose} onSaved={onSaved} />
         ) : (
-          <AddForm onClose={onClose} onSave={onSave} />
+          <AddForm onClose={onClose} onSaved={onSaved} />
         )}
 
-        {/* Footer */}
+        {/* Footer — always visible at the bottom, never scrolls away */}
         <div className="shrink-0 px-7 py-4 border-t border-[#E5E7EB] bg-white flex items-center justify-end gap-3">
           <button
             type="button"
             onClick={onClose}
-            className="h-10 px-5 rounded-lg border border-[#D1D5DB] text-[13px] font-medium text-[#374151] hover:bg-[#F3F4F6] transition-colors"
+            disabled={isSaving}
+            className="h-10 px-5 rounded-lg border border-[#D1D5DB] text-[13px] font-medium text-[#374151] hover:bg-[#F3F4F6] transition-colors disabled:opacity-50"
           >
             {M.cancel}
           </button>
           <button
             type="submit"
             form="user-form"
-            className="h-10 px-7 rounded-lg bg-[#020887] text-white text-[13px] font-semibold hover:bg-[#38369A] transition-colors"
+            disabled={isSaving}
+            className="h-10 px-7 rounded-lg bg-[#020887] text-white text-[13px] font-semibold hover:bg-[#38369A] transition-colors disabled:opacity-50 flex items-center gap-2"
           >
-            {isEdit ? M.saveChanges : M.userSubmitCreateAdmin}
+            {isSaving && <Loader2 size={14} className="animate-spin" />}
+            {isSaving
+              ? 'Saving...'
+              : isEdit
+              ? M.saveChanges
+              : M.userSubmitCreateAdmin}
           </button>
         </div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </>
   );
+
+  if (!mounted) return null;
+  return createPortal(panel, document.body);
 }

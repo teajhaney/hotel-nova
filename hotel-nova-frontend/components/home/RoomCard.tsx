@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { FEATURED_ROOMS_MESSAGES } from '@/constants/messages';
+import { formatNgn } from '@/utils/format';
 
 export type RoomCardProps = {
   id: string;
@@ -11,7 +12,7 @@ export type RoomCardProps = {
   badge?: string | null;
 };
 
-export function RoomCard({ id, image, name, description, priceFrom, badge }: RoomCardProps) {
+export function RoomCard({ image, name, description, priceFrom, badge }: RoomCardProps) {
   return (
     <article className="hotel-card group flex flex-col">
       {/* Room image with price badge */}
@@ -31,7 +32,7 @@ export function RoomCard({ id, image, name, description, priceFrom, badge }: Roo
                      rounded-sm px-2.5 py-1.25
                      shadow-[0_1px_4px_rgba(0,0,0,0.12)]"
         >
-          {FEATURED_ROOMS_MESSAGES.pricePrefix} ₦{priceFrom.toLocaleString()}{FEATURED_ROOMS_MESSAGES.priceSuffix}
+          {FEATURED_ROOMS_MESSAGES.pricePrefix} {formatNgn(priceFrom)}{FEATURED_ROOMS_MESSAGES.priceSuffix}
         </div>
 
         {/* Optional badge — top left */}
@@ -53,7 +54,7 @@ export function RoomCard({ id, image, name, description, priceFrom, badge }: Roo
         </p>
 
         <Link
-          href={`/rooms/${id}`}
+          href="/rooms"
           className="btn-outline-primary w-full text-[14px]"
         >
           {FEATURED_ROOMS_MESSAGES.bookNow}

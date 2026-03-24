@@ -6,11 +6,18 @@ export interface User {
   email: string;
   fullName: string;
   role: 'GUEST' | 'ADMIN';
+  // Fields returned by GET /auth/me (getMe selects these from the DB)
+  phone: string | null;
+  country: string | null;
+  status: 'Active' | 'Inactive' | 'Suspended';
+  createdAt: string;
 }
 
+// Login and signup return { message, user }. Tokens are HttpOnly cookies —
+// they are never sent in the response body, so accessToken is not here.
 export interface AuthResponse {
+  message: string;
   user: User;
-  accessToken: string;
 }
 
 export interface Room {

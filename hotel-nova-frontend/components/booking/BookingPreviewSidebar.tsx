@@ -14,7 +14,7 @@ export function BookingPreviewSidebar() {
   const taxes = store.getServiceCharge() + store.getVat();
   const total = store.getTotal();
 
-  const canContinue = !!(store.checkIn && store.checkOut && nights > 0);
+  const canContinue = !!(store.checkIn && store.checkOut && nights > 0 && store.selectedRoom);
 
   const guestSummary = formatGuestSummary(store.adults, store.children);
 
@@ -75,11 +75,11 @@ export function BookingPreviewSidebar() {
           </div>
 
           <button
-            onClick={() => canContinue && router.push('/book/rooms')}
+            onClick={() => canContinue && router.push('/book/summary')}
             disabled={!canContinue}
             className="btn-primary flex items-center justify-center gap-2"
           >
-            {BOOKING_MESSAGES.continueToRooms} →
+            {BOOKING_MESSAGES.proceedToSummary} →
           </button>
           {!canContinue && (
             <p className="text-[11px] text-[#94A3B8] text-center">

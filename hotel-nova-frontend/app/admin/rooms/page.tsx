@@ -11,6 +11,7 @@ import { useRooms, useDeleteRoom } from '@/hooks/use-rooms';
 import { RoomData } from '@/type/interface';
 import type { Room, RoomFilters } from '@/type/api';
 import { ADMIN_DASHBOARD_MESSAGES } from '@/constants/messages';
+import { formatNgn } from '@/utils/format';
 
 const M = ADMIN_DASHBOARD_MESSAGES;
 
@@ -234,7 +235,7 @@ export default function AdminRoomsPage() {
                     {room.type}
                   </td>
                   <td className="admin-table-td text-[13px] font-medium text-[#0D0F2B]">
-                    ₦{room.price.toLocaleString()}
+                    {formatNgn(room.price)}
                   </td>
                   <td className="admin-table-td">
                     <div className="flex items-center gap-1.5">

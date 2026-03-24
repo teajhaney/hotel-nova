@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { RoomsModule } from './rooms/rooms.module';
+import { BookingsModule } from './bookings/bookings.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
 
@@ -17,6 +18,7 @@ import { RolesGuard } from './auth/guards/roles.guard';
     PrismaModule,
     AuthModule,
     RoomsModule,
+    BookingsModule,
     ThrottlerModule.forRoot([
       {
         ttl: 60000,

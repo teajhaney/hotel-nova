@@ -34,8 +34,8 @@ export function GuestLoginForm() {
     } catch (err) {
       // Show the server error message under the password field
       const message =
-        isAxiosError(err) && typeof err.response?.data?.message === 'string'
-          ? err.response.data.message
+        isAxiosError(err) && typeof err.response?.data?.error?.message === 'string'
+          ? err.response.data.error.message
           : 'Invalid email or password.';
       setError('password', { message });
     }

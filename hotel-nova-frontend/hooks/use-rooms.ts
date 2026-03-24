@@ -20,6 +20,14 @@ const ROOMS_KEY = {
 
 // ─── useRooms ─────────────────────────────────────────────────────────────────
 // Fetches a paginated, filtered list of rooms.
+//
+// staleTime: 5 min — rooms don't change by the second, so we keep the cached
+//   result fresh for 5 minutes. Within that window, navigating back to the
+//   rooms page shows the cached data instantly with zero network call.
+// gcTime: 10 min — keep the cache entry alive for 10 minutes so stale-but-
+//   valid data can be shown immediately while a background refetch runs.
+//   Mutations (create/update/delete) still call invalidateQueries, so admin
+//   changes always appear right away regardless of these timers.
 export function useRooms(filters: RoomFilters = {}) {
   return useQuery({
     queryKey: ROOMS_KEY.list(filters),
@@ -41,6 +49,8 @@ export function useRooms(filters: RoomFilters = {}) {
       );
       return data;
     },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 }
 
@@ -54,6 +64,8 @@ export function useRoom(id: string) {
       return data;
     },
     enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 }
 

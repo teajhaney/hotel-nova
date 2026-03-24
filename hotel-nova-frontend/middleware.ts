@@ -69,15 +69,7 @@ export function middleware(request: NextRequest) {
   }
 
   // ── Rooms browsing page (/rooms, /rooms/*) ──────────────────────────────
-  // Must be logged in (any role). Unauthenticated visitors get sent to login.
-  if (pathname.startsWith('/rooms')) {
-    if (!token) {
-      const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('redirect', pathname);
-      return NextResponse.redirect(loginUrl);
-    }
-    return NextResponse.next();
-  }
+  // Public — anyone can browse rooms without logging in.
 
   // ── Guest protected routes (/dashboard/*) ───────────────────────────────
   // Must be logged in as GUEST. Redirect to login with a `redirect` param
@@ -91,11 +83,8 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // ── Booking pages that require guest auth ────────────────────────────────
-  const isProtectedBookingPage =
-    pathname === '/book/payment' || pathname === '/book/confirmation';
-
-  if (isProtectedBookingPage) {
+  // ── Booking pages — all require guest auth ──────────────────────────────
+  if (pathname.startsWith('/book')) {
     if (!token || role !== 'GUEST') {
       const loginUrl = new URL('/login', request.url);
       loginUrl.searchParams.set('redirect', pathname);

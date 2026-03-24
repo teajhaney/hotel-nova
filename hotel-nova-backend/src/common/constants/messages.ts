@@ -14,13 +14,15 @@ export const AUTH_MESSAGES = {
   // errors
   EMAIL_IN_USE: 'Email already in use.',
   INVALID_CREDENTIALS: 'Invalid credentials.',
-  ACCOUNT_SUSPENDED: 'This account has been suspended.',
+  ACCOUNT_SUSPENDED: 'Your account has been suspended.',
   INVALID_REFRESH_TOKEN: 'Invalid refresh token.',
   REFRESH_TOKEN_NOT_FOUND: 'Refresh token not found.',
   REFRESH_TOKEN_EXPIRED: 'Refresh token expired.',
   USER_NOT_FOUND: 'User not found.',
   INVALID_TOKEN_PAYLOAD: 'Invalid token payload or missing claims.',
   NO_REFRESH_TOKEN: 'No refresh token provided.',
+
+  CANNOT_DELETE_SELF: 'You cannot delete your own admin account.',
 
   // success
   SIGNUP_SUCCESS: 'Signup successful',
@@ -55,4 +57,14 @@ export const BOOKING_MESSAGES = {
   PROMO_CODE_LIMIT_REACHED: 'This promo code has reached its usage limit.',
   CANNOT_CANCEL: 'Only Pending or Confirmed bookings can be cancelled.',
   NOT_YOUR_BOOKING: 'You can only manage your own bookings.',
+  INVALID_STATUS_TRANSITION: 'This status transition is not allowed.',
+} as const;
+
+// ─────────────────────────────────────────────
+// PAYMENTS
+// ─────────────────────────────────────────────
+
+export const PAYMENT_MESSAGES = {
+  PAYSTACK_INIT_FAILED: 'Could not initialise payment. Please try again.',
+  INVALID_WEBHOOK_SIGNATURE: 'Invalid webhook signature.',
 } as const;

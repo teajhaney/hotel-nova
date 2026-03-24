@@ -58,8 +58,8 @@ export function GuestSignupForm() {
       });
     } catch (err) {
       const message =
-        isAxiosError(err) && typeof err.response?.data?.message === 'string'
-          ? err.response.data.message
+        isAxiosError(err) && typeof err.response?.data?.error?.message === 'string'
+          ? err.response.data.error.message
           : 'Something went wrong. Please try again.';
       setError('email', { message });
     }

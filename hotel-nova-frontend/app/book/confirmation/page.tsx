@@ -36,7 +36,7 @@ export default function BookConfirmationPage() {
             {BOOKING_MESSAGES.confirmationId}
           </p>
           <p className="text-[15px] font-bold text-[#020887]">
-            #{store.confirmationId ?? 'BK-000000'}
+            {store.bookingRef ?? store.confirmationId ?? '—'}
           </p>
         </div>
 
@@ -44,7 +44,7 @@ export default function BookConfirmationPage() {
           <div className="flex items-start gap-3 mb-5">
             <div className="relative w-14 h-14 rounded-md overflow-hidden shrink-0">
               <Image
-                src={store.selectedRoom.image}
+                src={store.selectedRoom.imageUrl ?? ''}
                 alt={store.selectedRoom.name}
                 fill
                 className="object-cover"

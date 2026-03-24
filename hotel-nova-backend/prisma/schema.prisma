@@ -169,7 +169,7 @@ model Booking {
 
   guestName    String
   guestEmail   String
-  guestPhone   String
+  guestPhone   String?
   guestCountry String?
 
   checkIn  DateTime

@@ -5,21 +5,22 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import type { BookingRoom, GuestDetails } from '@/type/type';
 
 interface BookingStore {
-  // Step 1 state
+  // Step 1 state — room is always pre-selected from the rooms page
   checkIn: string | null;
   checkOut: string | null;
   adults: number;
   children: number;
   rooms: number;
-  // Step 2 state
   selectedRoom: BookingRoom | null;
-  // Step 3 state
+  // Step 2 state — promo code (no guest details form; Paystack collects that)
   guestDetails: GuestDetails | null;
   promoCode: string;
   promoDiscount: number;
   specialRequests: string;
-  // Confirmation state
+  // Post-creation state (set after the backend creates the booking)
   confirmationId: string | null;
+  bookingId: string | null;
+  bookingRef: string | null;
 
   // Actions
   setDates: (checkIn: string, checkOut: string) => void;
@@ -29,6 +30,7 @@ interface BookingStore {
   applyPromo: (code: string, discount: number) => void;
   setSpecialRequests: (requests: string) => void;
   setConfirmationId: (id: string) => void;
+  setBookingCreated: (bookingId: string, bookingRef: string) => void;
   reset: () => void;
 
   // Computed helpers (not persisted — call as functions)
@@ -51,6 +53,8 @@ const initialState = {
   promoDiscount: 0,
   specialRequests: '',
   confirmationId: null,
+  bookingId: null,
+  bookingRef: null,
 };
 
 export const useBookingStore = create<BookingStore>()(
@@ -65,6 +69,7 @@ export const useBookingStore = create<BookingStore>()(
       applyPromo: (code, discount) => set({ promoCode: code, promoDiscount: discount }),
       setSpecialRequests: (requests) => set({ specialRequests: requests }),
       setConfirmationId: (id) => set({ confirmationId: id }),
+      setBookingCreated: (bookingId, bookingRef) => set({ bookingId, bookingRef }),
       reset: () => set(initialState),
 
       getNights: () => {
@@ -76,7 +81,7 @@ export const useBookingStore = create<BookingStore>()(
       getSubtotal: () => {
         const { selectedRoom } = get();
         if (!selectedRoom) return 0;
-        return selectedRoom.pricePerNight * get().getNights();
+        return selectedRoom.price * get().getNights();
       },
       getServiceCharge: () => Math.round(get().getSubtotal() * 0.05),
       getVat: () => Math.round(get().getSubtotal() * 0.075),

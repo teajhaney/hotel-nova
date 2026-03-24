@@ -50,7 +50,7 @@ export function HeroSection() {
 
           <div className="flex items-center gap-[12px] mt-[32px] sm:mt-[24px]">
             <Link
-              href="#booking"
+              href="/rooms"
               className="btn-primary-fill flex items-center gap-[6px]"
             >
               {HERO_MESSAGES.ctaPrimary} <ArrowRight size={16} aria-hidden="true" />

@@ -3,9 +3,10 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma, Room, RoomType } from '@prisma/client';
+import { Prisma, Room } from '@prisma/client';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { ROOMS_MESSAGES } from '../common/constants/messages';
+import { buildRoomRef } from './helpers/room.helpers';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { RoomFiltersDto } from './dto/room-filters.dto';
@@ -21,30 +22,12 @@ export interface RoomsPage {
   };
 }
 
-// Maps each RoomType enum value to its two-letter abbreviation used in roomRef.
-// Keeping this as a const object means adding a new type only requires one line here.
-const ROOM_TYPE_ABBR: Record<RoomType, string> = {
-  [RoomType.Standard]: 'SD',
-  [RoomType.Deluxe]: 'DX',
-  [RoomType.Executive]: 'EX',
-  [RoomType.Suite]: 'SU',
-};
-
 @Injectable()
 export class RoomsService {
   constructor(
     private prisma: PrismaService,
     private cloudinary: CloudinaryService,
   ) {}
-
-  // Builds the human-readable room reference from a number and type.
-  // Room 5, Deluxe  → RN-005-DX
-  // Room 109, Suite → RN-109-ST
-  private buildRoomRef(roomNumber: number, type: RoomType): string {
-    const abbr = ROOM_TYPE_ABBR[type];
-    const padded = String(roomNumber).padStart(3, '0');
-    return `RN-${padded}-${abbr}`;
-  }
 
   // GET ALL ROOMS
   async findAll(filters: RoomFiltersDto): Promise<RoomsPage> {
@@ -91,7 +74,7 @@ export class RoomsService {
   // P2002 fires when either the generated roomRef or the [roomNumber, type]
   // combination already exists — both map to the same "this combo is taken" error.
   async create(dto: CreateRoomDto): Promise<Room> {
-    const roomRef = this.buildRoomRef(dto.roomNumber, dto.type);
+    const roomRef = buildRoomRef(dto.roomNumber, dto.type);
     try {
       return await this.prisma.room.create({
         data: { ...dto, roomRef, amenities: dto.amenities ?? [] },
@@ -120,7 +103,7 @@ export class RoomsService {
         const newNumber =
           dto.roomNumber !== undefined ? dto.roomNumber : current.roomNumber;
         const newType = dto.type !== undefined ? dto.type : current.type;
-        roomRef = this.buildRoomRef(newNumber, newType);
+        roomRef = buildRoomRef(newNumber, newType);
       }
 
       return await this.prisma.room.update({

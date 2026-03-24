@@ -31,6 +31,7 @@ interface BookingStatusModalProps {
   booking: BookingData;
   onClose: () => void;
   onSave: (booking: BookingData) => void;
+  isSaving?: boolean;
 }
 
 const STATUS_BADGE: Record<string, string> = {
@@ -44,7 +45,7 @@ const STATUS_BADGE: Record<string, string> = {
 const selectCls =
   'block w-full h-12 px-4 pr-10 rounded-lg border border-[#D1D5DB] bg-white text-[14px] text-[#0D0F2B] outline-none focus:border-[#020887] focus:ring-2 focus:ring-[#020887]/10 appearance-none cursor-pointer transition-all';
 
-export function BookingStatusModal({ booking, onClose, onSave }: BookingStatusModalProps) {
+export function BookingStatusModal({ booking, onClose, onSave, isSaving = false }: BookingStatusModalProps) {
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: { status: (STATUSES.includes(booking.status as typeof STATUSES[number]) ? booking.status : 'Pending') as typeof STATUSES[number] },
@@ -115,8 +116,8 @@ export function BookingStatusModal({ booking, onClose, onSave }: BookingStatusMo
             <button type="button" onClick={onClose} className="h-10 px-5 rounded-lg border border-[#D1D5DB] text-[13px] font-medium text-[#374151] hover:bg-[#F3F4F6] transition-colors">
               {M.cancel}
             </button>
-            <button type="submit" className="h-10 px-6 rounded-lg bg-[#020887] text-white text-[13px] font-semibold hover:bg-[#38369A] transition-colors">
-              {M.bookingStatusSubmit}
+            <button type="submit" disabled={isSaving} className="h-10 px-6 rounded-lg bg-[#020887] text-white text-[13px] font-semibold hover:bg-[#38369A] transition-colors disabled:opacity-60">
+              {isSaving ? 'Saving...' : M.bookingStatusSubmit}
             </button>
           </div>
         </form>

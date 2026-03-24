@@ -1,30 +1,45 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
+  Param,
+  Patch,
   Post,
+  Query,
   Req,
   Res,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import {
+  ApiCreateAdminUser,
+  ApiDeleteOwnAccount,
+  ApiDeleteUser,
   ApiGetMe,
+  ApiListUsers,
   ApiLogin,
   ApiLogout,
   ApiRefreshToken,
   ApiSignup,
+  ApiUpdateProfile,
+  ApiUpdateUser,
 } from './auth.swagger';
 import type { Request, Response } from 'express';
 import { COOKIES, TOKEN_TTL } from '../common/constants/auth.constants';
 import { AUTH_MESSAGES } from '../common/constants/messages';
 import { AuthService } from './auth.service';
+import { Admin } from './decorators/admin.decorator';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { Public } from './decorators/public.decorator';
+import { CreateAdminUserDto } from './dto/create-admin-user.dto';
+import { ListUsersDto } from './dto/list-users.dto';
 import { LoginDto } from './dto/login.dto';
 import { SignupDto } from './dto/signup.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import type { AuthUser } from './interfaces/auth-user.interface';
 
 @ApiTags('Auth')
@@ -104,6 +119,69 @@ export class AuthController {
   @ApiGetMe()
   me(@CurrentUser('id') userId: string) {
     return this.authService.getMe(userId);
+  }
+
+  // PATCH /api/v1/auth/me → NestJS PATCH /api/v1/auth/me
+  // Any authenticated user can update their own name, phone, and country.
+  @Patch('me')
+  @ApiUpdateProfile()
+  updateProfile(
+    @CurrentUser('id') userId: string,
+    @Body() dto: UpdateProfileDto,
+  ) {
+    return this.authService.updateProfile(userId, dto);
+  }
+
+  // DELETE /api/v1/auth/me → NestJS DELETE /api/v1/auth/me
+  // Permanently deletes the caller's own account and all related data.
+  @Delete('me')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiDeleteOwnAccount()
+  deleteOwnAccount(@CurrentUser('id') userId: string) {
+    return this.authService.deleteOwnAccount(userId);
+  }
+
+  // ─── Admin: User Management ────────────────────────────────────────────────
+
+  // GET /api/v1/auth/users → NestJS GET /api/v1/auth/users
+  // Returns a paginated list of all users. Optionally filter by role.
+  @Admin()
+  @Get('users')
+  @ApiListUsers()
+  listUsers(@Query() query: ListUsersDto) {
+    return this.authService.listUsers(query);
+  }
+
+  // POST /api/v1/auth/users → NestJS POST /api/v1/auth/users
+  // Creates a new ADMIN account. Only admins can call this endpoint.
+  @Admin()
+  @Post('users')
+  @ApiCreateAdminUser()
+  createAdminUser(@Body() dto: CreateAdminUserDto) {
+    return this.authService.createAdminUser(dto);
+  }
+
+  // PATCH /api/v1/auth/users/:id → NestJS PATCH /api/v1/auth/users/:id
+  // Updates a user's role or status (e.g. suspend, promote to admin).
+  @Admin()
+  @Patch('users/:id')
+  @ApiUpdateUser()
+  updateUser(@Param('id') id: string, @Body() dto: UpdateUserDto) {
+    return this.authService.updateUser(id, dto);
+  }
+
+  // DELETE /api/v1/auth/users/:id → NestJS DELETE /api/v1/auth/users/:id
+  // Permanently removes a user and all their data from the database.
+  // The currently logged-in admin cannot delete their own account.
+  @Admin()
+  @Delete('users/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiDeleteUser()
+  deleteUser(
+    @Param('id') id: string,
+    @CurrentUser('id') requestingAdminId: string,
+  ) {
+    return this.authService.deleteUser(id, requestingAdminId);
   }
 
   // ─── Cookie helpers ────────────────────────────────────────────────────────

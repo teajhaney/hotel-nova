@@ -355,6 +355,7 @@ export const BOOKING_MESSAGES = {
   nightsLabel: 'Nights',
   startingFrom: 'STARTING FROM',
   proceedToRooms: 'Proceed to Room Selection',
+  proceedToSummary: 'Proceed to Summary',
   continueToRooms: 'Continue to Room Selection',
   datesAndGuests: 'Dates & Guests',
   // Sidebar preview

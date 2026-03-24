@@ -46,8 +46,13 @@ export function useGetMe() {
     },
     // Don't retry on 401 — it just means the user isn't logged in
     retry: false,
-    // Don't refetch just because the window gets focus
+    // Never auto-refetch on a timer. The proactive refresh in Providers.tsx
+    // keeps the access token alive. Re-fetching /auth/me unnecessarily would
+    // create a new user object reference on each call, causing the refresh
+    // interval in AuthRehydrator to reset and breaking the 10-min cadence.
+    staleTime: Infinity,
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 
   useEffect(() => {

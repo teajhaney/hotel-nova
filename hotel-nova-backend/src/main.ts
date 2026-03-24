@@ -17,7 +17,10 @@ function validateEnv() {
 }
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  // rawBody: true tells NestJS to keep a copy of the raw request buffer on req.rawBody.
+  // This is required by the Paystack webhook handler, which must verify the
+  // HMAC-SHA512 signature against the exact bytes Paystack sent.
+  const app = await NestFactory.create(AppModule, { rawBody: true });
   const logger = new Logger('Bootstrap');
 
   validateEnv();

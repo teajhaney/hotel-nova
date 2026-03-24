@@ -1,25 +1,26 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '@prisma/client';
 import { hash, verify } from 'argon2';
-import { randomBytes } from 'crypto';
-import { REFRESH_TOKEN_EXPIRY_MS } from '../common/constants/auth.constants';
 import { AUTH_MESSAGES } from '../common/constants/messages';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { SignupDto } from './dto/signup.dto';
-import { AuthUser } from './interfaces/auth-user.interface';
-import { JwtPayload } from './interfaces/jwt-payload.interface';
-
-interface AuthTokens {
-  accessToken: string;
-  refreshToken: string;
-  user: AuthUser;
-}
+import { CreateAdminUserDto } from './dto/create-admin-user.dto';
+import { ListUsersDto } from './dto/list-users.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { issueTokens, parseRefreshToken } from './helpers/auth.helpers';
+import type {
+  AdminUser,
+  AuthTokens,
+  UsersPage,
+} from './interfaces/auth-user.interface';
 
 @Injectable()
 export class AuthService {
@@ -48,7 +49,7 @@ export class AuthService {
       },
     });
 
-    return this.issueTokens(user);
+    return issueTokens(user, this.prisma, this.jwt);
   }
 
   // LOG IN
@@ -65,16 +66,17 @@ export class AuthService {
     if (!passwordValid)
       throw new UnauthorizedException(AUTH_MESSAGES.INVALID_CREDENTIALS);
 
-    if (user.status !== 'Active') {
+    // Inactive users can still log in — only Suspended accounts are blocked.
+    if (user.status === 'Suspended') {
       throw new UnauthorizedException(AUTH_MESSAGES.ACCOUNT_SUSPENDED);
     }
 
-    return this.issueTokens(user);
+    return issueTokens(user, this.prisma, this.jwt);
   }
 
   // LOG OUT
   async logout(userId: string, rawRefreshToken: string): Promise<void> {
-    const [tokenId, rawSecret] = this.parseRefreshToken(rawRefreshToken);
+    const [tokenId, rawSecret] = parseRefreshToken(rawRefreshToken);
     if (!tokenId || !rawSecret) return;
 
     const stored = await this.prisma.refreshToken.findFirst({
@@ -90,7 +92,7 @@ export class AuthService {
 
   // REFRESH TOKEN
   async refresh(rawRefreshToken: string): Promise<AuthTokens> {
-    const [tokenId, rawSecret] = this.parseRefreshToken(rawRefreshToken);
+    const [tokenId, rawSecret] = parseRefreshToken(rawRefreshToken);
     if (!tokenId || !rawSecret) {
       throw new UnauthorizedException(AUTH_MESSAGES.INVALID_REFRESH_TOKEN);
     }
@@ -116,7 +118,7 @@ export class AuthService {
     // delete the old one before issuing a new pair (rotation)
     await this.prisma.refreshToken.delete({ where: { id: tokenId } });
 
-    return this.issueTokens(stored.user);
+    return issueTokens(stored.user, this.prisma, this.jwt);
   }
 
   // GET CURRENT USER
@@ -139,44 +141,145 @@ export class AuthService {
     return user;
   }
 
-  // ─── Helpers ──────────────────────────────────────────────────────────────
-
-  // ISSUE TOKENS
-  private async issueTokens(user: User): Promise<AuthTokens> {
-    const payload: JwtPayload = {
-      sub: user.id,
-      email: user.email,
-      role: user.role,
-      fullName: user.fullName,
-    };
-
-    const accessToken = this.jwt.sign(payload);
-
-    // generate a random secret, store its hash, send "id.secret" to the client
-    const rawSecret = randomBytes(40).toString('hex');
-    const tokenHash = await hash(rawSecret);
-    const expiresAt = new Date(Date.now() + REFRESH_TOKEN_EXPIRY_MS);
-
-    const stored = await this.prisma.refreshToken.create({
-      data: { userId: user.id, tokenHash, expiresAt },
+  // ─── Guest: Update Own Profile ────────────────────────────────────────────
+  // Lets the authenticated user update their name, phone, and country.
+  // Email is excluded intentionally — changing email needs a separate
+  // verification flow to prevent account-takeover abuse.
+  async updateProfile(userId: string, dto: UpdateProfileDto) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...(dto.fullName !== undefined && { fullName: dto.fullName }),
+        ...(dto.phone !== undefined && { phone: dto.phone }),
+        ...(dto.country !== undefined && { country: dto.country }),
+      },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        phone: true,
+        country: true,
+        role: true,
+        status: true,
+        createdAt: true,
+      },
     });
+  }
+
+  // ─── Guest: Delete Own Account ─────────────────────────────────────────────
+  // Permanently removes the caller's own account and all their data.
+  // Because all relations have onDelete: Cascade, Postgres cleans up
+  // bookings, reviews, notifications, and refresh tokens automatically.
+  async deleteOwnAccount(userId: string): Promise<void> {
+    await this.prisma.user.delete({ where: { id: userId } });
+  }
+
+  // ─── Admin: List All Users ────────────────────────────────────────────────
+  // Returns a paginated list of users. Optionally filter by role (ADMIN | GUEST).
+  // We use `select` to keep the password hash out of the response.
+  async listUsers(filters: ListUsersDto): Promise<UsersPage> {
+    const page = filters.page ?? 1;
+    const limit = Math.min(filters.limit ?? 20, 100);
+    const skip = (page - 1) * limit;
+
+    const where = filters.role ? { role: filters.role } : {};
+
+    const [total, data] = await Promise.all([
+      this.prisma.user.count({ where }),
+      this.prisma.user.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          email: true,
+          fullName: true,
+          role: true,
+          status: true,
+          createdAt: true,
+        },
+      }),
+    ]);
 
     return {
-      accessToken,
-      refreshToken: `${stored.id}.${rawSecret}`,
-      user: {
-        id: user.id,
-        email: user.email,
-        fullName: user.fullName,
-        role: user.role,
-      },
+      data: data as AdminUser[],
+      meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
     };
   }
 
-  // PARSE REFRESH TOKEN
-  private parseRefreshToken(token: string): [string, string] {
-    const dot = token.indexOf('.');
-    if (dot === -1) return ['', ''];
-    return [token.slice(0, dot), token.slice(dot + 1)];
+  // ─── Admin: Create Admin User ─────────────────────────────────────────────
+  // Creates a brand-new user with role=ADMIN. The admin provides name, email,
+  // and password. We hash the password before storing — same flow as signup.
+  async createAdminUser(dto: CreateAdminUserDto): Promise<AdminUser> {
+    const existing = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+    if (existing) throw new ConflictException(AUTH_MESSAGES.EMAIL_IN_USE);
+
+    const passwordHash = await hash(dto.password);
+
+    const user = await this.prisma.user.create({
+      data: {
+        email: dto.email,
+        password: passwordHash,
+        fullName: dto.fullName,
+        role: 'ADMIN',
+      },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        role: true,
+        status: true,
+        createdAt: true,
+      },
+    });
+
+    return user as AdminUser;
+  }
+
+  // ─── Admin: Update User Role / Status ─────────────────────────────────────
+  // Lets an admin change a user's role or suspend/reactivate their account.
+  // Only the fields included in the DTO are updated.
+  async updateUser(id: string, dto: UpdateUserDto): Promise<AdminUser> {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) throw new NotFoundException(AUTH_MESSAGES.USER_NOT_FOUND);
+
+    const updated = await this.prisma.user.update({
+      where: { id },
+      data: {
+        ...(dto.role !== undefined && { role: dto.role }),
+        ...(dto.status !== undefined && { status: dto.status }),
+      },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        role: true,
+        status: true,
+        createdAt: true,
+      },
+    });
+
+    return updated as AdminUser;
+  }
+
+  // ─── Admin: Delete User ───────────────────────────────────────────────────
+  // Permanently removes the user and all their data from the database.
+  // The Prisma schema has onDelete: Cascade on every relation (Booking,
+  // Review, Notification, RefreshToken), so Postgres handles the cleanup
+  // automatically — we don't need a manual transaction here.
+  // One safety check: an admin cannot delete their own account, because that
+  // would lock them out immediately with no way to recover.
+  async deleteUser(id: string, requestingAdminId: string): Promise<void> {
+    if (id === requestingAdminId) {
+      throw new BadRequestException(AUTH_MESSAGES.CANNOT_DELETE_SELF);
+    }
+
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) throw new NotFoundException(AUTH_MESSAGES.USER_NOT_FOUND);
+
+    await this.prisma.user.delete({ where: { id } });
   }
 }

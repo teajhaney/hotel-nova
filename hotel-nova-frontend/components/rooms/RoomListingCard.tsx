@@ -1,7 +1,11 @@
+'use client';
+
 import Image from 'next/image';
-import Link from 'next/link';
 import { BedDouble, Users, Maximize2 } from 'lucide-react';
 import { ROOMS_PAGE_MESSAGES } from '@/constants/messages';
+import { formatNgn } from '@/utils/format';
+import { useBookingStore } from '@/stores/booking-store';
+import { useRouter } from 'next/navigation';
 import type { Room } from '@/type/api';
 
 export function RoomListingCard({
@@ -10,11 +14,24 @@ export function RoomListingCard({
   price,
   type,
   imageUrl,
+  description,
   beds,
   maxGuests,
   sqm,
   amenities,
 }: Room) {
+  const store = useBookingStore();
+  const router = useRouter();
+
+  // When the user clicks "Book Now" from the rooms listing, they've already
+  // chosen their room. We pre-select it in the store and set the fromRoom flag
+  // so the booking wizard skips the "available rooms" step and jumps straight
+  // to summary after they pick their dates.
+  function handleBookNow() {
+    store.selectRoom({ id, name, type, price, imageUrl, description, beds, maxGuests, sqm, amenities });
+    router.push('/book');
+  }
+
   return (
     <article className="hotel-card group flex flex-col">
       {/* Room image */}
@@ -51,7 +68,7 @@ export function RoomListingCard({
           </h3>
           <div className="text-right shrink-0">
             <span className="text-[22px] font-bold text-[#0D0F2B]">
-              ₦{price.toLocaleString()}
+              {formatNgn(price)}
             </span>
             <span className="block text-[12px] text-[#64748B]">
               {ROOMS_PAGE_MESSAGES.lastNight}
@@ -63,27 +80,17 @@ export function RoomListingCard({
         <div className="flex flex-wrap items-center gap-3 mb-4">
           {beds && (
             <div className="flex items-center gap-1">
-              <BedDouble
-                size={14}
-                className="text-[#7CA5B8]"
-                aria-hidden="true"
-              />
+              <BedDouble size={14} className="text-[#7CA5B8]" aria-hidden="true" />
               <span className="text-[12px] text-[#64748B]">{beds}</span>
             </div>
           )}
           <div className="flex items-center gap-1">
             <Users size={14} className="text-[#7CA5B8]" aria-hidden="true" />
-            <span className="text-[12px] text-[#64748B]">
-              {maxGuests} Guests
-            </span>
+            <span className="text-[12px] text-[#64748B]">{maxGuests} Guests</span>
           </div>
           {sqm && (
             <div className="flex items-center gap-1">
-              <Maximize2
-                size={14}
-                className="text-[#7CA5B8]"
-                aria-hidden="true"
-              />
+              <Maximize2 size={14} className="text-[#7CA5B8]" aria-hidden="true" />
               <span className="text-[12px] text-[#64748B]">{sqm} sqm</span>
             </div>
           )}
@@ -103,12 +110,12 @@ export function RoomListingCard({
         </div>
 
         {/* Book button */}
-        <Link
-          href={`/rooms/${id}`}
+        <button
+          onClick={handleBookNow}
           className="btn-outline-primary w-full text-[14px] mt-auto"
         >
           {ROOMS_PAGE_MESSAGES.bookNow}
-        </Link>
+        </button>
       </div>
     </article>
   );

@@ -6,11 +6,13 @@
  */
 
 /**
- * Format a number as Nigerian Naira.
- * e.g. 150000 → "₦150,000"
+ * Format a kobo amount as Nigerian Naira.
+ * All prices in the DB are stored in kobo (naira × 100), so we
+ * always divide by 100 before displaying.
+ * e.g. 500000 kobo → "₦5,000"
  */
-export function formatNgn(amount: number): string {
-  return `₦${amount.toLocaleString('en-NG')}`;
+export function formatNgn(kobo: number): string {
+  return `₦${(kobo / 100).toLocaleString('en-NG')}`;
 }
 
 /**
@@ -25,7 +27,11 @@ export function formatBookingDate(
   includeDay = false
 ): string {
   if (!str) return '—';
-  const d = new Date(str + 'T00:00:00');
+  // If the backend returns a full ISO timestamp (e.g. "2026-03-24T00:00:00.000Z"),
+  // appending 'T00:00:00' would produce an invalid string.
+  // Only append it when we have a plain date-only string like "2026-03-24".
+  const d = str.includes('T') ? new Date(str) : new Date(str + 'T00:00:00');
+  if (isNaN(d.getTime())) return '—';
   if (includeDay) {
     return d.toLocaleDateString('en-US', {
       weekday: 'long',
