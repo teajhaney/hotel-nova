@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { CalendarX2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { ADMIN_DASHBOARD_MESSAGES } from '@/constants/messages';
@@ -14,15 +16,22 @@ interface DeleteBookingModalProps {
 }
 
 export function DeleteBookingModal({ bookingId, guestName, onClose, onConfirm }: DeleteBookingModalProps) {
-  return (
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
+  const modal = (
     <motion.div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
     >
-      <button className="absolute inset-0 w-full h-full bg-black/50 cursor-default" onClick={onClose} aria-label={M.closeAriaLabel} />
+      <button
+        className="absolute inset-0 w-full h-full bg-black/50 cursor-default"
+        onClick={onClose}
+        aria-label={M.closeAriaLabel}
+      />
       <motion.div
         className="relative bg-white rounded-xl shadow-2xl w-full max-w-sm p-6 text-center"
         initial={{ opacity: 0, scale: 0.95, y: 8 }}
@@ -42,14 +51,23 @@ export function DeleteBookingModal({ bookingId, guestName, onClose, onConfirm }:
           {M.deleteBookingBodySuffix}
         </p>
         <div className="flex items-center gap-3 mt-6">
-          <button onClick={onClose} className="flex-1 h-10 rounded-lg border border-[#D1D5DB] text-[13px] font-medium text-[#374151] hover:bg-[#F3F4F6] transition-colors">
+          <button
+            onClick={onClose}
+            className="flex-1 h-10 rounded-lg border border-[#D1D5DB] text-[13px] font-medium text-[#374151] hover:bg-[#F3F4F6] transition-colors"
+          >
             {M.cancel}
           </button>
-          <button onClick={onConfirm} className="flex-1 h-10 rounded-lg bg-[#EF4444] text-white text-[13px] font-semibold hover:bg-[#DC2626] transition-colors">
+          <button
+            onClick={onConfirm}
+            className="flex-1 h-10 rounded-lg bg-[#EF4444] text-white text-[13px] font-semibold hover:bg-[#DC2626] transition-colors"
+          >
             {M.deleteBookingConfirm}
           </button>
         </div>
       </motion.div>
     </motion.div>
   );
+
+  if (!mounted) return null;
+  return createPortal(modal, document.body);
 }

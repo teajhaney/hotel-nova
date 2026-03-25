@@ -11,7 +11,7 @@ const MOBILE_NAV = [
     icon: Search,
   },
   {
-    href: '/dashboard/guest/history',
+    href: '/dashboard/guest',
     label: GUEST_DASHBOARD_MESSAGES.mobileBookings,
     icon: CalendarDays,
   },

@@ -11,7 +11,6 @@ import { useAuthStore } from '@/stores/auth-store';
 
 function getPageTitle(pathname: string): string {
   if (pathname === '/dashboard/guest') return 'My Bookings';
-  if (pathname.startsWith('/dashboard/guest/history')) return 'Booking History';
   if (pathname.startsWith('/dashboard/guest/profile'))
     return 'Profile & Settings';
   if (pathname.startsWith('/dashboard/guest/reviews')) return 'Reviews';

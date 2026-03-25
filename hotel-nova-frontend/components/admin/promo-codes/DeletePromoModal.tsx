@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Tag } from 'lucide-react';
 import { motion } from 'motion/react';
 import { ADMIN_DASHBOARD_MESSAGES } from '@/constants/messages';
@@ -13,9 +15,12 @@ interface DeletePromoModalProps {
 }
 
 export function DeletePromoModal({ promoCode, onClose, onConfirm }: DeletePromoModalProps) {
-  return (
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
+  const modal = (
     <motion.div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -59,4 +64,7 @@ export function DeletePromoModal({ promoCode, onClose, onConfirm }: DeletePromoM
       </motion.div>
     </motion.div>
   );
+
+  if (!mounted) return null;
+  return createPortal(modal, document.body);
 }

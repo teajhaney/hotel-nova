@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, CalendarDays, BarChart2, Settings } from 'lucide-react';
+import { Home, CalendarDays, Users, Settings } from 'lucide-react';
 import { ADMIN_DASHBOARD_MESSAGES } from '@/constants/messages';
 
 const M = ADMIN_DASHBOARD_MESSAGES;
@@ -10,7 +10,7 @@ const M = ADMIN_DASHBOARD_MESSAGES;
 const MOBILE_NAV = [
   { href: '/admin/overview', label: M.mobileNavHome, icon: Home },
   { href: '/admin/bookings', label: M.mobileNavBookings, icon: CalendarDays },
-  { href: '/admin/analytics', label: M.mobileNavAnalytics, icon: BarChart2 },
+  { href: '/admin/users', label: M.navUsers, icon: Users },
   { href: '/admin/settings', label: M.mobileNavSettings, icon: Settings },
 ];
 

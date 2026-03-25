@@ -99,7 +99,7 @@ export default function AdminUsersPage() {
   // for now we show what the server told us in the meta.
   const totalUsers  = meta?.total ?? 0;
   const adminCount  = users.filter((u) => u.role === 'ADMIN').length;
-  const activeCount = users.filter((u) => u.status === 'Active').length;
+  const activeCount = users.filter((u) => u.role === 'GUEST' && u.status === 'Active').length;
 
   const STATS = [
     { label: M.userStatTotalUsers,    value: isLoading ? '—' : String(totalUsers), icon: Users },
@@ -127,13 +127,13 @@ export default function AdminUsersPage() {
       {/* Stat cards */}
       <div className="grid grid-cols-3 gap-4 mb-6">
         {STATS.map(({ label, value, icon: Icon }) => (
-          <div key={label} className="admin-stat-card flex items-center gap-4">
-            <div className="w-10 h-10 rounded-lg bg-[#EEF0FF] flex items-center justify-center shrink-0">
-              <Icon size={18} className="text-[#020887]" />
+          <div key={label} className="admin-stat-card flex flex-col items-center text-center sm:flex-row sm:items-center sm:text-left gap-2 sm:gap-4">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-[#EEF0FF] flex items-center justify-center shrink-0">
+              <Icon size={16} className="text-[#020887]" />
             </div>
             <div>
-              <p className="text-[13px] text-[#64748B]">{label}</p>
-              <p className="text-[22px] font-bold text-[#0D0F2B]">{value}</p>
+              <p className="text-[11px] sm:text-[13px] text-[#64748B] leading-tight">{label}</p>
+              <p className="text-[20px] sm:text-[22px] font-bold text-[#0D0F2B]">{value}</p>
             </div>
           </div>
         ))}

@@ -19,19 +19,106 @@ function decodeJwtPayload(
   }
 }
 
-export function middleware(request: NextRequest) {
+// Extracts the raw token value from a "name=value; ..." Set-Cookie string.
+function extractCookieValue(setCookieHeader: string, name: string): string | null {
+  const prefix = `${name}=`;
+  if (!setCookieHeader.startsWith(prefix)) return null;
+  return setCookieHeader.split(';')[0]?.slice(prefix.length) ?? null;
+}
+
+// Attempts a server-side token refresh by calling the NestJS backend directly.
+// Returns the new Set-Cookie strings and the decoded role, or null on failure.
+// This is called from the middleware when the access token is missing/expired
+// but a refresh token cookie is present — allowing seamless session recovery
+// without bouncing the user to the login page.
+async function attemptRefresh(
+  request: NextRequest,
+): Promise<{ role: string | undefined; setCookies: string[] } | null> {
+  const backendUrl = process.env.BACKEND_URL;
+  if (!backendUrl) return null;
+
+  try {
+    const refreshRes = await fetch(`${backendUrl}/auth/refresh`, {
+      method: 'POST',
+      headers: { cookie: request.headers.get('cookie') ?? '' },
+    });
+
+    if (!refreshRes.ok) return null;
+
+    // Pull all Set-Cookie headers (both accessToken and refreshToken)
+    const setCookies = refreshRes.headers.getSetCookie?.() ?? [];
+
+    // Extract the new access token so we can read the role from its payload.
+    // The token value lives before the first ';' in the cookie string.
+    let role: string | undefined;
+    for (const cookie of setCookies) {
+      const tokenValue = extractCookieValue(cookie, 'accessToken');
+      if (tokenValue) {
+        role = decodeJwtPayload(tokenValue)?.role;
+        break;
+      }
+    }
+
+    return { role, setCookies };
+  } catch {
+    return null;
+  }
+}
+
+// Attaches a list of Set-Cookie strings to a NextResponse.
+function applyCookies(response: NextResponse, cookies: string[]): NextResponse {
+  cookies.forEach((cookie) => response.headers.append('set-cookie', cookie));
+  return response;
+}
+
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const token = request.cookies.get('accessToken')?.value;
-  const payload = token ? decodeJwtPayload(token) : null;
-  const role = payload?.role;
+  const accessToken  = request.cookies.get('accessToken')?.value;
+  const refreshToken = request.cookies.get('refreshToken')?.value;
+
+  const payload = accessToken ? decodeJwtPayload(accessToken) : null;
+
+  // Treat the token as expired if its exp timestamp is in the past.
+  // If the cookie was already deleted by the browser (maxAge elapsed), accessToken
+  // is undefined and we also consider it expired.
+  const isExpired =
+    !payload ||
+    (payload.exp !== undefined && payload.exp * 1000 < Date.now());
+
+  let role = payload?.role;
+  let newCookies: string[] = [];
+
+  // ── Transparent token refresh ────────────────────────────────────────────
+  // When the 15-min access token cookie has expired, the browser deletes it.
+  // Rather than immediately redirecting the user to login, we attempt a silent
+  // refresh using the 7-day refresh token. If it succeeds, we carry on as if
+  // the user was never expired — their session is seamlessly extended and the
+  // new cookies are attached to the response.
+  if (isExpired && refreshToken) {
+    const refreshed = await attemptRefresh(request);
+    if (refreshed) {
+      role = refreshed.role;
+      newCookies = refreshed.setCookies;
+    }
+  }
+
+  // Helper: wrap a redirect with the new cookies (if any) so the browser
+  // receives the fresh token pair even when it's being redirected.
+  function redirect(url: URL): NextResponse {
+    return applyCookies(NextResponse.redirect(url), newCookies);
+  }
+
+  function next(): NextResponse {
+    return applyCookies(NextResponse.next(), newCookies);
+  }
 
   // ── Root page (/) ───────────────────────────────────────────────────────
   // Admins have no reason to be on the guest-facing marketing homepage —
   // send them straight to the admin dashboard.
   // Guests are welcome to browse the home page while logged in.
-  if (pathname === '/' && token && role === 'ADMIN') {
-    return NextResponse.redirect(new URL('/admin/overview', request.url));
+  if (pathname === '/' && role === 'ADMIN') {
+    return redirect(new URL('/admin/overview', request.url));
   }
 
   // ── Admin auth pages (/admin/login, /admin/signup) ──────────────────────
@@ -40,21 +127,21 @@ export function middleware(request: NextRequest) {
     pathname === '/admin/login' || pathname === '/admin/signup';
 
   if (isAdminAuthPage) {
-    if (token && role === 'ADMIN') {
-      return NextResponse.redirect(new URL('/admin/overview', request.url));
+    if (role === 'ADMIN') {
+      return redirect(new URL('/admin/overview', request.url));
     }
-    return NextResponse.next();
+    return next();
   }
- 
+
   // ── Admin protected routes (/admin/*) ───────────────────────────────────
   // Must be logged in as ADMIN. Anyone else gets sent to the admin login page.
   if (pathname.startsWith('/admin')) {
-    if (!token || role !== 'ADMIN') {
+    if (role !== 'ADMIN') {
       const loginUrl = new URL('/admin/login', request.url);
       loginUrl.searchParams.set('redirect', pathname);
-      return NextResponse.redirect(loginUrl);
+      return redirect(loginUrl);
     }
-    return NextResponse.next();
+    return next();
   }
 
   // ── Guest auth pages (/login, /signup) ──────────────────────────────────
@@ -62,10 +149,10 @@ export function middleware(request: NextRequest) {
   const isGuestAuthPage = pathname === '/login' || pathname === '/signup';
 
   if (isGuestAuthPage) {
-    if (token && role === 'GUEST') {
-      return NextResponse.redirect(new URL('/', request.url));
+    if (role === 'GUEST') {
+      return redirect(new URL('/', request.url));
     }
-    return NextResponse.next();
+    return next();
   }
 
   // ── Rooms browsing page (/rooms, /rooms/*) ──────────────────────────────
@@ -75,24 +162,28 @@ export function middleware(request: NextRequest) {
   // Must be logged in as GUEST. Redirect to login with a `redirect` param
   // so the user lands back where they were after signing in.
   if (pathname.startsWith('/dashboard')) {
-    if (!token || role !== 'GUEST') {
+    if (role !== 'GUEST') {
       const loginUrl = new URL('/login', request.url);
       loginUrl.searchParams.set('redirect', pathname);
-      return NextResponse.redirect(loginUrl);
+      return redirect(loginUrl);
     }
-    return NextResponse.next();
+    return next();
   }
 
   // ── Booking pages — all require guest auth ──────────────────────────────
-  if (pathname.startsWith('/book')) {
-    if (!token || role !== 'GUEST') {
+  // /book/confirmation is intentionally excluded: after Paystack redirects the
+  // browser back, the 15-min access token may have expired. The confirmation
+  // page only reads from the Zustand store (sessionStorage) and Paystack's
+  // ?reference= query param — it never makes an authenticated API call.
+  if (pathname.startsWith('/book') && !pathname.startsWith('/book/confirmation')) {
+    if (role !== 'GUEST') {
       const loginUrl = new URL('/login', request.url);
       loginUrl.searchParams.set('redirect', pathname);
-      return NextResponse.redirect(loginUrl);
+      return redirect(loginUrl);
     }
   }
 
-  return NextResponse.next();
+  return next();
 }
 
 export const config = {

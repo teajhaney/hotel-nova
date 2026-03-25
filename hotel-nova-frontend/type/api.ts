@@ -72,3 +72,106 @@ export interface CreateRoomPayload {
 }
 
 export type UpdateRoomPayload = Partial<CreateRoomPayload>;
+
+// ─── Reviews ──────────────────────────────────────────────────────────────────
+
+export interface EligibleBooking {
+  bookingId: string;
+  bookingRef: string;
+  roomId: string;
+  roomName: string;
+  roomType: 'Standard' | 'Deluxe' | 'Executive' | 'Suite';
+  imageUrl: string | null;
+  checkIn: string;
+  checkOut: string;
+  review: {
+    id: string;
+    rating: number;
+    reviewText: string;
+    status: 'Pending' | 'Approved' | 'Hidden';
+    submittedAt: string;
+  } | null;
+}
+
+export interface ReviewWithRelations {
+  id: string;
+  rating: number;
+  reviewText: string;
+  status: 'Pending' | 'Approved' | 'Hidden';
+  submittedAt: string;
+  updatedAt: string;
+  guest: { id: string; fullName: string; email: string };
+  room: { id: string; name: string; type: string };
+  booking: { id: string; bookingRef: string };
+}
+
+export interface ReviewsPage {
+  data: ReviewWithRelations[];
+  meta: { total: number; page: number; limit: number; totalPages: number };
+}
+
+// ─── Promo Codes ──────────────────────────────────────────────────────────────
+
+export interface PromoCode {
+  id: string;
+  code: string;
+  description: string;
+  discountType: 'percentage' | 'fixed';
+  discountValue: number;
+  usageLimit: number;
+  used: number;
+  validFrom: string;
+  validTo: string;
+  status: 'Active' | 'Inactive' | 'Scheduled';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PromoCodesPage {
+  data: PromoCode[];
+  meta: { total: number; page: number; limit: number; totalPages: number };
+}
+
+// ─── Analytics ────────────────────────────────────────────────────────────────
+
+export interface OccupancyPoint { day: string; value: number }
+export interface RevenuePoint { month: string; value: number }
+export interface UpcomingCheckIn {
+  bookingId: string;
+  guestName: string;
+  roomName: string;
+  checkIn: string;
+  status: string;
+}
+
+export interface OverviewStats {
+  occupancyRate: number;
+  todayCheckIns: number;
+  todayCheckOuts: number;
+  dailyRevenue: number;
+  occupancyTrend: OccupancyPoint[];
+  monthlyRevenue: RevenuePoint[];
+  upcomingCheckIns: UpcomingCheckIn[];
+}
+
+export interface WeeklyOccupancyPoint { label: string; value: number }
+export interface MonthlyRevenuePoint { month: string; current: number }
+export interface HighValueBooking {
+  bookingId: string;
+  guestName: string;
+  roomName: string;
+  checkIn: string;
+  checkOut: string;
+  totalAmount: number;
+  status: string;
+}
+
+export interface AnalyticsSummary {
+  totalOccupancy: number;
+  averageRevenue: number;
+  activeBookings: number;
+  guestSatisfaction: number;
+  occupancyTrends: WeeklyOccupancyPoint[];
+  monthlyRevenue: MonthlyRevenuePoint[];
+  highValueBookings: HighValueBooking[];
+}

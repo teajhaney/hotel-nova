@@ -52,15 +52,16 @@ export interface GuestRoomCounterProps {
 
 
 export interface PromoData {
+  id?: string;         // set when editing an existing promo; absent for new ones
   code: string;
   description: string;
-  discount: string;
+  discount: string;    // display string, e.g. "20%" or "₦50,000"
   discountType: 'percentage' | 'fixed';
   discountValue: number;
   usageLimit: number;
   used: number;
-  validFrom: string;
-  validTo: string;
+  validFrom: string;   // ISO date string "YYYY-MM-DD"
+  validTo: string;     // ISO date string "YYYY-MM-DD"
   status: string;
 }
 

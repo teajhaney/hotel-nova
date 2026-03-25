@@ -6,10 +6,23 @@ import { useBookingStore } from '@/stores/booking-store';
 import { BOOKING_MESSAGES } from '@/constants/messages';
 import { BOOKING_IMAGES } from '@/constants/images';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { formatBookingDate, formatNgn } from '@/utils/format';
 
 export default function BookConfirmationPage() {
   const store = useBookingStore();
+  const searchParams = useSearchParams();
+
+  // Paystack appends ?reference=PAY-{bookingRef}&trxref=PAY-{bookingRef} to the
+  // callback URL after payment. We strip the "PAY-" prefix to recover the bookingRef.
+  // This is the fallback for when the store is hydrated from sessionStorage but
+  // bookingRef is somehow null (e.g. a hard reload after landing on this page).
+  const paystackRef = searchParams.get('reference') ?? searchParams.get('trxref');
+  const bookingRefFromUrl = paystackRef?.startsWith('PAY-')
+    ? paystackRef.slice(4)
+    : paystackRef;
+
+  const displayRef = store.bookingRef ?? bookingRefFromUrl ?? store.confirmationId ?? '—';
 
   return (
     <div className="page-container py-10 max-w-2xl mx-auto">
@@ -36,7 +49,7 @@ export default function BookConfirmationPage() {
             {BOOKING_MESSAGES.confirmationId}
           </p>
           <p className="text-[15px] font-bold text-[#020887]">
-            {store.bookingRef ?? store.confirmationId ?? '—'}
+            {displayRef}
           </p>
         </div>
 

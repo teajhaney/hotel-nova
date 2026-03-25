@@ -8,6 +8,9 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { BookingsModule } from './bookings/bookings.module';
+import { ReviewsModule } from './reviews/reviews.module';
+import { PromoCodesModule } from './promo-codes/promo-codes.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
 
@@ -19,6 +22,9 @@ import { RolesGuard } from './auth/guards/roles.guard';
     AuthModule,
     RoomsModule,
     BookingsModule,
+    ReviewsModule,
+    PromoCodesModule,
+    AnalyticsModule,
     ThrottlerModule.forRoot([
       {
         ttl: 60000,

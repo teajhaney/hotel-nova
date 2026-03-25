@@ -3,8 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  BedDouble,
-  History,
+  CalendarDays,
   User,
   Star,
   Bell,
@@ -26,15 +25,9 @@ const NAV_ITEMS = [
   },
   {
     href: '/dashboard/guest',
-    label: GUEST_DASHBOARD_MESSAGES.myBookings,
-    icon: BedDouble,
+    label: 'My Bookings',
+    icon: CalendarDays,
     exact: true,
-  },
-  {
-    href: '/dashboard/guest/history',
-    label: GUEST_DASHBOARD_MESSAGES.bookingHistory,
-    icon: History,
-    exact: false,
   },
   {
     href: '/dashboard/guest/profile',

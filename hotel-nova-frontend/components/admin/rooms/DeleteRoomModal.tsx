@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Trash2, Loader2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { ADMIN_DASHBOARD_MESSAGES } from '@/constants/messages';
@@ -14,9 +16,12 @@ interface DeleteRoomModalProps {
 }
 
 export function DeleteRoomModal({ roomName, onClose, onConfirm, isLoading = false }: DeleteRoomModalProps) {
-  return (
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
+  const modal = (
     <motion.div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -70,4 +75,7 @@ export function DeleteRoomModal({ roomName, onClose, onConfirm, isLoading = fals
       </motion.div>
     </motion.div>
   );
+
+  if (!mounted) return null;
+  return createPortal(modal, document.body);
 }

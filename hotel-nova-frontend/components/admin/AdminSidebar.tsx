@@ -9,7 +9,6 @@ import {
   Users,
   Star,
   Tag,
-  BarChart2,
   Settings,
   Bell,
   LogOut,
@@ -28,7 +27,6 @@ const NAV_ITEMS = [
   { href: '/admin/users', label: M.navUsers, icon: Users, exact: false },
   { href: '/admin/reviews', label: M.navReviews, icon: Star, exact: false },
   { href: '/admin/promo-codes', label: M.navPromoCodes, icon: Tag, exact: false },
-  { href: '/admin/analytics', label: M.navAnalytics, icon: BarChart2, exact: false },
   { href: '/admin/settings', label: M.navSettings, icon: Settings, exact: false },
   { href: '/admin/notifications', label: M.navNotifications, icon: Bell, exact: false, badge: true },
 ];

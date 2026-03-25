@@ -104,12 +104,13 @@ export default function AdminBookingsPage() {
       {/* Mini stat cards */}
       <div className="grid grid-cols-3 gap-4 mb-6">
         {MINI_STATS.map(({ label, value, positive }) => (
-          <div key={label} className="admin-stat-card">
-            <p className="text-[13px] text-[#64748B] mb-1">{label}</p>
-            <p className="text-[22px] font-bold text-[#0D0F2B]">{value}</p>
-            <div className={`flex items-center gap-1 mt-1 text-[12px] font-medium ${positive ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
-              <TrendingUp size={13} />
-              Live from database
+          <div key={label} className="admin-stat-card text-center sm:text-left">
+            <p className="text-[12px] sm:text-[13px] text-[#64748B] mb-1 leading-tight">{label}</p>
+            <p className="text-[20px] sm:text-[22px] font-bold text-[#0D0F2B]">{value}</p>
+            <div className={`flex items-center justify-center sm:justify-start gap-1 mt-1 text-[11px] sm:text-[12px] font-medium ${positive ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
+              <TrendingUp size={12} />
+              <span className="hidden sm:inline">Live from database</span>
+              <span className="sm:hidden">Live</span>
             </div>
           </div>
         ))}

@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -59,6 +61,11 @@ function toDisplayDate(iso: string): string {
 export function PromoFormModal({ promo, onClose, onSave }: PromoFormModalProps) {
   const isEdit = !!promo;
 
+  // createPortal requires the DOM to exist — this flag ensures we only
+  // portal after the component mounts on the client (SSR-safe pattern).
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
   const { register, handleSubmit, watch, formState: { errors } } = useForm<PromoFormData>({
     resolver: zodResolver(promoSchema),
     defaultValues: promo
@@ -68,8 +75,9 @@ export function PromoFormModal({ promo, onClose, onSave }: PromoFormModalProps) 
           discountType: promo.discountType,
           discountValue: promo.discountValue,
           usageLimit: promo.usageLimit,
-          validFrom: toInputDate(promo.validFrom),
-          validTo: toInputDate(promo.validTo),
+          // promo.validFrom is already an ISO date string "YYYY-MM-DD"
+          validFrom: promo.validFrom,
+          validTo: promo.validTo,
           status: (['Active', 'Inactive', 'Scheduled'].includes(promo.status)
             ? promo.status
             : 'Active') as PromoFormData['status'],
@@ -86,6 +94,7 @@ export function PromoFormModal({ promo, onClose, onSave }: PromoFormModalProps) 
         : `₦${data.discountValue.toLocaleString()}`;
 
     onSave({
+      id: promo?.id,
       code: data.code,
       description: data.description,
       discount: discountDisplay,
@@ -93,15 +102,18 @@ export function PromoFormModal({ promo, onClose, onSave }: PromoFormModalProps) 
       discountValue: data.discountValue,
       usageLimit: data.usageLimit,
       used: promo?.used ?? 0,
-      validFrom: toDisplayDate(data.validFrom),
-      validTo: toDisplayDate(data.validTo),
+      validFrom: data.validFrom,   // ISO "YYYY-MM-DD" — page formats for display
+      validTo: data.validTo,
       status: data.status,
     });
   };
 
-  return (
+  // Return null on the server and until the component mounts — no portal yet.
+  if (!mounted) return null;
+
+  return createPortal(
     <motion.div
-      className="fixed inset-0 z-50 flex justify-end"
+      className="fixed inset-0 z-[9999] flex justify-end"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -249,6 +261,7 @@ export function PromoFormModal({ promo, onClose, onSave }: PromoFormModalProps) 
           </button>
         </div>
       </motion.div>
-    </motion.div>
+    </motion.div>,
+    document.body,
   );
 }
