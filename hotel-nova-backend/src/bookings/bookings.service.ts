@@ -33,6 +33,8 @@ import {
   calcNights,
   initPaystackPayment,
 } from './helpers/booking.helpers';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationsGateway } from '../notifications/notifications.gateway';
 
 // ─── Allowed status transitions ─────────────────────────────────────────────
 // The keys are "current status", the values are the statuses you can move TO.
@@ -45,7 +47,11 @@ const ALLOWED_TRANSITIONS: Partial<Record<BookingStatus, BookingStatus[]>> = {
 
 @Injectable()
 export class BookingsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationsService: NotificationsService,
+    private notificationsGateway: NotificationsGateway,
+  ) {}
 
   // ─── Guest: Create Booking ────────────────────────────────────────────────
 
@@ -210,6 +216,16 @@ export class BookingsService {
       throw err;
     }
 
+    // Notify all admins about the new booking. We fire-and-forget because
+    // the booking itself is already persisted — a notification failure
+    // shouldn't break the booking flow.
+    this.notifyAdmins(
+      'new_booking',
+      'New Booking',
+      `${user.fullName} booked ${room.name} (${bookingRef})`,
+      booking.id,
+    );
+
     return { booking, paymentUrl };
   }
 
@@ -347,6 +363,31 @@ export class BookingsService {
         : []),
     ]);
 
+    // Notify the guest about the status change
+    const statusLabel = dto.status.replace(/([A-Z])/g, ' $1').trim();
+    this.notifyUser(
+      booking.guestId,
+      'booking_confirmed',
+      `Booking ${statusLabel}`,
+      `Your booking ${booking.bookingRef} has been updated to ${statusLabel}.`,
+      booking.id,
+      'View Booking',
+      '/dashboard/guest',
+    );
+
+    // If checked out, send a review prompt after a short delay conceptually
+    if (dto.status === BookingStatus.CheckedOut) {
+      this.notifyUser(
+        booking.guestId,
+        'review_prompt',
+        'How was your stay?',
+        `We hope you enjoyed your stay! Please take a moment to leave a review for booking ${booking.bookingRef}.`,
+        booking.id,
+        'Write Review',
+        '/dashboard/guest/reviews',
+      );
+    }
+
     return updated;
   }
 
@@ -401,5 +442,83 @@ export class BookingsService {
         paymentMethod: 'Paystack',
       },
     });
+
+    // Notify the guest that their payment was received and booking confirmed
+    this.notifyUser(
+      booking.guestId,
+      'payment_received',
+      'Payment Confirmed',
+      `Your payment for booking ${booking.bookingRef} has been received.`,
+      booking.id,
+      'View Booking',
+      '/dashboard/guest',
+    );
+
+    this.notifyUser(
+      booking.guestId,
+      'booking_confirmed',
+      'Booking Confirmed',
+      `Your booking ${booking.bookingRef} is confirmed. We look forward to welcoming you!`,
+      booking.id,
+      'View Booking',
+      '/dashboard/guest',
+    );
+  }
+
+  // ─── Notification helpers ──────────────────────────────────────────────────
+  // Fire-and-forget: we don't want a notification failure to break the main
+  // business flow. The .catch() ensures unhandled-rejection warnings don't
+  // bubble up.
+
+  private notifyUser(
+    userId: string,
+    type:
+      | 'booking_confirmed'
+      | 'checkout_reminder'
+      | 'payment_received'
+      | 'review_prompt',
+    title: string,
+    message: string,
+    bookingId?: string,
+    actionLabel?: string,
+    actionHref?: string,
+  ): void {
+    this.notificationsService
+      .create({
+        userId,
+        type,
+        title,
+        message,
+        bookingId,
+        actionLabel,
+        actionHref,
+      })
+      .then((n) => this.notificationsGateway.sendToUser(userId, n))
+      .catch(() => {
+        /* silent */
+      });
+  }
+
+  private notifyAdmins(
+    type: 'new_booking' | 'new_review_submitted',
+    title: string,
+    message: string,
+    bookingId?: string,
+  ): void {
+    // Find all admin users and send each one a notification
+    this.prisma.user
+      .findMany({ where: { role: 'ADMIN' }, select: { id: true } })
+      .then((admins) =>
+        Promise.all(
+          admins.map((admin) =>
+            this.notificationsService
+              .create({ userId: admin.id, type, title, message, bookingId })
+              .then((n) => this.notificationsGateway.sendToUser(admin.id, n)),
+          ),
+        ),
+      )
+      .catch(() => {
+        /* silent */
+      });
   }
 }

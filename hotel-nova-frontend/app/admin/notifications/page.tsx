@@ -1,117 +1,194 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import {
   CalendarDays,
   AlertTriangle,
-  MessageSquare,
-  CheckCircle2,
   Star,
-  ChevronDown,
+  CheckCircle2,
+  UserPlus,
+  DoorOpen,
+  Bell,
+  BellOff,
+  Loader2,
 } from 'lucide-react';
+import {
+  useNotifications,
+  useMarkRead,
+  useMarkAllRead,
+  useArchiveNotification,
+} from '@/hooks/use-notifications';
+import { formatDistanceToNow } from '@/utils/format';
+import type { Notification, NotificationType } from '@/type/api';
 
-type Tab = 'All Notifications' | 'Unread' | 'Bookings' | 'Messages' | 'System';
+// ─── Tabs ──────────────────────────────────────────────────────────────────
+const TABS = ['All', 'Unread', 'Archived'] as const;
+type Tab = (typeof TABS)[number];
 
-const TABS: Tab[] = ['All Notifications', 'Unread', 'Bookings', 'Messages', 'System'];
+const TAB_FILTER: Record<Tab, 'all' | 'unread' | 'archived'> = {
+  All: 'all',
+  Unread: 'unread',
+  Archived: 'archived',
+};
 
-const NOTIFICATIONS = [
-  {
-    id: 1,
-    type: 'booking',
-    borderColor: 'border-l-[#020887]',
-    iconBg: 'bg-[#EEF0FF]',
-    iconColor: 'text-[#020887]',
-    icon: CalendarDays,
-    title: 'New Booking Received',
-    time: '2 minutes ago',
-    description: 'Amara Okonkwo just booked Presidential Suite 501 for Mar 18 – Mar 25, 2026. Total: ₦4,200,000.',
-    primaryAction: 'View Booking',
-    secondaryAction: 'Mark Read',
-    read: false,
-    category: 'Bookings',
-  },
-  {
-    id: 2,
-    type: 'critical',
-    borderColor: 'border-l-[#EF4444]',
-    iconBg: 'bg-[#FEE2E2]',
-    iconColor: 'text-[#EF4444]',
-    icon: AlertTriangle,
-    title: 'Critical: Server Response Latency',
-    time: '14 minutes ago',
-    description: 'API response times have exceeded 2,000ms threshold. Average response time: 2,847ms. This may affect booking flow.',
-    primaryAction: 'View Logs',
-    secondaryAction: 'Acknowledge',
-    read: false,
-    category: 'System',
-  },
-  {
-    id: 3,
-    type: 'message',
-    borderColor: 'border-l-[#10B981]',
-    iconBg: 'bg-[#D1FAE5]',
-    iconColor: 'text-[#10B981]',
-    icon: MessageSquare,
-    title: 'New Message from Guest',
-    time: '1 hour ago',
-    description: 'Chidi Eze (Room 501): "Good afternoon, could we please arrange for extra towels and a bottle of champagne to be sent up?"',
-    primaryAction: 'Reply Now',
-    secondaryAction: 'Mark Read',
-    read: false,
-    category: 'Messages',
-  },
-  {
-    id: 4,
-    type: 'system',
-    borderColor: 'border-l-[#CBD5E1]',
-    iconBg: 'bg-[#F1F5F9]',
-    iconColor: 'text-[#64748B]',
-    icon: CheckCircle2,
-    title: 'System Update Successful',
-    time: '3 hours ago',
-    description: 'HotelNova PMS has been updated to v2.4.1. New features include improved booking analytics and enhanced promo code management.',
-    primaryAction: null,
-    secondaryAction: null,
-    read: true,
-    category: 'System',
-  },
-  {
-    id: 5,
-    type: 'review',
-    borderColor: 'border-l-[#F59E0B]',
-    iconBg: 'bg-[#FEF3C7]',
-    iconColor: 'text-[#F59E0B]',
-    icon: Star,
-    title: 'New 5-Star Review!',
-    time: '5 hours ago',
-    description: 'Bola Akin left a 5-star review: "Perfect anniversary getaway! The team went above and beyond to make our stay special. Highly recommend!"',
-    primaryAction: 'Post to Socials',
-    secondaryAction: 'Mark Read',
-    read: false,
-    category: 'Unread',
-  },
-];
+// ─── Icon + color styling per notification type ────────────────────────────
+function notifStyle(type: NotificationType) {
+  switch (type) {
+    case 'new_booking':
+      return {
+        border: 'border-l-[#020887]',
+        iconBg: 'bg-[#EEF0FF]',
+        iconColor: 'text-[#020887]',
+        Icon: CalendarDays,
+      };
+    case 'new_review_submitted':
+      return {
+        border: 'border-l-[#F59E0B]',
+        iconBg: 'bg-[#FEF3C7]',
+        iconColor: 'text-[#F59E0B]',
+        Icon: Star,
+      };
+    case 'new_user_registered':
+      return {
+        border: 'border-l-[#10B981]',
+        iconBg: 'bg-[#D1FAE5]',
+        iconColor: 'text-[#10B981]',
+        Icon: UserPlus,
+      };
+    case 'room_status_changed':
+      return {
+        border: 'border-l-[#7C3AED]',
+        iconBg: 'bg-[#EDE9FE]',
+        iconColor: 'text-[#7C3AED]',
+        Icon: DoorOpen,
+      };
+    case 'security_alert':
+      return {
+        border: 'border-l-[#EF4444]',
+        iconBg: 'bg-[#FEE2E2]',
+        iconColor: 'text-[#EF4444]',
+        Icon: AlertTriangle,
+      };
+    case 'general':
+      return {
+        border: 'border-l-[#CBD5E1]',
+        iconBg: 'bg-[#F1F5F9]',
+        iconColor: 'text-[#64748B]',
+        Icon: CheckCircle2,
+      };
+    default:
+      return {
+        border: 'border-l-[#CBD5E1]',
+        iconBg: 'bg-[#F1F5F9]',
+        iconColor: 'text-[#64748B]',
+        Icon: Bell,
+      };
+  }
+}
 
+// ─── Single notification card ──────────────────────────────────────────────
+function NotifCard({
+  notif,
+  onMarkRead,
+  onArchive,
+}: {
+  notif: Notification;
+  onMarkRead: (id: string) => void;
+  onArchive: (id: string) => void;
+}) {
+  const { border, iconBg, iconColor, Icon } = notifStyle(notif.type);
+
+  return (
+    <div className={`admin-card border-l-4 ${border} ${notif.read ? 'opacity-70' : ''}`}>
+      <div className="p-5">
+        <div className="flex items-start gap-4">
+          <div
+            className={`w-10 h-10 rounded-full ${iconBg} flex items-center justify-center shrink-0`}
+          >
+            <Icon size={18} className={iconColor} strokeWidth={1.8} />
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <h3 className="text-[14px] font-semibold text-[#0D0F2B]">
+                {notif.title}
+              </h3>
+              <div className="flex items-center gap-2">
+                {!notif.read && (
+                  <span className="w-2 h-2 rounded-full bg-[#EF4444] shrink-0" />
+                )}
+                <span className="text-[12px] text-[#94A3B8] whitespace-nowrap">
+                  {formatDistanceToNow(notif.createdAt)}
+                </span>
+              </div>
+            </div>
+
+            <p className="text-[13px] text-[#64748B] mt-1.5 leading-relaxed">
+              {notif.message}
+            </p>
+
+            <div className="flex items-center gap-2 mt-4">
+              {notif.actionLabel && notif.actionHref && (
+                <Link
+                  href={notif.actionHref}
+                  className="h-8 px-4 rounded-lg bg-[#020887] text-white text-[12px] font-medium hover:bg-[#38369A] transition-colors inline-flex items-center"
+                >
+                  {notif.actionLabel}
+                </Link>
+              )}
+              {!notif.read && (
+                <button
+                  onClick={() => onMarkRead(notif.id)}
+                  className="h-8 px-4 rounded-lg border border-[#E2E8F0] text-[12px] font-medium text-[#64748B] hover:border-[#020887] hover:text-[#020887] transition-colors"
+                >
+                  Mark Read
+                </button>
+              )}
+              {!notif.archived && (
+                <button
+                  onClick={() => onArchive(notif.id)}
+                  className="h-8 px-4 rounded-lg border border-[#E2E8F0] text-[12px] font-medium text-[#64748B] hover:border-[#EF4444] hover:text-[#EF4444] transition-colors"
+                >
+                  Dismiss
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Page ──────────────────────────────────────────────────────────────────
 export default function AdminNotificationsPage() {
-  const [activeTab, setActiveTab] = useState<Tab>('All Notifications');
-  const [expanded, setExpanded] = useState(false);
+  const [activeTab, setActiveTab] = useState<Tab>('All');
+  const { data, isLoading } = useNotifications(TAB_FILTER[activeTab]);
+  const markRead = useMarkRead();
+  const markAllRead = useMarkAllRead();
+  const archive = useArchiveNotification();
 
-  const filtered = NOTIFICATIONS.filter((n) => {
-    if (activeTab === 'All Notifications') return true;
-    if (activeTab === 'Unread') return !n.read;
-    return n.category === activeTab;
-  });
+  const notifications = data?.data ?? [];
 
   return (
     <div className="admin-page-container">
       {/* Header */}
       <div className="flex items-center justify-between mb-7">
         <div>
-          <h1 className="text-[24px] font-bold text-[#0D0F2B]">Notifications Center</h1>
-          <p className="text-[14px] text-[#64748B] mt-1">Stay up to date with hotel activity and alerts</p>
+          <h1 className="text-[24px] font-bold text-[#0D0F2B]">
+            Notifications Center
+          </h1>
+          <p className="text-[14px] text-[#64748B] mt-1">
+            Stay up to date with hotel activity and alerts
+          </p>
         </div>
-        <button className="text-[13px] font-medium text-[#020887] hover:text-[#38369A] transition-colors">
-          ✓ Mark all as read
+        <button
+          onClick={() => markAllRead.mutate()}
+          disabled={markAllRead.isPending}
+          className="text-[13px] font-medium text-[#020887] hover:text-[#38369A] transition-colors disabled:opacity-50"
+        >
+          Mark all as read
         </button>
       </div>
 
@@ -134,77 +211,26 @@ export default function AdminNotificationsPage() {
 
       {/* Notification cards */}
       <div className="flex flex-col gap-4">
-        {filtered.map((notif) => {
-          const Icon = notif.icon;
-          return (
-            <div
-              key={notif.id}
-              className={`admin-card border-l-4 ${notif.borderColor} ${notif.read ? 'opacity-70' : ''}`}
-            >
-              <div className="p-5">
-                <div className="flex items-start gap-4">
-                  <div className={`w-10 h-10 rounded-full ${notif.iconBg} flex items-center justify-center shrink-0`}>
-                    <Icon size={18} className={notif.iconColor} strokeWidth={1.8} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2 flex-wrap">
-                      <h3 className="text-[14px] font-semibold text-[#0D0F2B]">{notif.title}</h3>
-                      <div className="flex items-center gap-2">
-                        {!notif.read && (
-                          <span className="w-2 h-2 rounded-full bg-[#EF4444] shrink-0" />
-                        )}
-                        <span className="text-[12px] text-[#94A3B8] whitespace-nowrap">{notif.time}</span>
-                      </div>
-                    </div>
-                    <p className="text-[13px] text-[#64748B] mt-1.5 leading-relaxed">{notif.description}</p>
-
-                    {(notif.primaryAction || notif.secondaryAction) && (
-                      <div className="flex items-center gap-2 mt-4">
-                        {notif.primaryAction && (
-                          <button
-                            className={`h-8 px-4 rounded-lg text-[12px] font-medium transition-colors ${
-                              notif.type === 'critical'
-                                ? 'bg-[#EF4444] text-white hover:bg-[#DC2626]'
-                                : 'bg-[#020887] text-white hover:bg-[#38369A]'
-                            }`}
-                          >
-                            {notif.primaryAction}
-                          </button>
-                        )}
-                        {notif.secondaryAction && (
-                          <button className="h-8 px-4 rounded-lg border border-[#E2E8F0] text-[12px] font-medium text-[#64748B] hover:border-[#020887] hover:text-[#020887] transition-colors">
-                            {notif.secondaryAction}
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-
-        {filtered.length === 0 && (
+        {isLoading ? (
           <div className="admin-card p-10 flex items-center justify-center">
-            <p className="text-[14px] text-[#94A3B8]">No notifications in this category</p>
+            <Loader2 size={24} className="animate-spin text-[#020887]" />
           </div>
-        )}
-      </div>
-
-      {/* Load more */}
-      <div className="mt-6">
-        <button
-          onClick={() => setExpanded(!expanded)}
-          className="w-full h-11 rounded-xl border border-[#E2E8F0] bg-white text-[13px] font-medium text-[#64748B] hover:text-[#020887] hover:border-[#020887] transition-colors flex items-center justify-center gap-2"
-        >
-          <ChevronDown size={16} className={`transition-transform ${expanded ? 'rotate-180' : ''}`} />
-          {expanded ? 'Show fewer notifications' : 'Load more notifications'}
-        </button>
-        {expanded && (
-          <div className="mt-4 admin-card p-6 flex items-center justify-center">
-            <p className="text-[14px] text-[#94A3B8]">No older notifications</p>
+        ) : notifications.length === 0 ? (
+          <div className="admin-card p-10 flex flex-col items-center justify-center gap-3">
+            <BellOff size={32} className="text-[#CBD5E1]" />
+            <p className="text-[14px] text-[#94A3B8]">
+              No notifications in this category
+            </p>
           </div>
+        ) : (
+          notifications.map((notif) => (
+            <NotifCard
+              key={notif.id}
+              notif={notif}
+              onMarkRead={(id) => markRead.mutate(id)}
+              onArchive={(id) => archive.mutate(id)}
+            />
+          ))
         )}
       </div>
     </div>

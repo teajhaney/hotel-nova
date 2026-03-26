@@ -132,6 +132,39 @@ export interface PromoCodesPage {
   meta: { total: number; page: number; limit: number; totalPages: number };
 }
 
+// ─── Notifications ────────────────────────────────────────────────────────────
+
+export type NotificationType =
+  | 'booking_confirmed'
+  | 'checkout_reminder'
+  | 'payment_received'
+  | 'review_prompt'
+  | 'new_booking'
+  | 'new_user_registered'
+  | 'new_review_submitted'
+  | 'room_status_changed'
+  | 'security_alert'
+  | 'general';
+
+export interface Notification {
+  id: string;
+  userId: string;
+  bookingId: string | null;
+  type: NotificationType;
+  title: string;
+  message: string;
+  actionLabel: string | null;
+  actionHref: string | null;
+  read: boolean;
+  archived: boolean;
+  createdAt: string;
+}
+
+export interface NotificationsPage {
+  data: Notification[];
+  meta: { total: number; page: number; limit: number; totalPages: number };
+}
+
 // ─── Analytics ────────────────────────────────────────────────────────────────
 
 export interface OccupancyPoint { day: string; value: number }

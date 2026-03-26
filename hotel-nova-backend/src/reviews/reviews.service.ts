@@ -8,6 +8,8 @@ import {
 import { BookingStatus, ReviewStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { REVIEW_MESSAGES } from '../common/constants/messages';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationsGateway } from '../notifications/notifications.gateway';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { UpdateReviewStatusDto } from './dto/update-review-status.dto';
@@ -20,7 +22,11 @@ import type {
 
 @Injectable()
 export class ReviewsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationsService: NotificationsService,
+    private notificationsGateway: NotificationsGateway,
+  ) {}
 
   // ─── Guest: List Eligible Bookings ────────────────────────────────────────
   // Returns all CheckedOut bookings for this guest, each with its review
@@ -89,7 +95,7 @@ export class ReviewsService {
       throw new ConflictException(REVIEW_MESSAGES.REVIEW_ALREADY_EXISTS);
     }
 
-    return this.prisma.review.create({
+    const review = (await this.prisma.review.create({
       data: {
         bookingId: dto.bookingId,
         guestId: userId,
@@ -103,7 +109,15 @@ export class ReviewsService {
         room: { select: { id: true, name: true, type: true } },
         booking: { select: { id: true, bookingRef: true } },
       },
-    }) as Promise<ReviewWithRelations>;
+    })) as ReviewWithRelations;
+
+    // Notify all admins that a new review was submitted and needs moderation
+    this.notifyAdmins(
+      `${review.guest.fullName} submitted a ${dto.rating}-star review for ${review.room.name}`,
+      booking.id,
+    );
+
+    return review;
   }
 
   // ─── Guest: Edit Own Review ────────────────────────────────────────────────
@@ -187,5 +201,32 @@ export class ReviewsService {
         booking: { select: { id: true, bookingRef: true } },
       },
     }) as Promise<ReviewWithRelations>;
+  }
+
+  // ─── Notification helper ─────────────────────────────────────────────────
+  // Fire-and-forget: notification failures must never break review operations.
+  private notifyAdmins(message: string, bookingId?: string): void {
+    this.prisma.user
+      .findMany({ where: { role: 'ADMIN' }, select: { id: true } })
+      .then((admins) =>
+        Promise.all(
+          admins.map((admin) =>
+            this.notificationsService
+              .create({
+                userId: admin.id,
+                type: 'new_review_submitted',
+                title: 'New Review Submitted',
+                message,
+                bookingId,
+                actionLabel: 'Review Now',
+                actionHref: '/admin/reviews',
+              })
+              .then((n) => this.notificationsGateway.sendToUser(admin.id, n)),
+          ),
+        ),
+      )
+      .catch(() => {
+        /* silent */
+      });
   }
 }

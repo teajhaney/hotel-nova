@@ -17,6 +17,7 @@ import {
 import { ADMIN_DASHBOARD_MESSAGES } from '@/constants/messages';
 import { useAuthStore } from '@/stores/auth-store';
 import { useLogout } from '@/hooks/use-auth';
+import { useUnreadCount } from '@/hooks/use-notifications';
 
 const M = ADMIN_DASHBOARD_MESSAGES;
 
@@ -39,6 +40,8 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
   const pathname = usePathname();
   const user = useAuthStore((s) => s.user);
   const { mutate: logout } = useLogout();
+  const { data: unreadData } = useUnreadCount();
+  const unreadCount = unreadData?.count ?? 0;
 
   // Build initials from the user's full name (e.g. "John Doe" → "JD")
   const initials = user?.fullName
@@ -94,8 +97,10 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
             >
               <Icon size={18} strokeWidth={isActive ? 2.2 : 1.8} />
               <span>{label}</span>
-              {badge && (
-                <span className="ml-auto w-2 h-2 rounded-full bg-[#EF4444]" />
+              {badge && unreadCount > 0 && (
+                <span className="ml-auto min-w-5 h-5 px-1.5 rounded-full bg-[#EF4444] text-white text-[11px] font-bold flex items-center justify-center">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
               )}
             </Link>
           );

@@ -81,7 +81,8 @@ export const REVIEW_MESSAGES = {
   REVIEW_NOT_FOUND: 'Review not found.',
   REVIEW_NOT_YOURS: 'You can only manage your own reviews.',
   BOOKING_NOT_ELIGIBLE: 'Only checked-out bookings are eligible for reviews.',
-  REVIEW_ALREADY_EXISTS: 'You have already submitted a review for this booking.',
+  REVIEW_ALREADY_EXISTS:
+    'You have already submitted a review for this booking.',
   REVIEW_NOT_EDITABLE: 'Only pending reviews can be edited.',
 } as const;
 
@@ -94,4 +95,13 @@ export const PROMO_MESSAGES = {
   CODE_ALREADY_EXISTS: 'A promo code with this code already exists.',
   INVALID_PROMO_CODE: 'This promo code is invalid or has expired.',
   PROMO_CODE_LIMIT_REACHED: 'This promo code has reached its usage limit.',
+} as const;
+
+// ─────────────────────────────────────────────
+// NOTIFICATIONS
+// ─────────────────────────────────────────────
+
+export const NOTIFICATION_MESSAGES = {
+  NOT_FOUND: 'Notification not found.',
+  NOT_YOURS: 'You can only manage your own notifications.',
 } as const;

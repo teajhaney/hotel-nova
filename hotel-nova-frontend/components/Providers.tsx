@@ -6,6 +6,7 @@ import { Toaster } from 'sonner';
 import { useGetMe } from '@/hooks/use-auth';
 import { useAuthStore } from '@/stores/auth-store';
 import { refreshTokens } from '@/lib/axios';
+import { connectSocket, disconnectSocket } from '@/lib/socket';
 
 // Sits inside QueryClientProvider so it can safely call useQuery hooks.
 // It fires GET /api/auth/me once on mount to rehydrate the auth store
@@ -38,10 +39,13 @@ function AuthRehydrator({ children }: { children: React.ReactNode }) {
       }
     };
 
-    // No immediate call — by the time isLoggedIn becomes true, useGetMe has
-    // already resolved (which means the access token is fresh, either from a
-    // successful /auth/me call or from the interceptor's refresh + replay).
-    // Firing immediately would just waste a token rotation for no benefit.
+    // Connect the Socket.io client for real-time notifications.
+    // The backend gateway verifies the JWT from the cookie during handshake.
+    connectSocket();
+
+    // No immediate refresh call — by the time isLoggedIn becomes true, useGetMe
+    // has already resolved (access token is fresh). Firing immediately would
+    // just waste a token rotation for no benefit.
     const intervalId = window.setInterval(refresh, 10 * 60 * 1000);
 
     // Also refresh when the user returns to a tab that was in the background.
@@ -59,6 +63,7 @@ function AuthRehydrator({ children }: { children: React.ReactNode }) {
     return () => {
       window.clearInterval(intervalId);
       document.removeEventListener('visibilitychange', handleVisibility);
+      disconnectSocket();
     };
   }, [isLoggedIn]);
 

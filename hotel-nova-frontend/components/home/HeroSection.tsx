@@ -1,7 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { BookingBar } from './BookingBar';
 import { HOME_IMAGES } from '@/constants/images';
 import { HERO_MESSAGES } from '@/constants/messages';
 
@@ -53,7 +52,8 @@ export function HeroSection() {
               href="/rooms"
               className="btn-primary-fill flex items-center gap-[6px]"
             >
-              {HERO_MESSAGES.ctaPrimary} <ArrowRight size={16} aria-hidden="true" />
+              {HERO_MESSAGES.ctaPrimary}{' '}
+              <ArrowRight size={16} aria-hidden="true" />
             </Link>
             <Link href="/gallery" className="btn-outline-white">
               {HERO_MESSAGES.ctaSecondary}
@@ -63,12 +63,12 @@ export function HeroSection() {
       </div>
 
       {/* Booking bar — overlaps hero bottom on desktop */}
-      <div
+      {/* <div
         id="booking"
         className="relative z-20 lg:-mt-[56px] page-container"
       >
         <BookingBar />
-      </div>
+      </div> */}
     </section>
   );
 }

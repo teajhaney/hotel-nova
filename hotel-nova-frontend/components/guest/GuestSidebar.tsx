@@ -15,6 +15,7 @@ import {
 import { GUEST_DASHBOARD_MESSAGES } from '@/constants/messages';
 import { useAuthStore } from '@/stores/auth-store';
 import { useLogout } from '@/hooks/use-auth';
+import { useUnreadCount } from '@/hooks/use-notifications';
 
 const NAV_ITEMS = [
   {
@@ -58,6 +59,8 @@ export function GuestSidebar({ onClose }: GuestSidebarProps) {
   const pathname = usePathname();
   const user = useAuthStore((s) => s.user);
   const { mutate: logout } = useLogout();
+  const { data: unreadData } = useUnreadCount();
+  const unreadCount = unreadData?.count ?? 0;
 
   const initials = user?.fullName
     ? user.fullName
@@ -111,8 +114,10 @@ export function GuestSidebar({ onClose }: GuestSidebarProps) {
             >
               <Icon size={18} strokeWidth={isActive ? 2.2 : 1.8} />
               <span>{label}</span>
-              {badge && (
-                <span className="ml-auto w-2 h-2 rounded-full bg-[#EF4444]" />
+              {badge && unreadCount > 0 && (
+                <span className="ml-auto min-w-5 h-5 px-1.5 rounded-full bg-[#EF4444] text-white text-[11px] font-bold flex items-center justify-center">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
               )}
             </Link>
           );

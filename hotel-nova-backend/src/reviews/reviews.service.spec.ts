@@ -8,6 +8,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { BookingStatus, ReviewStatus, RoomType } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { ReviewsService } from './reviews.service';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationsGateway } from '../notifications/notifications.gateway';
 
 const mockUser = { id: 'user-1', fullName: 'Yusuf Haney', email: 'yusuf@example.com' };
 const mockRoom = { id: 'room-1', name: 'Deluxe Suite', type: RoomType.Deluxe, imageUrl: null };
@@ -51,6 +53,9 @@ const mockPrisma = {
     create: jest.fn(),
     update: jest.fn(),
   },
+  user: {
+    findMany: jest.fn().mockResolvedValue([]),
+  },
 };
 
 describe('ReviewsService', () => {
@@ -61,6 +66,8 @@ describe('ReviewsService', () => {
       providers: [
         ReviewsService,
         { provide: PrismaService, useValue: mockPrisma },
+        { provide: NotificationsService, useValue: { create: jest.fn().mockResolvedValue({}) } },
+        { provide: NotificationsGateway, useValue: { sendToUser: jest.fn() } },
       ],
     }).compile();
 

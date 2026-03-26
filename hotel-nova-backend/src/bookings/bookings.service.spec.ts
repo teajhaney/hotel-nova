@@ -7,6 +7,8 @@ import {
 import { BookingStatus, PaymentStatus, Role } from '@prisma/client';
 import { BookingsService } from './bookings.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationsGateway } from '../notifications/notifications.gateway';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { AuthUser } from '../auth/interfaces/auth-user.interface';
 
@@ -112,6 +114,9 @@ const mockPrisma = {
     findUnique: jest.fn(),
     update: jest.fn(),
   },
+  user: {
+    findMany: jest.fn().mockResolvedValue([]),
+  },
   $transaction: jest.fn(),
 };
 
@@ -127,6 +132,8 @@ describe('BookingsService', () => {
       providers: [
         BookingsService,
         { provide: PrismaService, useValue: mockPrisma },
+        { provide: NotificationsService, useValue: { create: jest.fn().mockResolvedValue({}) } },
+        { provide: NotificationsGateway, useValue: { sendToUser: jest.fn(), sendToAdmins: jest.fn() } },
       ],
     }).compile();
 

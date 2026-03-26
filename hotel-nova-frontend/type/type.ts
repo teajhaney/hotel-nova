@@ -180,12 +180,18 @@ export type ApiBooking = {
   };
 };
 
+// Matches the NotificationType enum in the Prisma schema exactly.
 export type NotificationType =
   | 'booking_confirmed'
   | 'checkout_reminder'
   | 'payment_received'
   | 'review_prompt'
-  | 'security';
+  | 'new_booking'
+  | 'new_user_registered'
+  | 'new_review_submitted'
+  | 'room_status_changed'
+  | 'security_alert'
+  | 'general';
 
 export type GuestNotification = {
   id: string;

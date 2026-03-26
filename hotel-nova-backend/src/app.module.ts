@@ -11,6 +11,7 @@ import { BookingsModule } from './bookings/bookings.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { PromoCodesModule } from './promo-codes/promo-codes.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
 
@@ -25,6 +26,7 @@ import { RolesGuard } from './auth/guards/roles.guard';
     ReviewsModule,
     PromoCodesModule,
     AnalyticsModule,
+    NotificationsModule,
     ThrottlerModule.forRoot([
       {
         ttl: 60000,

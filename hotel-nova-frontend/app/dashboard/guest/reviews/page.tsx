@@ -1,11 +1,22 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Star, StarOff, CalendarDays, X, CheckCircle2, Loader2 } from 'lucide-react';
+import {
+  Star,
+  StarOff,
+  CalendarDays,
+  X,
+  CheckCircle2,
+  Loader2,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { GUEST_DASHBOARD_MESSAGES } from '@/constants/messages';
-import { useEligibleBookings, useSubmitReview, useEditReview } from '@/hooks/use-reviews';
+import {
+  useEligibleBookings,
+  useSubmitReview,
+  useEditReview,
+} from '@/hooks/use-reviews';
 import type { EligibleBooking } from '@/type/api';
 import { formatBookingDate } from '@/utils/format';
 import Image from 'next/image';
@@ -18,16 +29,19 @@ const TABS = [
 type Tab = (typeof TABS)[number];
 
 // Fallback image shown when the room has no photo uploaded yet.
-const PLACEHOLDER_IMAGE = 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&q=80';
+const PLACEHOLDER_IMAGE =
+  'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&q=80';
 
 function StarRating({ rating }: { rating: number }) {
   return (
     <div className="flex items-center gap-0.5">
-      {[1, 2, 3, 4, 5].map((i) => (
+      {[1, 2, 3, 4, 5].map(i => (
         <Star
           key={i}
           size={14}
-          className={i <= rating ? 'text-[#F59E0B] fill-[#F59E0B]' : 'text-[#CBD5E1]'}
+          className={
+            i <= rating ? 'text-[#F59E0B] fill-[#F59E0B]' : 'text-[#CBD5E1]'
+          }
         />
       ))}
     </div>
@@ -49,16 +63,19 @@ function ReviewModal({
   const [hovered, setHovered] = useState(0);
   const [text, setText] = useState(booking.review?.reviewText ?? '');
 
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
-
   const submitReview = useSubmitReview();
   const editReview = useEditReview();
 
   const isPending = submitReview.isPending || editReview.isPending;
 
+  // The backend requires at least 10 characters for the review text.
+  // We validate here so the user gets instant feedback instead of a silent failure.
+  const MIN_REVIEW_LENGTH = 10;
+  const trimmedLength = text.trim().length;
+  const canSubmit = rating > 0 && trimmedLength >= MIN_REVIEW_LENGTH;
+
   function handleSubmit() {
-    if (rating === 0 || text.trim().length === 0) return;
+    if (!canSubmit) return;
 
     if (isEdit && booking.review) {
       editReview.mutate(
@@ -67,6 +84,9 @@ function ReviewModal({
           onSuccess: () => {
             toast.success('Review updated.');
             onClose();
+          },
+          onError: () => {
+            toast.error('Could not update review. Please try again.');
           },
         },
       );
@@ -78,6 +98,9 @@ function ReviewModal({
             toast.success('Review submitted! It will appear after moderation.');
             onClose();
           },
+          onError: () => {
+            toast.error('Could not submit review. Please try again.');
+          },
         },
       );
     }
@@ -85,8 +108,8 @@ function ReviewModal({
 
   const imgSrc = booking.imageUrl ?? PLACEHOLDER_IMAGE;
 
-  if (!mounted) return null;
-
+  // No SSR guard needed — this component only renders when modalBooking is set
+  // by a user click, so document.body is always available.
   return createPortal(
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
@@ -99,19 +122,32 @@ function ReviewModal({
         </button>
 
         <h2 className="text-[18px] font-bold text-[#0D0F2B] mb-1">
-          {isEdit ? 'Edit Your Review' : GUEST_DASHBOARD_MESSAGES.reviewModalTitle}
+          {isEdit
+            ? 'Edit Your Review'
+            : GUEST_DASHBOARD_MESSAGES.reviewModalTitle}
         </h2>
-        <p className="text-[13px] text-[#64748B] mb-5">{GUEST_DASHBOARD_MESSAGES.reviewModalSubtitle}</p>
+        <p className="text-[13px] text-[#64748B] mb-5">
+          {GUEST_DASHBOARD_MESSAGES.reviewModalSubtitle}
+        </p>
 
         {/* Room summary */}
         <div className="flex items-center gap-3 mb-5 p-3 bg-[#F8FAFC] rounded-lg border border-[#E2E8F0]">
           <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0">
-            <Image src={imgSrc} alt={booking.roomName} width={48} height={48} className="w-full h-full object-cover" />
+            <Image
+              src={imgSrc}
+              alt={booking.roomName}
+              width={48}
+              height={48}
+              className="w-full h-full object-cover"
+            />
           </div>
           <div>
-            <p className="text-[13px] font-semibold text-[#0D0F2B]">{booking.roomName}</p>
+            <p className="text-[13px] font-semibold text-[#0D0F2B]">
+              {booking.roomName}
+            </p>
             <p className="text-[12px] text-[#64748B]">
-              {formatBookingDate(booking.checkIn)} – {formatBookingDate(booking.checkOut)}
+              {formatBookingDate(booking.checkIn)} –{' '}
+              {formatBookingDate(booking.checkOut)}
             </p>
           </div>
         </div>
@@ -121,7 +157,7 @@ function ReviewModal({
           {GUEST_DASHBOARD_MESSAGES.ratingLabel}
         </label>
         <div className="flex items-center gap-1 mb-5">
-          {[1, 2, 3, 4, 5].map((i) => (
+          {[1, 2, 3, 4, 5].map(i => (
             <button
               key={i}
               onMouseEnter={() => setHovered(i)}
@@ -147,14 +183,22 @@ function ReviewModal({
         </label>
         <textarea
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          onChange={e => setText(e.target.value)}
           placeholder={GUEST_DASHBOARD_MESSAGES.reviewPlaceholder}
           rows={4}
-          className="w-full border border-[#E2E8F0] rounded-lg px-3.5 py-2.5 text-[14px] text-[#0D0F2B] placeholder:text-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#020887]/20 focus:border-[#020887] resize-none mb-5"
+          className="w-full border border-[#E2E8F0] rounded-lg px-3.5 py-2.5 text-[14px] text-[#0D0F2B] placeholder:text-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#020887]/20 focus:border-[#020887] resize-none mb-1.5"
         />
+        {trimmedLength > 0 && trimmedLength < MIN_REVIEW_LENGTH && (
+          <p className="text-[12px] text-[#EF4444] mb-3">
+            At least {MIN_REVIEW_LENGTH} characters required ({MIN_REVIEW_LENGTH - trimmedLength} more)
+          </p>
+        )}
+        {(trimmedLength === 0 || trimmedLength >= MIN_REVIEW_LENGTH) && (
+          <div className="mb-3" />
+        )}
 
         <button
-          disabled={rating === 0 || text.trim().length === 0 || isPending}
+          disabled={!canSubmit || isPending}
           onClick={handleSubmit}
           className="btn-primary flex items-center justify-center gap-2 disabled:opacity-60"
         >
@@ -163,7 +207,7 @@ function ReviewModal({
         </button>
       </div>
     </div>,
-    document.body,
+    document.body
   );
 }
 
@@ -199,7 +243,9 @@ function ReviewCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-3 flex-wrap mb-1">
             <div>
-              <p className="text-[15px] font-semibold text-[#0D0F2B]">{booking.roomName}</p>
+              <p className="text-[15px] font-semibold text-[#0D0F2B]">
+                {booking.roomName}
+              </p>
               <p className="text-[12px] text-[#64748B]">{booking.roomType}</p>
             </div>
 
@@ -223,15 +269,16 @@ function ReviewCard({
           <div className="flex items-center gap-1.5 text-[12px] text-[#64748B] mb-2">
             <CalendarDays size={13} />
             <span>
-              {formatBookingDate(booking.checkIn)} – {formatBookingDate(booking.checkOut)}
+              {formatBookingDate(booking.checkIn)} –{' '}
+              {formatBookingDate(booking.checkOut)}
             </span>
             <span className="text-[#CBD5E1]">·</span>
-            <span className="font-medium text-[#94A3B8]">#{booking.bookingRef}</span>
+            <span className="font-medium text-[#94A3B8]">
+              #{booking.bookingRef}
+            </span>
           </div>
 
-          {booking.review && (
-            <StarRating rating={booking.review.rating} />
-          )}
+          {booking.review && <StarRating rating={booking.review.rating} />}
         </div>
       </div>
 
@@ -256,7 +303,9 @@ function ReviewCard({
         </div>
       ) : (
         <div className="px-4 pb-4 border-t border-[#F1F5F9] pt-3 flex items-center justify-between">
-          <p className="text-[13px] text-[#94A3B8]">Share your thoughts about this stay</p>
+          <p className="text-[13px] text-[#94A3B8]">
+            Share your thoughts about this stay
+          </p>
           <button
             onClick={() => onReview(booking)}
             className="px-4 py-2 rounded-lg bg-[#020887] text-white text-[13px] font-semibold hover:bg-[#38369A] transition-colors"
@@ -270,12 +319,16 @@ function ReviewCard({
 }
 
 export default function ReviewsPage() {
-  const [activeTab, setActiveTab] = useState<Tab>(GUEST_DASHBOARD_MESSAGES.reviewTabAll);
-  const [modalBooking, setModalBooking] = useState<EligibleBooking | null>(null);
+  const [activeTab, setActiveTab] = useState<Tab>(
+    GUEST_DASHBOARD_MESSAGES.reviewTabAll
+  );
+  const [modalBooking, setModalBooking] = useState<EligibleBooking | null>(
+    null
+  );
 
   const { data: bookings = [], isLoading } = useEligibleBookings();
 
-  const filtered = bookings.filter((b) => {
+  const filtered = bookings.filter(b => {
     if (activeTab === GUEST_DASHBOARD_MESSAGES.reviewTabPending)
       // Pending tab = no review yet OR review is waiting for admin approval
       return !b.review || b.review.status === 'Pending';
@@ -289,13 +342,17 @@ export default function ReviewsPage() {
     <div className="guest-page-container">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-[22px] font-bold text-[#0D0F2B]">{GUEST_DASHBOARD_MESSAGES.reviewsTitle}</h1>
-        <p className="text-[14px] text-[#64748B] mt-0.5">{GUEST_DASHBOARD_MESSAGES.reviewsSubtitle}</p>
+        <h1 className="text-[22px] font-bold text-[#0D0F2B]">
+          {GUEST_DASHBOARD_MESSAGES.reviewsTitle}
+        </h1>
+        <p className="text-[14px] text-[#64748B] mt-0.5">
+          {GUEST_DASHBOARD_MESSAGES.reviewsSubtitle}
+        </p>
       </div>
 
       {/* Tabs */}
       <div className="flex border-b border-[#E2E8F0] mb-5">
-        {TABS.map((tab) => (
+        {TABS.map(tab => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -318,19 +375,28 @@ export default function ReviewsPage() {
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center gap-3 py-16 text-center">
           <StarOff size={36} className="text-[#CBD5E1]" />
-          <p className="text-[14px] text-[#94A3B8]">{GUEST_DASHBOARD_MESSAGES.noReviews}</p>
+          <p className="text-[14px] text-[#94A3B8]">
+            {GUEST_DASHBOARD_MESSAGES.noReviews}
+          </p>
         </div>
       ) : (
         <div className="flex flex-col gap-4">
-          {filtered.map((booking) => (
-            <ReviewCard key={booking.bookingId} booking={booking} onReview={setModalBooking} />
+          {filtered.map(booking => (
+            <ReviewCard
+              key={booking.bookingId}
+              booking={booking}
+              onReview={setModalBooking}
+            />
           ))}
         </div>
       )}
 
       {/* Review modal */}
       {modalBooking && (
-        <ReviewModal booking={modalBooking} onClose={() => setModalBooking(null)} />
+        <ReviewModal
+          booking={modalBooking}
+          onClose={() => setModalBooking(null)}
+        />
       )}
     </div>
   );
