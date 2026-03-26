@@ -45,8 +45,9 @@ function AuthRehydrator({ children }: { children: React.ReactNode }) {
     };
 
     // Connect the Socket.io client for real-time notifications.
-    // The backend gateway verifies the JWT from the cookie during handshake.
-    connectSocket();
+    // connectSocket() fetches the JWT via a same-origin Route Handler and
+    // passes it in the handshake auth — required for cross-domain deployments.
+    void connectSocket();
 
     // No immediate refresh call — by the time isLoggedIn becomes true, useGetMe
     // has already resolved (access token is fresh). Firing immediately would

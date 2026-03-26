@@ -2,9 +2,15 @@ import { io, Socket } from 'socket.io-client';
 
 // ─── Socket.io Client ──────────────────────────────────────────────────────
 // Connects to the NestJS notifications gateway at /notifications namespace.
-// The backend extracts the JWT from the cookie header during the handshake,
-// so we need withCredentials: true. We DON'T connect automatically — the
-// app calls connect() after confirming the user is logged in.
+//
+// Auth strategy:
+//   LOCAL  — the browser and NestJS share localhost, so the HttpOnly cookie
+//            is sent automatically with the WebSocket handshake.
+//   PROD   — the frontend (Vercel) and backend (Render) are on different
+//            domains, so cookies are NOT sent cross-origin. Instead, we fetch
+//            the JWT from GET /api/auth/ws-token (same-origin, cookie is sent),
+//            then pass it via Socket.io's `auth` option. The backend gateway
+//            checks `handshake.auth.token` first, falls back to cookies.
 //
 // This module exports a singleton-style API. Multiple components can import
 // getSocket() and they all share the same connection.
@@ -16,24 +22,35 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:300
 export function getSocket(): Socket {
   if (!socket) {
     socket = io(`${BACKEND_URL}/notifications`, {
-      // Don't connect until we explicitly call socket.connect()
       autoConnect: false,
-      // Send cookies (accessToken) with the WebSocket handshake
       withCredentials: true,
-      // Start with WebSocket directly — polling isn't needed for modern browsers
-      // and avoids CORS preflight issues with the cookie-based auth.
       transports: ['websocket'],
     });
   }
   return socket;
 }
 
-// Call this when the user logs in (or when the app detects an active session)
-export function connectSocket(): void {
+// Fetches the JWT from the same-origin Route Handler and attaches it to the
+// socket's auth before connecting. This runs every time connectSocket() is
+// called so the token stays fresh after a refresh cycle.
+export async function connectSocket(): Promise<void> {
   const s = getSocket();
-  if (!s.connected) {
-    s.connect();
+  if (s.connected) return;
+
+  try {
+    const res = await fetch('/api/auth/ws-token');
+    if (res.ok) {
+      const { token } = (await res.json()) as { token: string | null };
+      if (token) {
+        s.auth = { token };
+      }
+    }
+  } catch {
+    // If the fetch fails, try connecting anyway — the cookie fallback
+    // may still work (e.g. local development on localhost)
   }
+
+  s.connect();
 }
 
 // Call this on logout to cleanly tear down the connection

@@ -14,6 +14,9 @@ export const metadata: Metadata = {
   title: 'HotelNova — Elevate Your Stay',
   description:
     'Experience premium luxury at HotelNova, The Grand Oasis Abuja. Book your stay online and manage your reservations with ease.',
+  icons: {
+    icon: '/icon.svg',
+  },
 };
 
 export default function RootLayout({

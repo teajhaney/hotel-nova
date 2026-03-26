@@ -48,16 +48,24 @@ export class NotificationsGateway
   constructor(private jwt: JwtService) {}
 
   // ─── Connection handler ──────────────────────────────────────────────────
-  // When a client connects, we extract the JWT from the cookie header,
-  // verify it, and join the socket to a private room. If auth fails,
-  // we disconnect immediately — no unauthenticated sockets allowed.
+  // When a client connects, we extract the JWT and verify it. Two auth
+  // strategies are supported:
+  //   1. handshake.auth.token — used in production where the frontend (Vercel)
+  //      and backend (Render) are on different domains, so cookies can't be
+  //      sent cross-origin. The frontend fetches the token from a same-origin
+  //      Route Handler and passes it here.
+  //   2. Cookie fallback — works in local development where both the frontend
+  //      and backend share localhost, so cookies are sent automatically.
   handleConnection(client: Socket): void {
     try {
+      // Try auth token first (production cross-domain), then cookie (local dev)
+      const authToken = (client.handshake.auth as { token?: string })?.token;
       const cookieHeader = client.handshake.headers.cookie ?? '';
-      const token = this.parseCookie(cookieHeader, COOKIES.ACCESS_TOKEN);
+      const cookieToken = this.parseCookie(cookieHeader, COOKIES.ACCESS_TOKEN);
+      const token = authToken || cookieToken;
 
       if (!token) {
-        this.logger.warn('WS connection rejected — no access token cookie');
+        this.logger.warn('WS connection rejected — no access token');
         client.disconnect();
         return;
       }
