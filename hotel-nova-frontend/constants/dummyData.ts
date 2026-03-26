@@ -703,7 +703,7 @@ export const GUEST_NOTIFICATIONS: GuestNotification[] = [
   },
   {
     id: 'notif-5',
-    type: 'security',
+    type: 'security_alert',
     title: 'Profile Security Update',
     message:
       "A new login was detected from a Chrome browser on a Mac device. If this wasn't you, please change your password.",
