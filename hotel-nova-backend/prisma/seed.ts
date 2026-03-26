@@ -105,9 +105,54 @@ async function main() {
     },
   });
 
+  const fatima = await prisma.user.upsert({
+    where: { email: 'fatima@example.com' },
+    update: {},
+    create: {
+      email: 'fatima@example.com',
+      password: hashedGuestPassword,
+      fullName: 'Fatima Bello',
+      phone: '+2348033221100',
+      country: 'Nigeria',
+      role: 'GUEST',
+      status: 'Active',
+    },
+  });
+
+  const emeka = await prisma.user.upsert({
+    where: { email: 'emeka@example.com' },
+    update: {},
+    create: {
+      email: 'emeka@example.com',
+      password: hashedGuestPassword,
+      fullName: 'Emeka Obi',
+      phone: '+2348055443322',
+      country: 'Nigeria',
+      role: 'GUEST',
+      status: 'Active',
+    },
+  });
+
+  const chidinma = await prisma.user.upsert({
+    where: { email: 'chidinma@example.com' },
+    update: {},
+    create: {
+      email: 'chidinma@example.com',
+      password: hashedGuestPassword,
+      fullName: 'Chidinma Eze',
+      phone: '+2348077665544',
+      country: 'Nigeria',
+      role: 'GUEST',
+      status: 'Active',
+    },
+  });
+
   console.log(`  ✓ ${admin.fullName} (admin)`);
   console.log(`  ✓ ${amara.fullName} (guest)`);
   console.log(`  ✓ ${james.fullName} (guest)`);
+  console.log(`  ✓ ${fatima.fullName} (guest)`);
+  console.log(`  ✓ ${emeka.fullName} (guest)`);
+  console.log(`  ✓ ${chidinma.fullName} (guest)`);
 
   // ── 2. ROOMS ──────────────────────────────────────────────────────────────
   // 30 rooms across 4 types. Prices are stored in kobo via the naira() helper.
@@ -562,7 +607,7 @@ async function main() {
       roomRef: 'RN-210-DX',
       name: 'Deluxe King 210',
       type: 'Deluxe' as const,
-      price: naira(10_500),
+      price: naira(9_500),
       beds: '1 King Bed',
       maxGuests: 2,
       sqm: 38,
@@ -590,7 +635,7 @@ async function main() {
       roomRef: 'RN-301-EX',
       name: 'Executive King 301',
       type: 'Executive' as const,
-      price: naira(12_000),
+      price: naira(9_000),
       beds: '1 King Bed',
       maxGuests: 2,
       sqm: 48,
@@ -618,7 +663,7 @@ async function main() {
       roomRef: 'RN-302-EX',
       name: 'Executive King 302',
       type: 'Executive' as const,
-      price: naira(12_500),
+      price: naira(9_500),
       beds: '1 King Bed',
       maxGuests: 2,
       sqm: 50,
@@ -646,7 +691,7 @@ async function main() {
       roomRef: 'RN-303-EX',
       name: 'Executive Twin 303',
       type: 'Executive' as const,
-      price: naira(13_000),
+      price: naira(9_000),
       beds: '2 King Beds',
       maxGuests: 4,
       sqm: 55,
@@ -673,7 +718,7 @@ async function main() {
       roomRef: 'RN-304-EX',
       name: 'Executive King 304',
       type: 'Executive' as const,
-      price: naira(12_000),
+      price: naira(9_000),
       beds: '1 King Bed',
       maxGuests: 2,
       sqm: 48,
@@ -701,7 +746,7 @@ async function main() {
       roomRef: 'RN-305-EX',
       name: 'Executive King 305',
       type: 'Executive' as const,
-      price: naira(14_000),
+      price: naira(9_500),
       beds: '1 King Bed',
       maxGuests: 2,
       sqm: 52,
@@ -731,7 +776,7 @@ async function main() {
       roomRef: 'RN-306-EX',
       name: 'Executive King 306',
       type: 'Executive' as const,
-      price: naira(15_000),
+      price: naira(10_000),
       beds: '1 King Bed',
       maxGuests: 2,
       sqm: 55,
@@ -763,7 +808,7 @@ async function main() {
       roomRef: 'RN-401-SU',
       name: 'Nova Suite 401',
       type: 'Suite' as const,
-      price: naira(18_000),
+      price: naira(9_500),
       beds: '1 King Bed',
       maxGuests: 2,
       sqm: 80,
@@ -795,7 +840,7 @@ async function main() {
       roomRef: 'RN-402-SU',
       name: 'Garden Suite 402',
       type: 'Suite' as const,
-      price: naira(20_000),
+      price: naira(10_000),
       beds: '1 King Bed',
       maxGuests: 2,
       sqm: 90,
@@ -826,7 +871,7 @@ async function main() {
       roomRef: 'RN-403-SU',
       name: 'Skyline Suite 403',
       type: 'Suite' as const,
-      price: naira(22_000),
+      price: naira(10_000),
       beds: '1 King Bed',
       maxGuests: 2,
       sqm: 100,
@@ -860,7 +905,7 @@ async function main() {
       roomRef: 'RN-404-SU',
       name: 'Presidential Suite 404',
       type: 'Suite' as const,
-      price: naira(25_000),
+      price: naira(10_000),
       beds: '1 King Bed',
       maxGuests: 4,
       sqm: 120,
@@ -954,140 +999,427 @@ async function main() {
     console.log(`  ✓ ${promo.code}`);
   }
 
-  // ── 4. BOOKINGS ───────────────────────────────────────────────────────────
-  // We need the room records' IDs first (UUIDs are auto-generated, so we fetch
-  // them by roomRef which we do know).
+  // ── 4. CLEAN UP previous bookings and reviews ─────────────────────────────
+  // Delete in reverse dependency order so re-running the seed is always safe.
+
+  console.log('\n  Clearing previous bookings and reviews...');
+  await prisma.review.deleteMany();
+  await prisma.booking.deleteMany();
+
+  // Reset all room statuses to Available before we seed new bookings
+  await prisma.room.updateMany({ data: { status: 'Available' } });
+
+  // ── 5. BOOKINGS ───────────────────────────────────────────────────────────
+  // 28 bookings spread Oct 2025 – Apr 2026 so the monthly revenue chart has
+  // data across 6+ months. All totals stay under ₦50,000 (Paystack test limit):
+  //   max = ₦10,000/night × 4 nights × 1.125 (fees) = ₦45,000.
 
   console.log('\n  Creating bookings...');
 
-  const deluxe204 = await prisma.room.findUnique({
-    where: { roomRef: 'RN-204-DX' },
-  });
-  const executive302 = await prisma.room.findUnique({
-    where: { roomRef: 'RN-302-EX' },
-  });
-  const standard105 = await prisma.room.findUnique({
-    where: { roomRef: 'RN-105-SD' },
+  // Fetch every room we reference in one query, then build a lookup map.
+  const seedRoomRefs = [
+    'RN-101-SD', 'RN-102-SD', 'RN-104-SD', 'RN-105-SD', 'RN-107-SD', 'RN-108-SD', 'RN-110-SD',
+    'RN-201-DX', 'RN-202-DX', 'RN-203-DX', 'RN-204-DX', 'RN-205-DX', 'RN-207-DX', 'RN-209-DX',
+    'RN-301-EX', 'RN-302-EX', 'RN-303-EX', 'RN-304-EX', 'RN-305-EX', 'RN-306-EX',
+    'RN-401-SU', 'RN-402-SU', 'RN-403-SU', 'RN-404-SU',
+  ];
+
+  const seedRoomRecords = await prisma.room.findMany({
+    where: { roomRef: { in: seedRoomRefs } },
+    select: { id: true, roomRef: true, price: true },
   });
 
-  if (!deluxe204 || !executive302 || !standard105) {
-    throw new Error(
-      'Rooms not found — make sure rooms were seeded before bookings.',
-    );
+  // roomMap: ref → { id, price (kobo) }
+  const roomMap = new Map(seedRoomRecords.map((r) => [r.roomRef, r]));
+
+  // Returns the DB id for a given roomRef — throws if not found
+  function rid(ref: string): string {
+    const r = roomMap.get(ref);
+    if (!r) throw new Error(`Room ${ref} not in map — was it seeded?`);
+    return r.id;
   }
 
-  // Booking 1: Amara — Deluxe King 204 — Confirmed & Paid
-  const booking1Pricing = calcPricing(120_000, 3);
-  await prisma.booking.upsert({
-    where: { bookingRef: 'BK-2026-0001' },
-    update: {},
-    create: {
-      bookingRef: 'BK-2026-0001',
-      guestId: amara.id,
-      roomId: deluxe204.id,
-      guestName: amara.fullName,
-      guestEmail: amara.email,
-      guestPhone: amara.phone ?? '',
-      guestCountry: amara.country ?? '',
-      checkIn: new Date('2026-02-10'),
-      checkOut: new Date('2026-02-13'),
-      nights: 3,
-      adults: 2,
-      children: 0,
-      ...booking1Pricing,
-      status: 'Confirmed',
-      paymentStatus: 'Paid',
-      paymentReference: 'PAY_TEST_0001',
-      paymentMethod: 'card',
+  // Returns the room price in naira (kobo ÷ 100) for calcPricing()
+  function rateNaira(ref: string): number {
+    const r = roomMap.get(ref);
+    if (!r) throw new Error(`Room ${ref} not in map`);
+    return r.price / 100;
+  }
+
+  // Each booking entry. calcPricing() is called at insert time using the
+  // room's actual stored price so numbers always stay consistent.
+  const bookingDefs = [
+
+    // ── OCT 2025 ── (2 bookings, CheckedOut/Paid) ──────────────────────────
+    {
+      bookingRef: 'BK-2025-0001', guestId: amara.id, roomRef: 'RN-201-DX',
+      checkIn: '2025-10-05', checkOut: '2025-10-08', nights: 3,
+      adults: 2, children: 0,
+      guestName: amara.fullName, guestEmail: amara.email, guestPhone: amara.phone ?? '', guestCountry: amara.country ?? '',
+      status: 'CheckedOut' as const, paymentStatus: 'Paid' as const,
+      paymentReference: 'PAY_TEST_2025_0001', paymentMethod: 'card',
+      createdAt: new Date('2025-10-03'),
     },
-  });
-  console.log('  ✓ BK-2026-0001 (Amara — Deluxe King 204 — Confirmed)');
-
-  // Booking 2: Amara — Executive King 302 — CheckedOut & Paid
-  // This is the booking she will leave a review on.
-  const booking2Pricing = calcPricing(210_000, 2);
-  await prisma.booking.upsert({
-    where: { bookingRef: 'BK-2026-0002' },
-    update: {},
-    create: {
-      bookingRef: 'BK-2026-0002',
-      guestId: amara.id,
-      roomId: executive302.id,
-      guestName: amara.fullName,
-      guestEmail: amara.email,
-      guestPhone: amara.phone ?? '',
-      guestCountry: amara.country ?? '',
-      checkIn: new Date('2026-01-15'),
-      checkOut: new Date('2026-01-17'),
-      nights: 2,
-      adults: 2,
-      children: 0,
-      ...booking2Pricing,
-      status: 'CheckedOut',
-      paymentStatus: 'Paid',
-      paymentReference: 'PAY_TEST_0002',
-      paymentMethod: 'card',
+    {
+      bookingRef: 'BK-2025-0002', guestId: james.id, roomRef: 'RN-104-SD',
+      checkIn: '2025-10-15', checkOut: '2025-10-18', nights: 3,
+      adults: 1, children: 0,
+      guestName: james.fullName, guestEmail: james.email, guestPhone: james.phone ?? '', guestCountry: james.country ?? '',
+      status: 'CheckedOut' as const, paymentStatus: 'Paid' as const,
+      paymentReference: 'PAY_TEST_2025_0002', paymentMethod: 'card',
+      createdAt: new Date('2025-10-13'),
     },
-  });
-  console.log('  ✓ BK-2026-0002 (Amara — Executive King 302 — CheckedOut)');
 
-  // Booking 3: James — Standard Room 105 — Pending
-  const booking3Pricing = calcPricing(75_000, 2);
-  await prisma.booking.upsert({
-    where: { bookingRef: 'BK-2026-0003' },
-    update: {},
-    create: {
-      bookingRef: 'BK-2026-0003',
-      guestId: james.id,
-      roomId: standard105.id,
-      guestName: james.fullName,
-      guestEmail: james.email,
-      guestPhone: james.phone ?? '',
-      guestCountry: james.country ?? '',
-      checkIn: new Date('2026-04-01'),
-      checkOut: new Date('2026-04-03'),
-      nights: 2,
-      adults: 1,
-      children: 0,
-      ...booking3Pricing,
-      specialRequests: 'Early check-in if possible, please.',
-      status: 'Pending',
-      paymentStatus: 'Pending',
+    // ── NOV 2025 ── (3 bookings, CheckedOut/Paid) ──────────────────────────
+    {
+      bookingRef: 'BK-2025-0003', guestId: fatima.id, roomRef: 'RN-301-EX',
+      checkIn: '2025-11-03', checkOut: '2025-11-06', nights: 3,
+      adults: 2, children: 0,
+      guestName: fatima.fullName, guestEmail: fatima.email, guestPhone: fatima.phone ?? '', guestCountry: fatima.country ?? '',
+      status: 'CheckedOut' as const, paymentStatus: 'Paid' as const,
+      paymentReference: 'PAY_TEST_2025_0003', paymentMethod: 'card',
+      createdAt: new Date('2025-11-01'),
     },
-  });
-  console.log('  ✓ BK-2026-0003 (James — Standard Room 105 — Pending)');
-
-  // ── 5. REVIEW ─────────────────────────────────────────────────────────────
-  // Amara reviews the Executive King 302 stay (BK-2026-0002).
-  // A review can only be left on a CheckedOut booking — this mimics that rule.
-
-  console.log('\n  Creating review...');
-
-  const booking2 = await prisma.booking.findUnique({
-    where: { bookingRef: 'BK-2026-0002' },
-  });
-  if (!booking2) throw new Error('Booking BK-2026-0002 not found.');
-
-  await prisma.review.upsert({
-    where: { bookingId: booking2.id },
-    update: {},
-    create: {
-      guestId: amara.id,
-      roomId: executive302.id,
-      bookingId: booking2.id,
-      rating: 5,
-      reviewText:
-        'Absolutely outstanding experience from start to finish. The Executive King room was immaculate — the marble bathroom alone was worth the upgrade. Staff were incredibly attentive without being intrusive. The view from the room at night was breathtaking. Hotel Nova has set a new standard for what a luxury stay should feel like. Will absolutely return.',
-      status: 'Approved',
+    {
+      bookingRef: 'BK-2025-0004', guestId: emeka.id, roomRef: 'RN-401-SU',
+      checkIn: '2025-11-12', checkOut: '2025-11-14', nights: 2,
+      adults: 2, children: 0,
+      guestName: emeka.fullName, guestEmail: emeka.email, guestPhone: emeka.phone ?? '', guestCountry: emeka.country ?? '',
+      status: 'CheckedOut' as const, paymentStatus: 'Paid' as const,
+      paymentReference: 'PAY_TEST_2025_0004', paymentMethod: 'card',
+      createdAt: new Date('2025-11-10'),
     },
+    {
+      bookingRef: 'BK-2025-0005', guestId: chidinma.id, roomRef: 'RN-205-DX',
+      checkIn: '2025-11-20', checkOut: '2025-11-23', nights: 3,
+      adults: 2, children: 1,
+      guestName: chidinma.fullName, guestEmail: chidinma.email, guestPhone: chidinma.phone ?? '', guestCountry: chidinma.country ?? '',
+      status: 'CheckedOut' as const, paymentStatus: 'Paid' as const,
+      paymentReference: 'PAY_TEST_2025_0005', paymentMethod: 'card',
+      createdAt: new Date('2025-11-18'),
+    },
+
+    // ── DEC 2025 ── (4 bookings, CheckedOut/Paid) ──────────────────────────
+    {
+      bookingRef: 'BK-2025-0006', guestId: amara.id, roomRef: 'RN-302-EX',
+      checkIn: '2025-12-05', checkOut: '2025-12-08', nights: 3,
+      adults: 2, children: 0,
+      guestName: amara.fullName, guestEmail: amara.email, guestPhone: amara.phone ?? '', guestCountry: amara.country ?? '',
+      status: 'CheckedOut' as const, paymentStatus: 'Paid' as const,
+      paymentReference: 'PAY_TEST_2025_0006', paymentMethod: 'card',
+      createdAt: new Date('2025-12-03'),
+    },
+    {
+      bookingRef: 'BK-2025-0007', guestId: james.id, roomRef: 'RN-402-SU',
+      checkIn: '2025-12-16', checkOut: '2025-12-18', nights: 2,
+      adults: 2, children: 0,
+      guestName: james.fullName, guestEmail: james.email, guestPhone: james.phone ?? '', guestCountry: james.country ?? '',
+      status: 'CheckedOut' as const, paymentStatus: 'Paid' as const,
+      paymentReference: 'PAY_TEST_2025_0007', paymentMethod: 'card',
+      createdAt: new Date('2025-12-14'),
+    },
+    {
+      bookingRef: 'BK-2025-0008', guestId: fatima.id, roomRef: 'RN-202-DX',
+      checkIn: '2025-12-21', checkOut: '2025-12-24', nights: 3,
+      adults: 1, children: 0,
+      guestName: fatima.fullName, guestEmail: fatima.email, guestPhone: fatima.phone ?? '', guestCountry: fatima.country ?? '',
+      status: 'CheckedOut' as const, paymentStatus: 'Paid' as const,
+      paymentReference: 'PAY_TEST_2025_0008', paymentMethod: 'card',
+      createdAt: new Date('2025-12-19'),
+    },
+    {
+      bookingRef: 'BK-2025-0009', guestId: emeka.id, roomRef: 'RN-107-SD',
+      checkIn: '2025-12-26', checkOut: '2025-12-28', nights: 2,
+      adults: 1, children: 0,
+      guestName: emeka.fullName, guestEmail: emeka.email, guestPhone: emeka.phone ?? '', guestCountry: emeka.country ?? '',
+      status: 'CheckedOut' as const, paymentStatus: 'Paid' as const,
+      paymentReference: 'PAY_TEST_2025_0009', paymentMethod: 'card',
+      createdAt: new Date('2025-12-25'),
+    },
+
+    // ── JAN 2026 ── (4 bookings, CheckedOut/Paid) ──────────────────────────
+    {
+      bookingRef: 'BK-2026-0001', guestId: chidinma.id, roomRef: 'RN-303-EX',
+      checkIn: '2026-01-08', checkOut: '2026-01-11', nights: 3,
+      adults: 2, children: 0,
+      guestName: chidinma.fullName, guestEmail: chidinma.email, guestPhone: chidinma.phone ?? '', guestCountry: chidinma.country ?? '',
+      status: 'CheckedOut' as const, paymentStatus: 'Paid' as const,
+      paymentReference: 'PAY_TEST_2026_0001', paymentMethod: 'card',
+      createdAt: new Date('2026-01-06'),
+    },
+    {
+      bookingRef: 'BK-2026-0002', guestId: amara.id, roomRef: 'RN-403-SU',
+      checkIn: '2026-01-15', checkOut: '2026-01-17', nights: 2,
+      adults: 2, children: 0,
+      guestName: amara.fullName, guestEmail: amara.email, guestPhone: amara.phone ?? '', guestCountry: amara.country ?? '',
+      status: 'CheckedOut' as const, paymentStatus: 'Paid' as const,
+      paymentReference: 'PAY_TEST_2026_0002', paymentMethod: 'card',
+      createdAt: new Date('2026-01-13'),
+    },
+    {
+      bookingRef: 'BK-2026-0003', guestId: james.id, roomRef: 'RN-204-DX',
+      checkIn: '2026-01-22', checkOut: '2026-01-25', nights: 3,
+      adults: 1, children: 0,
+      guestName: james.fullName, guestEmail: james.email, guestPhone: james.phone ?? '', guestCountry: james.country ?? '',
+      status: 'CheckedOut' as const, paymentStatus: 'Paid' as const,
+      paymentReference: 'PAY_TEST_2026_0003', paymentMethod: 'card',
+      createdAt: new Date('2026-01-20'),
+    },
+    {
+      bookingRef: 'BK-2026-0004', guestId: fatima.id, roomRef: 'RN-108-SD',
+      checkIn: '2026-01-28', checkOut: '2026-01-31', nights: 3,
+      adults: 2, children: 1,
+      guestName: fatima.fullName, guestEmail: fatima.email, guestPhone: fatima.phone ?? '', guestCountry: fatima.country ?? '',
+      status: 'CheckedOut' as const, paymentStatus: 'Paid' as const,
+      paymentReference: 'PAY_TEST_2026_0004', paymentMethod: 'card',
+      createdAt: new Date('2026-01-26'),
+    },
+
+    // ── FEB 2026 ── (4 bookings, CheckedOut/Paid) ──────────────────────────
+    {
+      bookingRef: 'BK-2026-0005', guestId: emeka.id, roomRef: 'RN-305-EX',
+      checkIn: '2026-02-04', checkOut: '2026-02-07', nights: 3,
+      adults: 2, children: 0,
+      guestName: emeka.fullName, guestEmail: emeka.email, guestPhone: emeka.phone ?? '', guestCountry: emeka.country ?? '',
+      status: 'CheckedOut' as const, paymentStatus: 'Paid' as const,
+      paymentReference: 'PAY_TEST_2026_0005', paymentMethod: 'card',
+      createdAt: new Date('2026-02-02'),
+    },
+    {
+      bookingRef: 'BK-2026-0006', guestId: chidinma.id, roomRef: 'RN-402-SU',
+      checkIn: '2026-02-12', checkOut: '2026-02-14', nights: 2,
+      adults: 2, children: 0,
+      guestName: chidinma.fullName, guestEmail: chidinma.email, guestPhone: chidinma.phone ?? '', guestCountry: chidinma.country ?? '',
+      status: 'CheckedOut' as const, paymentStatus: 'Paid' as const,
+      paymentReference: 'PAY_TEST_2026_0006', paymentMethod: 'card',
+      createdAt: new Date('2026-02-10'),
+    },
+    {
+      bookingRef: 'BK-2026-0007', guestId: amara.id, roomRef: 'RN-209-DX',
+      checkIn: '2026-02-18', checkOut: '2026-02-22', nights: 4,
+      adults: 2, children: 0,
+      guestName: amara.fullName, guestEmail: amara.email, guestPhone: amara.phone ?? '', guestCountry: amara.country ?? '',
+      status: 'CheckedOut' as const, paymentStatus: 'Paid' as const,
+      paymentReference: 'PAY_TEST_2026_0007', paymentMethod: 'card',
+      createdAt: new Date('2026-02-16'),
+    },
+    {
+      bookingRef: 'BK-2026-0008', guestId: james.id, roomRef: 'RN-304-EX',
+      checkIn: '2026-02-24', checkOut: '2026-02-26', nights: 2,
+      adults: 1, children: 0,
+      guestName: james.fullName, guestEmail: james.email, guestPhone: james.phone ?? '', guestCountry: james.country ?? '',
+      status: 'CheckedOut' as const, paymentStatus: 'Paid' as const,
+      paymentReference: 'PAY_TEST_2026_0008', paymentMethod: 'card',
+      createdAt: new Date('2026-02-22'),
+    },
+
+    // ── MAR 2026 — past (CheckedOut/Paid) ─────────────────────────────────
+    {
+      bookingRef: 'BK-2026-0009', guestId: fatima.id, roomRef: 'RN-101-SD',
+      checkIn: '2026-03-01', checkOut: '2026-03-04', nights: 3,
+      adults: 1, children: 0,
+      guestName: fatima.fullName, guestEmail: fatima.email, guestPhone: fatima.phone ?? '', guestCountry: fatima.country ?? '',
+      status: 'CheckedOut' as const, paymentStatus: 'Paid' as const,
+      paymentReference: 'PAY_TEST_2026_0009', paymentMethod: 'card',
+      createdAt: new Date('2026-02-27'),
+    },
+    {
+      bookingRef: 'BK-2026-0010', guestId: emeka.id, roomRef: 'RN-207-DX',
+      checkIn: '2026-03-05', checkOut: '2026-03-08', nights: 3,
+      adults: 2, children: 0,
+      guestName: emeka.fullName, guestEmail: emeka.email, guestPhone: emeka.phone ?? '', guestCountry: emeka.country ?? '',
+      status: 'CheckedOut' as const, paymentStatus: 'Paid' as const,
+      paymentReference: 'PAY_TEST_2026_0010', paymentMethod: 'card',
+      createdAt: new Date('2026-03-03'),
+    },
+    {
+      bookingRef: 'BK-2026-0011', guestId: chidinma.id, roomRef: 'RN-306-EX',
+      checkIn: '2026-03-10', checkOut: '2026-03-13', nights: 3,
+      adults: 2, children: 0,
+      guestName: chidinma.fullName, guestEmail: chidinma.email, guestPhone: chidinma.phone ?? '', guestCountry: chidinma.country ?? '',
+      status: 'CheckedOut' as const, paymentStatus: 'Paid' as const,
+      paymentReference: 'PAY_TEST_2026_0011', paymentMethod: 'card',
+      createdAt: new Date('2026-03-08'),
+    },
+    {
+      bookingRef: 'BK-2026-0012', guestId: amara.id, roomRef: 'RN-110-SD',
+      checkIn: '2026-03-15', checkOut: '2026-03-18', nights: 3,
+      adults: 1, children: 0,
+      guestName: amara.fullName, guestEmail: amara.email, guestPhone: amara.phone ?? '', guestCountry: amara.country ?? '',
+      status: 'CheckedOut' as const, paymentStatus: 'Paid' as const,
+      paymentReference: 'PAY_TEST_2026_0012', paymentMethod: 'card',
+      createdAt: new Date('2026-03-13'),
+    },
+
+    // ── MAR 2026 — currently checked in (today = 2026-03-26) ──────────────
+    // These guests are mid-stay. Their rooms will be set to Occupied below.
+    {
+      bookingRef: 'BK-2026-0013', guestId: james.id, roomRef: 'RN-302-EX',
+      checkIn: '2026-03-24', checkOut: '2026-03-28', nights: 4,
+      adults: 2, children: 0,
+      guestName: james.fullName, guestEmail: james.email, guestPhone: james.phone ?? '', guestCountry: james.country ?? '',
+      status: 'CheckedIn' as const, paymentStatus: 'Paid' as const,
+      paymentReference: 'PAY_TEST_2026_0013', paymentMethod: 'card',
+      createdAt: new Date('2026-03-22'),
+    },
+    {
+      bookingRef: 'BK-2026-0014', guestId: fatima.id, roomRef: 'RN-401-SU',
+      checkIn: '2026-03-25', checkOut: '2026-03-27', nights: 2,
+      adults: 2, children: 0,
+      guestName: fatima.fullName, guestEmail: fatima.email, guestPhone: fatima.phone ?? '', guestCountry: fatima.country ?? '',
+      status: 'CheckedIn' as const, paymentStatus: 'Paid' as const,
+      paymentReference: 'PAY_TEST_2026_0014', paymentMethod: 'card',
+      createdAt: new Date('2026-03-23'),
+    },
+
+    // ── MAR–APR 2026 — upcoming (Confirmed, Paid) ─────────────────────────
+    {
+      bookingRef: 'BK-2026-0015', guestId: emeka.id, roomRef: 'RN-203-DX',
+      checkIn: '2026-03-27', checkOut: '2026-03-29', nights: 2,
+      adults: 2, children: 0,
+      guestName: emeka.fullName, guestEmail: emeka.email, guestPhone: emeka.phone ?? '', guestCountry: emeka.country ?? '',
+      status: 'Confirmed' as const, paymentStatus: 'Paid' as const,
+      paymentReference: 'PAY_TEST_2026_0015', paymentMethod: 'card',
+      createdAt: new Date('2026-03-24'),
+    },
+    {
+      bookingRef: 'BK-2026-0016', guestId: chidinma.id, roomRef: 'RN-404-SU',
+      checkIn: '2026-03-28', checkOut: '2026-03-31', nights: 3,
+      adults: 2, children: 1,
+      guestName: chidinma.fullName, guestEmail: chidinma.email, guestPhone: chidinma.phone ?? '', guestCountry: chidinma.country ?? '',
+      status: 'Confirmed' as const, paymentStatus: 'Paid' as const,
+      paymentReference: 'PAY_TEST_2026_0016', paymentMethod: 'card',
+      createdAt: new Date('2026-03-24'),
+    },
+
+    // ── APR 2026 — future (Pending, not yet paid) ─────────────────────────
+    {
+      bookingRef: 'BK-2026-0017', guestId: amara.id, roomRef: 'RN-305-EX',
+      checkIn: '2026-04-05', checkOut: '2026-04-08', nights: 3,
+      adults: 2, children: 0,
+      guestName: amara.fullName, guestEmail: amara.email, guestPhone: amara.phone ?? '', guestCountry: amara.country ?? '',
+      status: 'Pending' as const, paymentStatus: 'Pending' as const,
+      paymentReference: 'PAY_TEST_2026_0017',
+      createdAt: new Date('2026-03-25'),
+    },
+    {
+      bookingRef: 'BK-2026-0018', guestId: james.id, roomRef: 'RN-102-SD',
+      checkIn: '2026-04-10', checkOut: '2026-04-13', nights: 3,
+      adults: 1, children: 0,
+      guestName: james.fullName, guestEmail: james.email, guestPhone: james.phone ?? '', guestCountry: james.country ?? '',
+      status: 'Pending' as const, paymentStatus: 'Pending' as const,
+      paymentReference: 'PAY_TEST_2026_0018',
+      specialRequests: 'High floor room if available.',
+      createdAt: new Date('2026-03-25'),
+    },
+
+    // ── Cancelled ─────────────────────────────────────────────────────────
+    {
+      bookingRef: 'BK-2026-0019', guestId: emeka.id, roomRef: 'RN-105-SD',
+      checkIn: '2026-03-15', checkOut: '2026-03-17', nights: 2,
+      adults: 1, children: 0,
+      guestName: emeka.fullName, guestEmail: emeka.email, guestPhone: emeka.phone ?? '', guestCountry: emeka.country ?? '',
+      status: 'Cancelled' as const, paymentStatus: 'Pending' as const,
+      paymentReference: 'PAY_TEST_2026_0019',
+      createdAt: new Date('2026-03-10'),
+    },
+  ];
+
+  for (const b of bookingDefs) {
+    const { roomRef, createdAt, checkIn, checkOut, ...rest } = b;
+    await prisma.booking.create({
+      data: {
+        ...rest,
+        roomId: rid(roomRef),
+        checkIn: new Date(checkIn),
+        checkOut: new Date(checkOut),
+        ...calcPricing(rateNaira(roomRef), b.nights),
+        createdAt,
+      },
+    });
+    console.log(`  ✓ ${b.bookingRef} (${b.guestName.split(' ')[0]} — ${roomRef} — ${b.status})`);
+  }
+
+  // Mark the two currently checked-in rooms as Occupied
+  await prisma.room.updateMany({
+    where: { roomRef: { in: ['RN-302-EX', 'RN-401-SU'] } },
+    data: { status: 'Occupied' },
   });
-  console.log('  ✓ Review by Amara on Executive King 302 (5 stars)');
+  console.log('  ✓ RN-302-EX and RN-401-SU set to Occupied');
+
+  // ── 6. REVIEWS ────────────────────────────────────────────────────────────
+  // 7 reviews on CheckedOut bookings. Ratings: 5, 5, 5, 4, 4, 4, 3 → avg 4.1★
+  // Reviews reference booking IDs so we look them up by bookingRef.
+
+  console.log('\n  Creating reviews...');
+
+  const reviewDefs = [
+    {
+      bookingRef: 'BK-2025-0001', guestId: amara.id, roomRef: 'RN-201-DX', rating: 4,
+      reviewText: 'A really comfortable stay. The Deluxe King room was well-appointed and the bed was excellent. Service was friendly and attentive throughout. Minor note — the in-room Wi-Fi was slightly slow one morning, but nothing that affected the experience. Would definitely stay again.',
+      status: 'Approved' as const,
+    },
+    {
+      bookingRef: 'BK-2025-0003', guestId: fatima.id, roomRef: 'RN-301-EX', rating: 5,
+      reviewText: 'Exceptional from check-in to check-out. The Executive room was immaculate, the bathroom stunning, and the staff went above and beyond every single time. Woke up to the most beautiful sunrise view. Hotel Nova truly understands luxury hospitality. Already planning my next visit.',
+      status: 'Approved' as const,
+    },
+    {
+      bookingRef: 'BK-2025-0004', guestId: emeka.id, roomRef: 'RN-401-SU', rating: 5,
+      reviewText: "The Nova Suite is absolutely breathtaking. I booked it as a surprise for my wife's birthday and she was speechless. The butler service, the private terrace, the complimentary breakfast — every single detail was perfect. Worth every naira. We will be back.",
+      status: 'Approved' as const,
+    },
+    {
+      bookingRef: 'BK-2025-0006', guestId: amara.id, roomRef: 'RN-302-EX', rating: 5,
+      reviewText: 'My second stay at Hotel Nova and it just keeps getting better. The Executive room was stunning — clean, modern, and incredibly comfortable. The front desk staff remembered my preferences from my last visit which was a lovely touch. This is my Lagos home away from home.',
+      status: 'Approved' as const,
+    },
+    {
+      bookingRef: 'BK-2025-0007', guestId: james.id, roomRef: 'RN-402-SU', rating: 4,
+      reviewText: 'The Garden Suite was a wonderful experience. The private plunge pool was the highlight — I spent most of the evening out there. Room was spacious and the minibar well-stocked. Breakfast was excellent. Would have given 5 stars but the AC had a faint noise that kept me up one night.',
+      status: 'Approved' as const,
+    },
+    {
+      bookingRef: 'BK-2026-0001', guestId: chidinma.id, roomRef: 'RN-303-EX', rating: 3,
+      reviewText: 'The room itself was clean and nicely furnished. However corridor noise was quite loud both evenings and housekeeping knocked at an inconvenient hour. Room service was slower than expected. The building and location are great but execution needs some work. Decent stay overall.',
+      status: 'Approved' as const,
+    },
+    {
+      bookingRef: 'BK-2026-0002', guestId: amara.id, roomRef: 'RN-403-SU', rating: 5,
+      reviewText: 'The Skyline Suite is a masterpiece. The 270-degree night views over Lagos are simply breathtaking. Attention to detail in every corner of the room shows real craftsmanship — the turndown service, the bespoke toiletries, even the grand piano in the corner. I felt like royalty. Hotel Nova has set the bar impossibly high.',
+      status: 'Approved' as const,
+    },
+  ];
+
+  for (const r of reviewDefs) {
+    const booking = await prisma.booking.findUnique({ where: { bookingRef: r.bookingRef } });
+    if (!booking) throw new Error(`Booking ${r.bookingRef} not found for review`);
+    const room = roomMap.get(r.roomRef);
+    if (!room) throw new Error(`Room ${r.roomRef} not in map`);
+
+    await prisma.review.create({
+      data: {
+        guestId: r.guestId,
+        roomId: room.id,
+        bookingId: booking.id,
+        rating: r.rating,
+        reviewText: r.reviewText,
+        status: r.status,
+      },
+    });
+    console.log(`  ✓ ${r.bookingRef} — ${r.rating}★ (${r.status})`);
+  }
 
   console.log('\n✅ Seeding complete!');
+  console.log(`  ${bookingDefs.length} bookings across Oct 2025 – Apr 2026`);
+  console.log(`  ${reviewDefs.length} reviews — avg ~4.1★`);
   console.log('\nTest credentials:');
-  console.log('  Admin  → admin@hotelnova.com  / Admin1234!');
-  console.log('  Guest  → amara@example.com    / Guest1234!');
-  console.log('  Guest  → james@example.com    / Guest1234!');
+  console.log('  Admin    → admin@hotelnova.com    / Admin1234!');
+  console.log('  Guest    → amara@example.com      / Guest1234!');
+  console.log('  Guest    → james@example.com      / Guest1234!');
+  console.log('  Guest    → fatima@example.com     / Guest1234!');
+  console.log('  Guest    → emeka@example.com      / Guest1234!');
+  console.log('  Guest    → chidinma@example.com   / Guest1234!');
 }
 
 main()

@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 import { useGetMe } from '@/hooks/use-auth';
 import { useAuthStore } from '@/stores/auth-store';
+import { refreshTokens } from '@/lib/axios';
 
 // Sits inside QueryClientProvider so it can safely call useQuery hooks.
 // It fires GET /api/auth/me once on mount to rehydrate the auth store
@@ -22,22 +23,33 @@ function AuthRehydrator({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!isLoggedIn) return;
 
+    // refreshTokens() is the shared, lock-protected refresh function from
+    // lib/axios.ts. Using it here (instead of raw fetch) ensures that if
+    // the Axios interceptor is already refreshing (e.g. a stale query just
+    // got a 401), we piggyback on that call instead of firing a second one.
+    // Two simultaneous refreshes would race — the loser sends a token that
+    // was already rotated and gets a 401.
     const refresh = async () => {
       try {
-        await fetch('/api/auth/refresh', { method: 'POST' });
+        await refreshTokens();
       } catch {
         // Silent — the 401 interceptor in lib/axios.ts handles failures
         // when a real API request is made. We never force a logout here.
       }
     };
 
-    // Fire once immediately on login so the 10-min cadence starts fresh,
-    // then keep the access token (15 min TTL) renewed well before it expires.
-    void refresh();
+    // No immediate call — by the time isLoggedIn becomes true, useGetMe has
+    // already resolved (which means the access token is fresh, either from a
+    // successful /auth/me call or from the interceptor's refresh + replay).
+    // Firing immediately would just waste a token rotation for no benefit.
     const intervalId = window.setInterval(refresh, 10 * 60 * 1000);
 
-    // Also refresh when the user returns to a tab that was in the background —
-    // browsers throttle timers on hidden tabs, so the interval may have missed.
+    // Also refresh when the user returns to a tab that was in the background.
+    // Browsers throttle/pause setInterval on hidden tabs, so the 10-min
+    // interval may have missed while the tab was inactive. The 15-min access
+    // token could be expired by now, but the 7-day refresh token is still
+    // valid — this call renews the pair so the next API request succeeds
+    // without hitting a 401 first.
     const handleVisibility = () => {
       if (document.visibilityState === 'visible') void refresh();
     };

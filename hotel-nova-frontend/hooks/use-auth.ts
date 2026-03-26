@@ -2,7 +2,6 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { isAxiosError } from 'axios';
 import { useEffect } from 'react';
 import apiClient from '@/lib/axios';
 import { useAuthStore } from '@/stores/auth-store';
@@ -11,6 +10,13 @@ import type { AuthResponse, User } from '@/type/api';
 // ─── getMe ───────────────────────────────────────────────────────────────────
 // Fetches the currently logged-in user from the server using the HttpOnly cookie.
 // We call this on app load to rehydrate the auth store after a page refresh.
+//
+// The Axios interceptor in lib/axios.ts handles 401 → refresh → replay
+// transparently. So if the access token expired, the interceptor refreshes it
+// and retries the /auth/me call before the response ever reaches this queryFn.
+// We only land in the catch block if:
+//   (a) The refresh itself failed (session truly dead — e.g. refresh token expired)
+//   (b) A non-auth error occurred (network down, server 500, etc.)
 export function useGetMe() {
   const setUser = useAuthStore((s) => s.setUser);
   const setHydrated = useAuthStore((s) => s.setHydrated);
@@ -22,29 +28,17 @@ export function useGetMe() {
         const { data } = await apiClient.get<User>('/auth/me');
         setUser(data);
         return data;
-      } catch (err) {
-        if (isAxiosError(err) && err.response?.status === 401) {
-          try {
-            const refreshRes = await fetch('/api/auth/refresh', {
-              method: 'POST',
-            });
-            if (refreshRes.ok) {
-              const { data } = await apiClient.get<User>('/auth/me');
-              setUser(data);
-              return data;
-            }
-          } catch {
-            // fall through to null
-          }
-
-          setUser(null);
-          return null;
-        }
-
-        throw err;
+      } catch {
+        // If we're here, the interceptor already tried to refresh and failed,
+        // or the error was non-auth. Either way the user has no valid session.
+        // Clear the store so the app renders in "logged out" mode — public
+        // pages still work, and the user can log in again.
+        setUser(null);
+        return null;
       }
     },
-    // Don't retry on 401 — it just means the user isn't logged in
+    // Don't retry — if the interceptor's refresh failed, retrying /auth/me
+    // won't help (the session is dead).
     retry: false,
     // Never auto-refetch on a timer. The proactive refresh in Providers.tsx
     // keeps the access token alive. Re-fetching /auth/me unnecessarily would

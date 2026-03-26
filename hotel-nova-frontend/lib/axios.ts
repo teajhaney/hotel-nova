@@ -16,12 +16,17 @@ const apiClient = axios.create({
 
 // ── Refresh-token machinery ────────────────────────────────────────────────
 // Only one refresh call should ever be in flight at a time. If multiple
-// requests fail with 401 simultaneously (common when the access token just
-// expired), they all queue here and replay once the single refresh finishes.
+// callers try to refresh simultaneously (the Axios interceptor, the
+// proactive interval, or the visibilitychange handler), they all funnel
+// through refreshTokens() which uses the isRefreshing lock to ensure a
+// single network call. Without this, two simultaneous refreshes would race:
+// the first rotates the token, the second sends the now-deleted old token
+// and gets a 401 — potentially logging the user out.
 
 let isRefreshing = false;
 
-// Each entry is a pair of resolve/reject for a queued request
+// Each entry is a pair of resolve/reject for a caller waiting on an
+// in-flight refresh
 let pendingQueue: Array<{
   resolve: () => void;
   reject: (err: unknown) => void;
@@ -32,6 +37,38 @@ function flushQueue(error: unknown) {
     error ? reject(error) : resolve()
   );
   pendingQueue = [];
+}
+
+// Calls POST /api/auth/refresh exactly once, even if invoked concurrently.
+// Returns a promise that resolves when fresh cookies are set, or rejects
+// if the refresh token is expired/invalid.
+// Used by: the Axios 401 interceptor, the proactive interval in
+// AuthRehydrator, and the visibilitychange handler.
+export async  function refreshTokens(): Promise<void> {
+  // Another refresh is already in flight — piggyback on it
+  if (isRefreshing) {
+    return new Promise<void>((resolve, reject) => {
+      pendingQueue.push({ resolve, reject });
+    });
+  }
+
+  isRefreshing = true;
+
+  // Use raw fetch so this call bypasses the Axios interceptor entirely
+  // (otherwise a 401 response from the refresh endpoint would trigger
+  // another refresh attempt — infinite loop).
+  return fetch('/api/auth/refresh', { method: 'POST' })
+    .then((res) => {
+      if (!res.ok) throw new Error('Refresh failed');
+      flushQueue(null);
+    })
+    .catch((err) => {
+      flushQueue(err);
+      throw err;
+    })
+    .finally(() => {
+      isRefreshing = false;
+    });
 }
 
 function redirectToLogin() {
@@ -77,39 +114,17 @@ apiClient.interceptors.response.use(
         return Promise.reject(error);
       }
 
-      // Another refresh is already running — queue this request and wait
-      if (isRefreshing) {
-        return new Promise<void>((resolve, reject) => {
-          pendingQueue.push({ resolve, reject });
-        })
-          .then(() => {
-            config._retry = true;
-            return apiClient(config);
-          })
-          .catch((err) => Promise.reject(err));
-      }
-
-      // We're the first — kick off the refresh
-      isRefreshing = true;
       config._retry = true;
 
       try {
-        // Use fetch directly so this call bypasses the interceptor entirely
-        const refreshRes = await fetch('/api/auth/refresh', { method: 'POST' });
+        // refreshTokens() handles the "only one in flight" lock internally.
+        // If the proactive refresh in AuthRehydrator is already running,
+        // this call simply waits for it instead of firing a duplicate.
+        await refreshTokens();
 
-        if (!refreshRes.ok) {
-          // Refresh token is expired or invalid — user must log in again
-          throw new Error('Refresh failed');
-        }
-
-        // New cookies are now set in the browser. Unblock queued requests.
-        flushQueue(null);
-
-        // Replay the original request with the fresh access token cookie
+        // New cookies are now set in the browser — replay the original request
         return apiClient(config);
       } catch (refreshError) {
-        flushQueue(refreshError);
-
         // For /auth/me failures, don't force a redirect — a failed refresh
         // here just means the user has no session (e.g. first visit, or
         // truly expired). Redirecting would break public pages.
@@ -118,8 +133,6 @@ apiClient.interceptors.response.use(
         }
 
         return Promise.reject(refreshError);
-      } finally {
-        isRefreshing = false;
       }
     }
 
