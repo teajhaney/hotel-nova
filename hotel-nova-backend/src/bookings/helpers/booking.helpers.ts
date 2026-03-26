@@ -84,9 +84,15 @@ export async function initPaystackPayment(
 
   const paystack = Paystack(secretKey);
 
+  // FRONTEND_URL may contain comma-separated origins for CORS
+  // (e.g. "https://hotel-nova.vercel.app,http://localhost:3000").
+  // For the Paystack callback we need a single URL — take the first one.
+  const frontendOrigin = (process.env.FRONTEND_URL || 'http://localhost:3000')
+    .split(',')[0]
+    .trim();
+
   const callbackUrl =
-    process.env.PAYSTACK_CALLBACK_URL ??
-    `${process.env.FRONTEND_URL}/book/confirmation`;
+    process.env.PAYSTACK_CALLBACK_URL ?? `${frontendOrigin}/book/confirmation`;
 
   // The @types/paystack definition incorrectly requires `name` — the real
   // Paystack API does not. We cast the params through unknown to bypass the
