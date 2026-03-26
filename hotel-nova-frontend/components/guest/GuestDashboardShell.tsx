@@ -8,6 +8,7 @@ import { GuestMobileNav } from './GuestMobileNav';
 import { Menu, Bell } from 'lucide-react';
 import Link from 'next/link';
 import { useAuthStore } from '@/stores/auth-store';
+import { useUnreadCount } from '@/hooks/use-notifications';
 
 function getPageTitle(pathname: string): string {
   if (pathname === '/dashboard/guest') return 'My Bookings';
@@ -27,6 +28,8 @@ export function GuestDashboardShell({
   const [drawerOpen, setDrawerOpen] = useState(false);
   const pathname = usePathname();
   const user = useAuthStore((s) => s.user);
+  const { data: unread } = useUnreadCount();
+  const unreadCount = unread?.count ?? 0;
   const initials = user?.fullName
     ? user.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
     : '?';
@@ -86,7 +89,11 @@ export function GuestDashboardShell({
               aria-label="Notifications"
             >
               <Bell size={20} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#EF4444] rounded-full" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[#EF4444] text-white text-[10px] font-bold flex items-center justify-center">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
             </Link>
             <div className="w-9 h-9 rounded-full bg-[#020887] flex items-center justify-center">
               <span className="text-white text-[12px] font-bold">{initials}</span>
