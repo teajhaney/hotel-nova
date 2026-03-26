@@ -55,7 +55,7 @@ export function HeroSection() {
               {HERO_MESSAGES.ctaPrimary}{' '}
               <ArrowRight size={16} aria-hidden="true" />
             </Link>
-            <Link href="/gallery" className="btn-outline-white">
+            <Link href="/coming-soon" className="btn-outline-white">
               {HERO_MESSAGES.ctaSecondary}
             </Link>
           </div>

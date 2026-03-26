@@ -7,12 +7,17 @@ import { useGetMe } from '@/hooks/use-auth';
 import { useAuthStore } from '@/stores/auth-store';
 import { refreshTokens } from '@/lib/axios';
 import { connectSocket, disconnectSocket } from '@/lib/socket';
+import { useGlobalNotificationListener } from '@/hooks/use-notifications';
 
 // Sits inside QueryClientProvider so it can safely call useQuery hooks.
 // It fires GET /api/auth/me once on mount to rehydrate the auth store
 // after a hard refresh, then keeps the access token alive proactively.
 function AuthRehydrator({ children }: { children: React.ReactNode }) {
   useGetMe();
+
+  // Global Socket.io listener — shows toast notifications and invalidates
+  // caches on EVERY page, not just the notifications page.
+  useGlobalNotificationListener();
   const user = useAuthStore((s) => s.user);
 
   // Use a stable boolean so the effect only re-runs on actual login/logout,

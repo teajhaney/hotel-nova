@@ -328,15 +328,19 @@ export default function ReviewsPage() {
 
   const { data: bookings = [], isLoading } = useEligibleBookings();
 
-  const filtered = bookings.filter(b => {
-    if (activeTab === GUEST_DASHBOARD_MESSAGES.reviewTabPending)
-      // Pending tab = no review yet OR review is waiting for admin approval
-      return !b.review || b.review.status === 'Pending';
-    if (activeTab === GUEST_DASHBOARD_MESSAGES.reviewTabSubmitted)
-      // Submitted tab = admin has approved the review
-      return b.review?.status === 'Approved';
-    return true;
-  });
+  const filtered = bookings
+    .filter(b => {
+      if (activeTab === GUEST_DASHBOARD_MESSAGES.reviewTabPending)
+        // Pending tab = no review yet OR review is waiting for admin approval
+        return !b.review || b.review.status === 'Pending';
+      if (activeTab === GUEST_DASHBOARD_MESSAGES.reviewTabSubmitted)
+        // Submitted tab = admin has approved the review
+        return b.review?.status === 'Approved';
+      return true;
+    })
+    // Most recently checked-out booking first — updatedAt reflects when the
+    // admin changed the status to CheckedOut, so today's checkout appears on top
+    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
 
   return (
     <div className="guest-page-container">

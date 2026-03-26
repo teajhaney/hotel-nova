@@ -8,6 +8,7 @@ import { Menu, Bell, HelpCircle, Search } from 'lucide-react';
 import Link from 'next/link';
 import { ADMIN_DASHBOARD_MESSAGES } from '@/constants/messages';
 import { useAuthStore } from '@/stores/auth-store';
+import { useUnreadCount } from '@/hooks/use-notifications';
 
 export function AdminDashboardShell({
   children,
@@ -16,6 +17,8 @@ export function AdminDashboardShell({
 }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const user = useAuthStore(s => s.user);
+  const { data: unreadData } = useUnreadCount();
+  const unreadCount = unreadData?.count ?? 0;
 
   // Build initials from the user's full name (e.g. "John Doe" → "JD")
   const initials = user?.fullName
@@ -83,7 +86,11 @@ export function AdminDashboardShell({
               aria-label={ADMIN_DASHBOARD_MESSAGES.notificationsAriaLabel}
             >
               <Bell size={20} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#EF4444] rounded-full" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[#EF4444] text-white text-[10px] font-bold flex items-center justify-center">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
             </Link>
             <button
               className="w-9 h-9 flex items-center justify-center rounded-lg text-[#64748B] hover:bg-[#F8FAFC] transition-colors"
@@ -114,7 +121,11 @@ export function AdminDashboardShell({
               aria-label={ADMIN_DASHBOARD_MESSAGES.notificationsAriaLabel}
             >
               <Bell size={20} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#EF4444] rounded-full" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[#EF4444] text-white text-[10px] font-bold flex items-center justify-center">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
             </Link>
             <div className="w-9 h-9 rounded-full bg-[#020887] flex items-center justify-center">
               <span className="text-white text-[12px] font-bold">

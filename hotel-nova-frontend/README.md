@@ -61,12 +61,11 @@ npm run lint     # Run ESLint
 
 ```
 app/
-├── (public)/                    # No auth required
-│   ├── page.tsx                 # Home page
-│   ├── rooms/page.tsx           # Browse rooms
-│   ├── about/page.tsx           # About the hotel
-│   ├── offers/page.tsx          # Promotions and deals
-│   └── contact/page.tsx         # Contact page
+├── page.tsx                     # Home page
+├── rooms/page.tsx               # Browse rooms
+├── about/page.tsx               # About the hotel
+├── offers/page.tsx              # Promotions and deals
+├── contact/page.tsx             # Contact page
 │
 ├── (auth)/                      # Unauthenticated only
 │   ├── login/page.tsx           # Guest login
@@ -76,31 +75,38 @@ app/
 │       └── signup/page.tsx      # Admin signup
 │
 ├── dashboard/guest/             # Guest-only (middleware protected)
-│   ├── page.tsx                 # Dashboard overview
-│   ├── history/page.tsx         # Booking history
+│   ├── page.tsx                 # My bookings (main guest dashboard)
 │   ├── profile/page.tsx         # Profile and settings
 │   ├── reviews/page.tsx         # My reviews
 │   └── notifications/page.tsx   # Notifications
 │
 ├── admin/                       # Admin-only (middleware protected)
+│   ├── page.tsx                 # Admin landing (redirects to overview)
 │   ├── overview/page.tsx        # Dashboard overview
 │   ├── rooms/page.tsx           # Manage rooms
 │   ├── bookings/page.tsx        # All bookings
 │   ├── users/page.tsx           # User management
 │   ├── promo-codes/page.tsx     # Promo codes
 │   ├── reviews/page.tsx         # Moderate reviews
-│   ├── analytics/page.tsx       # Analytics and charts
 │   ├── notifications/page.tsx   # Admin notifications
-│   └── settings/page.tsx        # Hotel settings
+│   ├── settings/page.tsx        # Hotel settings
+│   └── analytics/               # (directory exists, page pending)
 │
 ├── book/                        # Booking wizard
+│   ├── page.tsx                 # Step 0 — entry point / date selection
 │   ├── rooms/page.tsx           # Step 1 — select room
 │   ├── summary/page.tsx         # Step 2 — review booking
 │   ├── payment/page.tsx         # Step 3 — Paystack payment
 │   └── confirmation/page.tsx    # Step 4 — confirmation
 │
 └── api/                         # Next.js Route Handlers (proxy to NestJS)
-    └── ...
+    ├── auth/                    # login, logout, signup, refresh, me
+    ├── rooms/                   # rooms list, detail, photo upload
+    ├── bookings/                # create, my bookings, cancel
+    ├── admin/                   # bookings, users, promo-codes, reviews, analytics
+    ├── reviews/                 # submit, eligible, edit
+    ├── notifications/           # list, read, archive, unread-count
+    └── promo-codes/             # validate
 ```
 
 ---
@@ -109,15 +115,66 @@ app/
 
 ```
 components/
-├── home/        # Navbar, HeroSection, BookingBar, RoomCard, Footer, etc.
-├── auth/        # AuthRightPanel, FormInput, PasswordInput, HotelNovaLogo
-├── booking/     # DateRangePicker, AvailableRoomCard, PriceBreakdown, etc.
-├── guest/       # GuestDashboardShell, GuestSidebar, GuestMobileNav, etc.
-├── admin/       # AdminDashboardShell, AdminSidebar, all admin modals
-├── about/       # AboutHero, OurStory, OurValues, TeamHighlight, etc.
-├── rooms/       # RoomListingCard, RoomFilters, Pagination
-└── offers/      # OfferCard, FeaturedOfferCard, LoyaltyBanner, etc.
+├── Providers.tsx   # TanStack Query + Zustand providers wrapper
+├── home/           # Navbar, NavbarClient, HeroSection, BookingBar, RoomCard, Footer,
+│                   # AmenitiesSection, FeaturedRoomsSection, LegacySection,
+│                   # MobileBottomNav, NewsletterSection, PromoSection, TestimonialsSection,
+│                   # ContactForm
+├── auth/           # AuthRightPanel, FormInput, PasswordInput, HotelNovaLogo
+├── booking/        # DateRangePicker, AvailableRoomCard, PriceBreakdown,
+│                   # BookingPreviewSidebar, BookingStepHeader, GuestRoomCounter,
+│                   # RoomSelectionSidebar
+├── guest/          # GuestDashboardShell, GuestSidebar, GuestMobileNav,
+│                   # BookingDetailDrawer, BookingStatusBadge, BookingActionLink,
+│                   # CancelBookingButton
+├── admin/          # AdminDashboardShell, AdminSidebar, AdminMobileNav
+│   ├── bookings/   # BookingStatusModal, DeleteBookingModal
+│   ├── promo-codes/# PromoFormModal, DeletePromoModal
+│   ├── rooms/      # RoomFormModal, DeleteRoomModal
+│   └── users/      # UserFormModal, DeleteUserModal
+├── about/          # AboutHero, OurStory, OurValues, TeamHighlight, LocationSection
+├── rooms/          # RoomListingCard, RoomFilters, RoomsContent, Pagination
+└── offers/         # OfferCard, FeaturedOfferCard, LoyaltyBanner, OffersContent,
+                    # OffersNewsletter
 ```
+
+---
+
+## Custom Hooks
+
+All TanStack Query hooks live in `hooks/`:
+
+| Hook | Purpose |
+|------|---------|
+| `use-auth.ts` | Login, signup, logout, refresh, current user queries/mutations |
+| `use-bookings.ts` | Guest booking operations — create, list own, cancel |
+| `use-admin-bookings.ts` | Admin booking list and status updates |
+| `use-rooms.ts` | Room queries (public browse + admin CRUD) |
+| `use-reviews.ts` | Submit, edit, list eligible bookings for review |
+| `use-notifications.ts` | Notification list, mark read, archive, unread count |
+| `use-promo-codes.ts` | Admin promo code CRUD + guest-side validate |
+| `use-admin-users.ts` | Admin user management (list, create, update, delete) |
+| `use-analytics.ts` | Admin analytics overview and summary data |
+| `use-profile.ts` | Profile update mutation |
+
+---
+
+## Lib
+
+| File | Purpose |
+|------|---------|
+| `lib/axios.ts` | Configured Axios instance with base URL and interceptors |
+| `lib/socket.ts` | Socket.io client — connects to the NestJS gateway for real-time notifications |
+
+---
+
+## Other Directories
+
+| Directory | Contents |
+|-----------|----------|
+| `constants/` | `dummyData.ts` (placeholder data), `images.ts` (image paths), `messages.ts` (UI strings) |
+| `type/` | `api.ts` (API response types), `interface.ts` (shared interfaces), `type.ts` (shared type aliases) |
+| `utils/` | `format.ts` — `formatNgn(kobo)` for displaying prices (divide by 100, format as naira) |
 
 ---
 

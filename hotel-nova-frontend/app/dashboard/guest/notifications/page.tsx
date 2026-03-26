@@ -120,7 +120,7 @@ function NotifCard({
         <div className="flex items-center gap-4">
           {notif.actionLabel && notif.actionHref && (
             <Link
-              href={ notif.actionHref}
+              href={notif.actionHref.replace('/dashboard/guest/history', '/dashboard/guest')}
               className="text-[13px] font-semibold text-[#020887] hover:underline uppercase tracking-wide"
               onClick={e => e.stopPropagation()}
             >

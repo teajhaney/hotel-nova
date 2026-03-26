@@ -84,6 +84,7 @@ export interface EligibleBooking {
   imageUrl: string | null;
   checkIn: string;
   checkOut: string;
+  updatedAt: string;
   review: {
     id: string;
     rating: number;

@@ -89,8 +89,9 @@ src/
 │
 ├── auth/                      # Authentication
 │   ├── auth.module.ts
-│   ├── auth.controller.ts     # POST /auth/signup, /login, /logout, /refresh, GET /auth/me
-│   ├── auth.service.ts        # Argon2 hashing, JWT issuance, cookie management
+│   ├── auth.controller.ts     # POST signup/login/logout/refresh, GET/PATCH/DELETE me, CRUD users
+│   ├── auth.service.ts        # Argon2 hashing, JWT issuance, cookie management, user management
+│   ├── auth.swagger.ts        # Swagger metadata for all auth endpoints
 │   ├── strategies/
 │   │   └── jwt.strategy.ts    # Reads JWT from HttpOnly cookie
 │   ├── guards/
@@ -105,14 +106,20 @@ src/
 │   └── interfaces/
 │       └── jwt-payload.interface.ts
 │
-├── rooms/                     # Room management (Admin CRUD + public browse)
+├── rooms/                     # Room management (Admin CRUD + public browse + photo upload)
 ├── bookings/                  # Booking logic, availability, Paystack integration
 ├── reviews/                   # Guest reviews, admin moderation
 ├── promo-codes/               # Discount codes with usage limits
 ├── notifications/             # Stored notifications + Socket.io gateway
 ├── analytics/                 # Aggregation queries for admin dashboard
+├── cloudinary/                # Cloudinary integration for image uploads
+│
+├── helpers/                   # Shared utility functions (app.helpers.ts)
 │
 ├── common/                    # Shared infrastructure
+│   ├── constants/
+│   │   ├── auth.constants.ts         # Cookie names, token TTLs
+│   │   └── messages.ts               # Centralized message strings
 │   ├── exceptions/
 │   │   ├── base.exception.ts         # BaseException extends HttpException
 │   │   └── domain.exceptions.ts      # All domain-specific error classes
@@ -139,6 +146,12 @@ src/
 | POST | `/auth/logout` | Any | Clear auth cookies |
 | POST | `/auth/refresh` | Public | Rotate refresh token |
 | GET | `/auth/me` | Any | Get current user profile |
+| PATCH | `/auth/me` | Any | Update own profile (name, phone, country) |
+| DELETE | `/auth/me` | Any | Delete own account |
+| GET | `/auth/users` | Admin | List all users (paginated, filterable by role) |
+| POST | `/auth/users` | Admin | Create a new admin user |
+| PATCH | `/auth/users/:id` | Admin | Update a user's role or status |
+| DELETE | `/auth/users/:id` | Admin | Delete a user |
 
 ### Rooms
 
@@ -149,27 +162,29 @@ src/
 | POST | `/rooms` | Admin | Create a room |
 | PATCH | `/rooms/:id` | Admin | Update room details |
 | DELETE | `/rooms/:id` | Admin | Delete a room |
+| POST | `/rooms/:id/photos` | Admin | Upload a room photo (multipart, max 5 MB) |
 
 ### Bookings
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| POST | `/bookings` | Guest | Create a booking |
+| POST | `/bookings` | Guest | Create a booking (returns Paystack payment URL) |
 | GET | `/bookings/my` | Guest | Get own bookings |
 | GET | `/bookings/:id` | Guest/Admin | Get booking details |
-| GET | `/bookings` | Admin | List all bookings |
+| GET | `/bookings` | Admin | List all bookings (filtered, paginated) |
+| PATCH | `/bookings/:id/cancel` | Guest | Cancel own booking |
 | PATCH | `/bookings/:id/status` | Admin | Update booking status |
-| DELETE | `/bookings/:id` | Admin | Cancel/delete a booking |
-| POST | `/bookings/webhook` | Public | Paystack payment webhook |
+| POST | `/bookings/paystack/webhook` | Public | Paystack payment webhook |
 
 ### Reviews
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| POST | `/reviews` | Guest | Submit a review (post-checkout only) |
-| GET | `/reviews` | Public | List approved reviews |
-| PATCH | `/reviews/:id/moderate` | Admin | Approve or hide a review |
-| DELETE | `/reviews/:id` | Admin | Delete a review |
+| GET | `/reviews/eligible` | Any | Get eligible bookings for review (checked-out, with review status) |
+| POST | `/reviews` | Any | Submit a review (post-checkout only) |
+| PATCH | `/reviews/:id` | Any | Edit own pending review |
+| GET | `/reviews` | Admin | List all reviews (paginated, filterable by status) |
+| PATCH | `/reviews/:id/status` | Admin | Approve or hide a review |
 
 ### Promo Codes
 
@@ -183,23 +198,22 @@ src/
 
 ### Notifications
 
+All notification endpoints are available to any authenticated user (guest or admin). Each user manages their own notifications.
+
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| GET | `/notifications` | Guest | Get own notifications |
-| PATCH | `/notifications/:id/read` | Guest | Mark as read |
-| PATCH | `/notifications/:id/archive` | Guest | Archive |
-| PATCH | `/notifications/read-all` | Guest | Mark all as read |
-| GET | `/notifications/admin` | Admin | Get admin notifications |
-| PATCH | `/notifications/admin/:id/read` | Admin | Mark as read |
-| PATCH | `/notifications/admin/read-all` | Admin | Mark all as read |
+| GET | `/notifications` | Any | Get own notifications (paginated, filterable) |
+| GET | `/notifications/unread-count` | Any | Get unread notification count |
+| PATCH | `/notifications/:id/read` | Any | Mark one notification as read |
+| PATCH | `/notifications/read-all` | Any | Mark all notifications as read |
+| PATCH | `/notifications/:id/archive` | Any | Archive a notification |
 
 ### Analytics
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| GET | `/analytics/overview` | Admin | Revenue, bookings, occupancy summary |
-| GET | `/analytics/revenue` | Admin | Revenue over time (chart data) |
-| GET | `/analytics/bookings` | Admin | Booking trends |
+| GET | `/analytics/overview` | Admin | Occupancy, today's stats, trend charts (admin Overview page) |
+| GET | `/analytics/summary` | Admin | Summary stats, weekly trends, high-value bookings (admin Analytics page) |
 
 ---
 

@@ -37,7 +37,7 @@ export class ReviewsService {
         guestId: userId,
         status: BookingStatus.CheckedOut,
       },
-      orderBy: { checkOut: 'desc' },
+      orderBy: { updatedAt: 'desc' },
       include: {
         room: {
           select: { id: true, name: true, type: true, imageUrl: true },
@@ -63,6 +63,7 @@ export class ReviewsService {
       imageUrl: b.room.imageUrl,
       checkIn: b.checkIn,
       checkOut: b.checkOut,
+      updatedAt: b.updatedAt,
       review: b.review,
     }));
   }

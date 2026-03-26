@@ -58,19 +58,19 @@ export const FEATURED_ROOMS = [
 
 export const QUICK_LINKS = [
   { href: '/rooms', label: 'Our Suites' },
-  { href: '/#dining', label: 'Dining Venues' },
-  { href: '/#amenities', label: 'Spa & Wellness' },
-  { href: '/#events', label: 'Meetings & Events' },
-  { href: '/gallery', label: 'Photo Gallery' },
+  { href: '/coming-soon', label: 'Dining Venues' },
+  { href: '/coming-soon', label: 'Spa & Wellness' },
+  { href: '/coming-soon', label: 'Meetings & Events' },
+  { href: '/coming-soon', label: 'Photo Gallery' },
 ];
 
 
 
 export const POLICY_LINKS = [
-  { href: '/privacy', label: 'Privacy Policy' },
-  { href: '/terms', label: 'Terms of Service' },
-  { href: '/refunds', label: 'Refund Policy' },
-  { href: '/accessibility', label: 'Accessibility' },
+  { href: '/coming-soon', label: 'Privacy Policy' },
+  { href: '/coming-soon', label: 'Terms of Service' },
+  { href: '/coming-soon', label: 'Refund Policy' },
+  { href: '/coming-soon', label: 'Accessibility' },
 ];
 
 export const SOCIAL_LINKS = [

@@ -58,7 +58,7 @@ export function Footer() {
             </h3>
             <ul className="flex flex-col gap-[11px] list-none m-0 p-0" role="list">
               {QUICK_LINKS.map(({ href, label }) => (
-                <li key={href}>
+                <li key={label}>
                   <Link
                     href={href}
                     className="text-[14px] text-white/55 hover:text-white transition-colors"
@@ -80,7 +80,7 @@ export function Footer() {
             </h3>
             <ul className="flex flex-col gap-[11px] list-none m-0 p-0" role="list">
               {POLICY_LINKS.map(({ href, label }) => (
-                <li key={href}>
+                <li key={label}>
                   <Link
                     href={href}
                     className="text-[14px] text-white/55 hover:text-white transition-colors"

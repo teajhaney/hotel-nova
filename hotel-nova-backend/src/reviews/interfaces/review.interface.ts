@@ -9,6 +9,7 @@ export interface EligibleBooking {
   imageUrl: string | null;
   checkIn: Date;
   checkOut: Date;
+  updatedAt: Date;
   review: {
     id: string;
     rating: number;
