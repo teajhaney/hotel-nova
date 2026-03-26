@@ -29,8 +29,14 @@ async function bootstrap() {
 
   app.use(cookieParser());
 
+  // Support multiple origins so both local dev and production work.
+  // FRONTEND_URL can be a comma-separated list: "https://hotel-nova.vercel.app,http://localhost:3000"
+  const allowedOrigins = process.env.FRONTEND_URL
+    ? process.env.FRONTEND_URL.split(',').map((o) => o.trim())
+    : ['http://localhost:3000'];
+
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: allowedOrigins,
     credentials: true,
   });
 

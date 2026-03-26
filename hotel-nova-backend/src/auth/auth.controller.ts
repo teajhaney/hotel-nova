@@ -190,25 +190,37 @@ export class AuthController {
     res: Response,
     tokens: { accessToken: string; refreshToken: string },
   ) {
-    const secure = process.env.NODE_ENV === 'production';
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    // In production the frontend (Vercel) and backend (Render) are on different
+    // domains, so cookies need SameSite=None + Secure to be sent cross-origin.
+    // In development both run on localhost so SameSite=Lax works fine.
+    const cookieOptions = {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? ('none' as const) : ('lax' as const),
+    };
 
     res.cookie(COOKIES.ACCESS_TOKEN, tokens.accessToken, {
-      httpOnly: true,
-      secure,
-      sameSite: 'strict',
+      ...cookieOptions,
       maxAge: TOKEN_TTL.ACCESS_MS,
     });
 
     res.cookie(COOKIES.REFRESH_TOKEN, tokens.refreshToken, {
-      httpOnly: true,
-      secure,
-      sameSite: 'strict',
+      ...cookieOptions,
       maxAge: TOKEN_TTL.REFRESH_MS,
     });
   }
 
   private clearCookies(res: Response) {
-    res.clearCookie(COOKIES.ACCESS_TOKEN);
-    res.clearCookie(COOKIES.REFRESH_TOKEN);
+    const isProduction = process.env.NODE_ENV === 'production';
+    const clearOptions = {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? ('none' as const) : ('lax' as const),
+    };
+
+    res.clearCookie(COOKIES.ACCESS_TOKEN, clearOptions);
+    res.clearCookie(COOKIES.REFRESH_TOKEN, clearOptions);
   }
 }

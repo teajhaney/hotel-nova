@@ -31,7 +31,9 @@ interface SocketData {
 @WebSocketGateway({
   namespace: '/notifications',
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: (process.env.FRONTEND_URL || 'http://localhost:3000')
+      .split(',')
+      .map((o) => o.trim()),
     credentials: true,
   },
 })
