@@ -1,7 +1,8 @@
 'use client';
 
+import { Suspense } from 'react';
 import Image from 'next/image';
-import { CheckCircle, Download, Home, ArrowLeft } from 'lucide-react';
+import { CheckCircle, Download, Home, ArrowLeft, Loader2 } from 'lucide-react';
 import { useBookingStore } from '@/stores/booking-store';
 import { BOOKING_MESSAGES } from '@/constants/messages';
 import { BOOKING_IMAGES } from '@/constants/images';
@@ -10,6 +11,20 @@ import { useSearchParams } from 'next/navigation';
 import { formatBookingDate, formatNgn } from '@/utils/format';
 
 export default function BookConfirmationPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 size={28} className="animate-spin text-[#020887]" />
+        </div>
+      }
+    >
+      <ConfirmationContent />
+    </Suspense>
+  );
+}
+
+function ConfirmationContent() {
   const store = useBookingStore();
   const searchParams = useSearchParams();
 
