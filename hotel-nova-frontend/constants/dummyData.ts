@@ -74,10 +74,10 @@ export const POLICY_LINKS = [
 ];
 
 export const SOCIAL_LINKS = [
-  { icon: Twitter, href: '#', label: 'Twitter — Grand Oasis Abuja' },
-  { icon: Youtube, href: '#', label: 'YouTube — Grand Oasis Abuja' },
-  { icon: Instagram, href: '#', label: 'Instagram — Grand Oasis Abuja' },
-  { icon: Facebook, href: '#', label: 'Facebook — Grand Oasis Abuja' },
+  { icon: Twitter, href: '/coming-soon', label: 'Twitter — HotelNova' },
+  { icon: Youtube, href: '/coming-soon', label: 'YouTube — HotelNova' },
+  { icon: Instagram, href: '/coming-soon', label: 'Instagram — HotelNova' },
+  { icon: Facebook, href: '/coming-soon', label: 'Facebook — HotelNova' },
 ];
 
 export const NAV_LINKS = [

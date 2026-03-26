@@ -1,4 +1,4 @@
-# HotelNova — Frontend
+# HotelNova -- Frontend
 
 Next.js 16 (App Router) frontend for the HotelNova Property Management System.
 
@@ -13,12 +13,13 @@ Next.js 16 (App Router) frontend for the HotelNova Property Management System.
 | TypeScript | Type safety |
 | Tailwind CSS v4 | Styling |
 | shadcn/ui | UI component library |
-| TanStack Query v5 | Server state — data fetching and caching |
-| Zustand v5 | Client state — auth, booking wizard |
+| TanStack Query v5 | Server state -- data fetching and caching |
+| Zustand v5 | Client state -- auth, booking wizard |
 | React Hook Form + Zod | Form handling and validation |
 | Motion | Animations and transitions |
 | Lucide React | Icons |
 | Recharts | Analytics charts (admin dashboard) |
+| Socket.io Client | Real-time notifications via NestJS gateway |
 
 ---
 
@@ -61,52 +62,63 @@ npm run lint     # Run ESLint
 
 ```
 app/
-├── page.tsx                     # Home page
-├── rooms/page.tsx               # Browse rooms
-├── about/page.tsx               # About the hotel
-├── offers/page.tsx              # Promotions and deals
-├── contact/page.tsx             # Contact page
+├── page.tsx                          # Home page
+├── rooms/page.tsx                    # Browse rooms
+├── about/page.tsx                    # About the hotel
+├── offers/page.tsx                   # Promotions and deals
+├── contact/page.tsx                  # Contact page
+├── coming-soon/page.tsx              # Placeholder for unbuilt pages (footer links etc.)
 │
-├── (auth)/                      # Unauthenticated only
-│   ├── login/page.tsx           # Guest login
-│   ├── signup/page.tsx          # Guest signup
+├── (auth)/                           # Unauthenticated only
+│   ├── layout.tsx                    # Auth layout wrapper
+│   ├── login/page.tsx                # Guest login
+│   ├── signup/page.tsx               # Guest signup
 │   └── admin/
-│       ├── login/page.tsx       # Admin login
-│       └── signup/page.tsx      # Admin signup
+│       ├── login/page.tsx            # Admin login
+│       └── signup/page.tsx           # Admin signup
 │
-├── dashboard/guest/             # Guest-only (middleware protected)
-│   ├── page.tsx                 # My bookings (main guest dashboard)
-│   ├── profile/page.tsx         # Profile and settings
-│   ├── reviews/page.tsx         # My reviews
-│   └── notifications/page.tsx   # Notifications
+├── dashboard/guest/                  # Guest-only (middleware protected)
+│   ├── layout.tsx                    # Guest dashboard layout
+│   ├── page.tsx                      # My bookings (main guest dashboard)
+│   ├── profile/page.tsx              # Profile and settings
+│   ├── reviews/page.tsx              # My reviews (sorted by updatedAt, most recently checked-out first)
+│   └── notifications/page.tsx        # Notifications (normalizes stale DB hrefs)
 │
-├── admin/                       # Admin-only (middleware protected)
-│   ├── page.tsx                 # Admin landing (redirects to overview)
-│   ├── overview/page.tsx        # Dashboard overview
-│   ├── rooms/page.tsx           # Manage rooms
-│   ├── bookings/page.tsx        # All bookings
-│   ├── users/page.tsx           # User management
-│   ├── promo-codes/page.tsx     # Promo codes
-│   ├── reviews/page.tsx         # Moderate reviews
-│   ├── notifications/page.tsx   # Admin notifications
-│   ├── settings/page.tsx        # Hotel settings
-│   └── analytics/               # (directory exists, page pending)
+├── admin/                            # Admin-only (middleware protected)
+│   ├── layout.tsx                    # Admin layout wrapper
+│   ├── template.tsx                  # Admin template (re-renders on navigation)
+│   ├── page.tsx                      # Admin landing (redirects to overview)
+│   ├── overview/page.tsx             # Dashboard overview
+│   ├── rooms/page.tsx                # Manage rooms
+│   ├── bookings/page.tsx             # All bookings
+│   ├── users/page.tsx                # User management
+│   ├── promo-codes/page.tsx          # Promo codes
+│   ├── reviews/page.tsx              # Moderate reviews
+│   ├── notifications/page.tsx        # Admin notifications
+│   └── settings/page.tsx             # Hotel settings
 │
-├── book/                        # Booking wizard
-│   ├── page.tsx                 # Step 0 — entry point / date selection
-│   ├── rooms/page.tsx           # Step 1 — select room
-│   ├── summary/page.tsx         # Step 2 — review booking
-│   ├── payment/page.tsx         # Step 3 — Paystack payment
-│   └── confirmation/page.tsx    # Step 4 — confirmation
+├── book/                             # Booking wizard
+│   ├── layout.tsx                    # Booking wizard layout
+│   ├── page.tsx                      # Step 0 -- entry point / date selection
+│   ├── rooms/page.tsx                # Step 1 -- select room
+│   ├── summary/page.tsx              # Step 2 -- review booking
+│   ├── payment/page.tsx              # Step 3 -- Paystack payment
+│   └── confirmation/page.tsx         # Step 4 -- confirmation
 │
-└── api/                         # Next.js Route Handlers (proxy to NestJS)
-    ├── auth/                    # login, logout, signup, refresh, me
-    ├── rooms/                   # rooms list, detail, photo upload
-    ├── bookings/                # create, my bookings, cancel
-    ├── admin/                   # bookings, users, promo-codes, reviews, analytics
-    ├── reviews/                 # submit, eligible, edit
-    ├── notifications/           # list, read, archive, unread-count
-    └── promo-codes/             # validate
+└── api/                              # Next.js Route Handlers (proxy to NestJS)
+    ├── auth/                         # login, logout, signup, refresh, me
+    ├── rooms/                        # rooms list, detail ([id]), photo upload ([id]/photos)
+    ├── bookings/                     # create, my bookings, cancel ([id]/cancel)
+    ├── reviews/                      # submit, eligible, edit ([id])
+    ├── notifications/                # list, read ([id]/read), archive ([id]/archive),
+    │                                 # read-all, unread-count
+    ├── promo-codes/                  # validate
+    └── admin/                        # admin-only route handlers
+        ├── bookings/                 # list, status update ([id]/status)
+        ├── users/                    # list, create, update/delete ([id])
+        ├── promo-codes/              # list, create, update/delete ([id])
+        ├── reviews/                  # list, status update ([id]/status)
+        └── analytics/                # overview, summary
 ```
 
 ---
@@ -115,27 +127,29 @@ app/
 
 ```
 components/
-├── Providers.tsx   # TanStack Query + Zustand providers wrapper
-├── home/           # Navbar, NavbarClient, HeroSection, BookingBar, RoomCard, Footer,
-│                   # AmenitiesSection, FeaturedRoomsSection, LegacySection,
-│                   # MobileBottomNav, NewsletterSection, PromoSection, TestimonialsSection,
-│                   # ContactForm
-├── auth/           # AuthRightPanel, FormInput, PasswordInput, HotelNovaLogo
-├── booking/        # DateRangePicker, AvailableRoomCard, PriceBreakdown,
-│                   # BookingPreviewSidebar, BookingStepHeader, GuestRoomCounter,
-│                   # RoomSelectionSidebar
-├── guest/          # GuestDashboardShell, GuestSidebar, GuestMobileNav,
-│                   # BookingDetailDrawer, BookingStatusBadge, BookingActionLink,
-│                   # CancelBookingButton
-├── admin/          # AdminDashboardShell, AdminSidebar, AdminMobileNav
-│   ├── bookings/   # BookingStatusModal, DeleteBookingModal
-│   ├── promo-codes/# PromoFormModal, DeletePromoModal
-│   ├── rooms/      # RoomFormModal, DeleteRoomModal
-│   └── users/      # UserFormModal, DeleteUserModal
-├── about/          # AboutHero, OurStory, OurValues, TeamHighlight, LocationSection
-├── rooms/          # RoomListingCard, RoomFilters, RoomsContent, Pagination
-└── offers/         # OfferCard, FeaturedOfferCard, LoyaltyBanner, OffersContent,
-                    # OffersNewsletter
+├── Providers.tsx        # TanStack Query + Zustand providers wrapper;
+│                        # runs useGlobalNotificationListener for real-time Socket.io events
+├── home/                # Navbar, NavbarClient, HeroSection, BookingBar, RoomCard, Footer,
+│                        # AmenitiesSection, FeaturedRoomsSection, LegacySection,
+│                        # MobileBottomNav, NewsletterSection, PromoSection,
+│                        # TestimonialsSection, ContactForm
+├── auth/                # AuthRightPanel, FormInput, PasswordInput, HotelNovaLogo
+├── booking/             # DateRangePicker, AvailableRoomCard, PriceBreakdown,
+│                        # BookingPreviewSidebar, BookingStepHeader, GuestRoomCounter,
+│                        # RoomSelectionSidebar
+├── guest/               # GuestDashboardShell, GuestSidebar (dynamic unread count badge),
+│                        # GuestMobileNav, BookingDetailDrawer, BookingStatusBadge,
+│                        # BookingActionLink, CancelBookingButton
+├── admin/               # AdminDashboardShell (dynamic unread count badge),
+│                        # AdminSidebar (dynamic unread count badge), AdminMobileNav
+│   ├── bookings/        # BookingStatusModal, DeleteBookingModal
+│   ├── promo-codes/     # PromoFormModal, DeletePromoModal
+│   ├── rooms/           # RoomFormModal, DeleteRoomModal
+│   └── users/           # UserFormModal, DeleteUserModal
+├── about/               # AboutHero, OurStory, OurValues, TeamHighlight, LocationSection
+├── rooms/               # RoomListingCard, RoomFilters, RoomsContent, Pagination
+└── offers/              # OfferCard, FeaturedOfferCard, LoyaltyBanner, OffersContent,
+                         # OffersNewsletter
 ```
 
 ---
@@ -147,11 +161,11 @@ All TanStack Query hooks live in `hooks/`:
 | Hook | Purpose |
 |------|---------|
 | `use-auth.ts` | Login, signup, logout, refresh, current user queries/mutations |
-| `use-bookings.ts` | Guest booking operations — create, list own, cancel |
+| `use-bookings.ts` | Guest booking operations -- create, list own, cancel |
 | `use-admin-bookings.ts` | Admin booking list and status updates |
 | `use-rooms.ts` | Room queries (public browse + admin CRUD) |
-| `use-reviews.ts` | Submit, edit, list eligible bookings for review |
-| `use-notifications.ts` | Notification list, mark read, archive, unread count |
+| `use-reviews.ts` | Submit, edit, list eligible bookings for review; uses BroadcastChannel for cross-tab cache sync |
+| `use-notifications.ts` | Notification list, mark read, mark all read, archive, unread count; exports useGlobalNotificationListener (Socket.io) |
 | `use-promo-codes.ts` | Admin promo code CRUD + guest-side validate |
 | `use-admin-users.ts` | Admin user management (list, create, update, delete) |
 | `use-analytics.ts` | Admin analytics overview and summary data |
@@ -164,7 +178,7 @@ All TanStack Query hooks live in `hooks/`:
 | File | Purpose |
 |------|---------|
 | `lib/axios.ts` | Configured Axios instance with base URL and interceptors |
-| `lib/socket.ts` | Socket.io client — connects to the NestJS gateway for real-time notifications |
+| `lib/socket.ts` | Socket.io client -- connects to the NestJS gateway (`/notifications` namespace) for real-time notifications |
 
 ---
 
@@ -172,15 +186,15 @@ All TanStack Query hooks live in `hooks/`:
 
 | Directory | Contents |
 |-----------|----------|
-| `constants/` | `dummyData.ts` (placeholder data), `images.ts` (image paths), `messages.ts` (UI strings) |
+| `constants/` | `dummyData.ts` (placeholder/footer data, including `/coming-soon` links for unbuilt pages), `images.ts` (image paths), `messages.ts` (UI strings) |
 | `type/` | `api.ts` (API response types), `interface.ts` (shared interfaces), `type.ts` (shared type aliases) |
-| `utils/` | `format.ts` — `formatNgn(kobo)` for displaying prices (divide by 100, format as naira) |
+| `utils/` | `format.ts` -- `formatNgn(kobo)` for displaying prices (divide by 100, format as naira) |
 
 ---
 
 ## State Management
 
-### TanStack Query — server state
+### TanStack Query -- server state
 All data fetched from the API goes through TanStack Query. No raw `fetch` calls inside client components.
 
 ```ts
@@ -191,12 +205,12 @@ const { data: rooms } = useQuery({
 });
 ```
 
-### Zustand — client state
+### Zustand -- client state
 
 | Store | Contents |
 |-------|----------|
 | `stores/auth-store.ts` | Authenticated user, role |
-| `stores/booking-store.ts` | Booking wizard state — dates, room, guest details, price calculation |
+| `stores/booking-store.ts` | Booking wizard state -- dates, room, guest details, price calculation |
 
 The booking store calculates pricing automatically:
 - **Service charge:** 5% of subtotal
@@ -204,6 +218,14 @@ The booking store calculates pricing automatically:
 - **Total:** subtotal + service charge + VAT
 
 Booking state is persisted to `sessionStorage` so it survives page refreshes within the wizard.
+
+---
+
+## Real-Time Features
+
+- **Socket.io** -- `lib/socket.ts` creates a singleton client connected to the NestJS `/notifications` namespace. The `useGlobalNotificationListener` hook (invoked once in `Providers.tsx`) listens for incoming notification events and updates the TanStack Query cache so every page reflects new notifications instantly.
+- **BroadcastChannel** -- `use-reviews.ts` uses the BroadcastChannel API to synchronize eligible-booking and admin-review caches across browser tabs on the same origin. This keeps the review list consistent when a guest submits a review in one tab while viewing the list in another.
+- **Dynamic unread count badges** -- `AdminDashboardShell.tsx`, `AdminSidebar.tsx`, and `GuestSidebar.tsx` all query the unread notification count and display a live badge (capped at "99+") next to the Notifications link.
 
 ---
 
@@ -229,7 +251,7 @@ Use shadcn/ui `FormField`, `FormItem`, and `FormMessage` components for consiste
 Client components **never** call the NestJS backend directly. All API calls go through Next.js Route Handlers in `app/api/`:
 
 ```
-Client Component → app/api/rooms/route.ts → NestJS :3001/rooms
+Client Component -> app/api/rooms/route.ts -> NestJS :3001/rooms
 ```
 
 This keeps the NestJS origin private and allows server-side cookie forwarding.
@@ -238,21 +260,25 @@ This keeps the NestJS origin private and allows server-side cookie forwarding.
 
 ## Styling Conventions
 
-- **Tailwind CSS v4** — utility-first styling
+- **Tailwind CSS v4** -- utility-first styling
 - **Pixel units** for spacing where precision matters
-- **Reusable utilities** defined in `app/globals.css` under `@layer utilities` with `@apply` — never repeat the same multi-class combination across components
+- **Reusable utilities** defined in `app/globals.css` under `@layer utilities` with `@apply` -- never repeat the same multi-class combination across components
 - **Font:** Plus Jakarta Sans (Google Fonts)
-- **Icons:** Lucide React only — no custom SVGs unless no equivalent exists
+- **Icons:** Lucide React only -- no custom SVGs unless no equivalent exists
 - **Animations:** Motion library for modals, sidebars, and page transitions
 
 ---
 
 ## Key Conventions
 
-- Server Components fetch data directly — no `useEffect`, no TanStack Query
+- Server Components fetch data directly -- no `useEffect`, no TanStack Query
 - Client Components use TanStack Query for all data fetching
 - `useEffect` is **never** used for data fetching
-- JWT is stored in HttpOnly cookies — managed server-side, never in JS
+- JWT is stored in HttpOnly cookies -- managed server-side, never in JS
 - Route protection is enforced by `middleware.ts`
-- All forms use React Hook Form — no uncontrolled inputs
+- All forms use React Hook Form -- no uncontrolled inputs
 - shadcn/ui components are used for all UI primitives
+- Every modal and drawer uses `createPortal(..., document.body)` with `z-[9999]`
+- Footer links for unbuilt pages point to `/coming-soon`
+- Guest reviews page sorts eligible bookings by `updatedAt` (most recently checked-out first)
+- Guest notification page normalizes stale DB hrefs (e.g. `/dashboard/guest/history` -> `/dashboard/guest`)

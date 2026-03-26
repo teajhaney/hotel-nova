@@ -12,9 +12,9 @@ export function Footer() {
       aria-label="Site footer"
     >
       <div className="page-container py-[64px] md:py-[48px]">
-        <div className="grid grid-cols-4 lg:grid-cols-2 sm:grid-cols-1 gap-[40px] xl:gap-[48px]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-[40px] xl:gap-[48px]">
           {/* Column 1 — Brand + social */}
-          <div className="lg:col-span-2 sm:col-span-1">
+          <div className="sm:col-span-2">
             <Link
               href="/"
               className="inline-flex items-center gap-[8px] mb-[16px]"
@@ -32,7 +32,7 @@ export function Footer() {
 
             <div className="flex gap-[10px]" aria-label="Social media links">
               {SOCIAL_LINKS.map(({ icon: Icon, href, label }) => (
-                <a
+                <Link
                   key={label}
                   href={href}
                   aria-label={label}
@@ -43,7 +43,7 @@ export function Footer() {
                              transition-colors duration-150"
                 >
                   <Icon size={15} aria-hidden="true" />
-                </a>
+                </Link>
               ))}
             </div>
           </div>
@@ -101,27 +101,27 @@ export function Footer() {
               {FOOTER_MESSAGES.contactHeading}
             </h3>
             <address className="not-italic flex flex-col gap-[12px]">
-              <div className="flex items-start gap-[8px]">
+              <Link href="/coming-soon" className="flex items-start gap-[8px] group">
                 <MapPin size={14} className="shrink-0 mt-[2px] text-[#7CA5B8]" aria-hidden="true" />
-                <span className="text-[14px] text-white/55 leading-relaxed">
+                <span className="text-[14px] text-white/55 leading-relaxed group-hover:text-white transition-colors">
                   {FOOTER_MESSAGES.address}
                 </span>
-              </div>
-              <div className="flex items-center gap-[8px]">
+              </Link>
+              <Link href="/coming-soon" className="flex items-center gap-[8px] group">
                 <Phone size={14} className="shrink-0 text-[#7CA5B8]" aria-hidden="true" />
-                <span className="text-[14px] text-white/55">
+                <span className="text-[14px] text-white/55 group-hover:text-white transition-colors">
                   {FOOTER_MESSAGES.phone}
                 </span>
-              </div>
-              <div className="flex items-center gap-[8px]">
+              </Link>
+              <a
+                href={`mailto:${FOOTER_MESSAGES.email}`}
+                className="flex items-center gap-[8px] group"
+              >
                 <Mail size={14} className="shrink-0 text-[#7CA5B8]" aria-hidden="true" />
-                <a
-                  href={`mailto:${FOOTER_MESSAGES.email}`}
-                  className="text-[14px] text-white/55 hover:text-white transition-colors"
-                >
+                <span className="text-[14px] text-white/55 group-hover:text-white transition-colors">
                   {FOOTER_MESSAGES.email}
-                </a>
-              </div>
+                </span>
+              </a>
             </address>
           </div>
         </div>
