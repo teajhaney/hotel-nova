@@ -61,6 +61,7 @@ describe('NotificationsService', () => {
 
       expect(result).toEqual(mockNotification);
       expect(mockPrisma.notification.create).toHaveBeenCalledWith({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         data: expect.objectContaining({
           userId: 'user-1',
           type: 'booking_confirmed',

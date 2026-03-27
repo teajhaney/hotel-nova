@@ -17,7 +17,7 @@ const mockPromo = {
   usageLimit: 100,
   used: 10,
   validFrom: new Date(Date.now() - 86400000), // yesterday
-  validTo: new Date(Date.now() + 86400000),   // tomorrow
+  validTo: new Date(Date.now() + 86400000), // tomorrow
   status: PromoStatus.Active,
   createdAt: new Date(),
   updatedAt: new Date(),
@@ -78,11 +78,16 @@ describe('PromoCodesService', () => {
 
     it('creates a promo code and uppercases the code', async () => {
       mockPrisma.promoCode.findUnique.mockResolvedValue(null);
-      mockPrisma.promoCode.create.mockResolvedValue({ ...mockPromo, code: 'SAVE20' });
+      mockPrisma.promoCode.create.mockResolvedValue({
+        ...mockPromo,
+        code: 'SAVE20',
+      });
 
       const result = await service.createPromoCode(dto);
 
-      const [callArg] = mockPrisma.promoCode.create.mock.calls[0] as [{ data: { code: string } }];
+      const [callArg] = mockPrisma.promoCode.create.mock.calls[0] as [
+        { data: { code: string } },
+      ];
       expect(callArg.data.code).toBe('SAVE20');
       expect(result.code).toBe('SAVE20');
     });
@@ -90,7 +95,9 @@ describe('PromoCodesService', () => {
     it('throws ConflictException when code already exists', async () => {
       mockPrisma.promoCode.findUnique.mockResolvedValue(mockPromo);
 
-      await expect(service.createPromoCode(dto)).rejects.toThrow(ConflictException);
+      await expect(service.createPromoCode(dto)).rejects.toThrow(
+        ConflictException,
+      );
     });
   });
 
@@ -99,9 +106,14 @@ describe('PromoCodesService', () => {
   describe('updatePromoCode', () => {
     it('updates the promo code', async () => {
       mockPrisma.promoCode.findUnique.mockResolvedValue(mockPromo);
-      mockPrisma.promoCode.update.mockResolvedValue({ ...mockPromo, usageLimit: 200 });
+      mockPrisma.promoCode.update.mockResolvedValue({
+        ...mockPromo,
+        usageLimit: 200,
+      });
 
-      const result = await service.updatePromoCode('promo-1', { usageLimit: 200 });
+      const result = await service.updatePromoCode('promo-1', {
+        usageLimit: 200,
+      });
 
       expect(result.usageLimit).toBe(200);
     });
@@ -109,7 +121,9 @@ describe('PromoCodesService', () => {
     it('throws NotFoundException when promo code not found', async () => {
       mockPrisma.promoCode.findUnique.mockResolvedValue(null);
 
-      await expect(service.updatePromoCode('ghost', { usageLimit: 200 })).rejects.toThrow(NotFoundException);
+      await expect(
+        service.updatePromoCode('ghost', { usageLimit: 200 }),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -122,13 +136,17 @@ describe('PromoCodesService', () => {
 
       await service.deletePromoCode('promo-1');
 
-      expect(mockPrisma.promoCode.delete).toHaveBeenCalledWith({ where: { id: 'promo-1' } });
+      expect(mockPrisma.promoCode.delete).toHaveBeenCalledWith({
+        where: { id: 'promo-1' },
+      });
     });
 
     it('throws NotFoundException when not found', async () => {
       mockPrisma.promoCode.findUnique.mockResolvedValue(null);
 
-      await expect(service.deletePromoCode('ghost')).rejects.toThrow(NotFoundException);
+      await expect(service.deletePromoCode('ghost')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -150,7 +168,9 @@ describe('PromoCodesService', () => {
         validTo: new Date(Date.now() - 1000),
       });
 
-      await expect(service.validatePromoCode('GRAND25')).rejects.toThrow(BadRequestException);
+      await expect(service.validatePromoCode('GRAND25')).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('throws BadRequestException when limit reached', async () => {
@@ -160,7 +180,9 @@ describe('PromoCodesService', () => {
         usageLimit: 100,
       });
 
-      await expect(service.validatePromoCode('GRAND25')).rejects.toThrow(BadRequestException);
+      await expect(service.validatePromoCode('GRAND25')).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('throws BadRequestException for inactive code', async () => {
@@ -169,7 +191,9 @@ describe('PromoCodesService', () => {
         status: PromoStatus.Inactive,
       });
 
-      await expect(service.validatePromoCode('GRAND25')).rejects.toThrow(BadRequestException);
+      await expect(service.validatePromoCode('GRAND25')).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 });

@@ -71,9 +71,7 @@ describe('BookingsController', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [BookingsController],
-      providers: [
-        { provide: BookingsService, useValue: mockBookingsService },
-      ],
+      providers: [{ provide: BookingsService, useValue: mockBookingsService }],
     }).compile();
 
     controller = module.get<BookingsController>(BookingsController);
@@ -96,7 +94,10 @@ describe('BookingsController', () => {
 
       const result = await controller.createBooking(mockUser, dto);
       expect(result).toEqual(serviceResult);
-      expect(mockBookingsService.createBooking).toHaveBeenCalledWith(mockUser, dto);
+      expect(mockBookingsService.createBooking).toHaveBeenCalledWith(
+        mockUser,
+        dto,
+      );
     });
   });
 

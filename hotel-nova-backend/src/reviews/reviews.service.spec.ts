@@ -11,8 +11,17 @@ import { ReviewsService } from './reviews.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationsGateway } from '../notifications/notifications.gateway';
 
-const mockUser = { id: 'user-1', fullName: 'Yusuf Haney', email: 'yusuf@example.com' };
-const mockRoom = { id: 'room-1', name: 'Deluxe Suite', type: RoomType.Deluxe, imageUrl: null };
+const mockUser = {
+  id: 'user-1',
+  fullName: 'Yusuf Haney',
+  email: 'yusuf@example.com',
+};
+const mockRoom = {
+  id: 'room-1',
+  name: 'Deluxe Suite',
+  type: RoomType.Deluxe,
+  imageUrl: null,
+};
 
 const mockBooking = {
   id: 'booking-1',
@@ -66,7 +75,10 @@ describe('ReviewsService', () => {
       providers: [
         ReviewsService,
         { provide: PrismaService, useValue: mockPrisma },
-        { provide: NotificationsService, useValue: { create: jest.fn().mockResolvedValue({}) } },
+        {
+          provide: NotificationsService,
+          useValue: { create: jest.fn().mockResolvedValue({}) },
+        },
         { provide: NotificationsGateway, useValue: { sendToUser: jest.fn() } },
       ],
     }).compile();
@@ -92,7 +104,11 @@ describe('ReviewsService', () => {
   // ─── submitReview ────────────────────────────────────────────────────────────
 
   describe('submitReview', () => {
-    const dto = { bookingId: 'booking-1', rating: 5, reviewText: 'Amazing stay, would visit again.' };
+    const dto = {
+      bookingId: 'booking-1',
+      rating: 5,
+      reviewText: 'Amazing stay, would visit again.',
+    };
 
     it('creates a review when booking is CheckedOut and no review exists', async () => {
       mockPrisma.booking.findUnique.mockResolvedValue(mockBooking);
@@ -111,7 +127,9 @@ describe('ReviewsService', () => {
         status: BookingStatus.Confirmed,
       });
 
-      await expect(service.submitReview('user-1', dto)).rejects.toThrow(BadRequestException);
+      await expect(service.submitReview('user-1', dto)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('throws ForbiddenException when booking belongs to another user', async () => {
@@ -120,14 +138,18 @@ describe('ReviewsService', () => {
         guestId: 'other-user',
       });
 
-      await expect(service.submitReview('user-1', dto)).rejects.toThrow(ForbiddenException);
+      await expect(service.submitReview('user-1', dto)).rejects.toThrow(
+        ForbiddenException,
+      );
     });
 
     it('throws ConflictException when review already exists', async () => {
       mockPrisma.booking.findUnique.mockResolvedValue(mockBooking);
       mockPrisma.review.findUnique.mockResolvedValue(mockReview);
 
-      await expect(service.submitReview('user-1', dto)).rejects.toThrow(ConflictException);
+      await expect(service.submitReview('user-1', dto)).rejects.toThrow(
+        ConflictException,
+      );
     });
   });
 
@@ -138,7 +160,9 @@ describe('ReviewsService', () => {
       mockPrisma.review.findUnique.mockResolvedValue(mockReview);
       mockPrisma.review.update.mockResolvedValue({ ...mockReview, rating: 4 });
 
-      const result = await service.updateReview('review-1', 'user-1', { rating: 4 });
+      const result = await service.updateReview('review-1', 'user-1', {
+        rating: 4,
+      });
 
       expect(result.rating).toBe(4);
     });
@@ -146,19 +170,31 @@ describe('ReviewsService', () => {
     it('throws NotFoundException when review does not exist', async () => {
       mockPrisma.review.findUnique.mockResolvedValue(null);
 
-      await expect(service.updateReview('ghost', 'user-1', { rating: 4 })).rejects.toThrow(NotFoundException);
+      await expect(
+        service.updateReview('ghost', 'user-1', { rating: 4 }),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('throws ForbiddenException when review belongs to another user', async () => {
-      mockPrisma.review.findUnique.mockResolvedValue({ ...mockReview, guestId: 'other-user' });
+      mockPrisma.review.findUnique.mockResolvedValue({
+        ...mockReview,
+        guestId: 'other-user',
+      });
 
-      await expect(service.updateReview('review-1', 'user-1', { rating: 4 })).rejects.toThrow(ForbiddenException);
+      await expect(
+        service.updateReview('review-1', 'user-1', { rating: 4 }),
+      ).rejects.toThrow(ForbiddenException);
     });
 
     it('throws BadRequestException when review is not Pending', async () => {
-      mockPrisma.review.findUnique.mockResolvedValue({ ...mockReview, status: ReviewStatus.Approved });
+      mockPrisma.review.findUnique.mockResolvedValue({
+        ...mockReview,
+        status: ReviewStatus.Approved,
+      });
 
-      await expect(service.updateReview('review-1', 'user-1', { rating: 4 })).rejects.toThrow(BadRequestException);
+      await expect(
+        service.updateReview('review-1', 'user-1', { rating: 4 }),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 
@@ -181,7 +217,9 @@ describe('ReviewsService', () => {
 
       await service.listReviews({ status: 'Pending' });
 
-      const [callArg] = mockPrisma.review.findMany.mock.calls[0] as [{ where: object }];
+      const [callArg] = mockPrisma.review.findMany.mock.calls[0] as [
+        { where: object },
+      ];
       expect(callArg.where).toEqual({ status: 'Pending' });
     });
   });
@@ -191,9 +229,14 @@ describe('ReviewsService', () => {
   describe('updateReviewStatus', () => {
     it('changes the review status to Approved', async () => {
       mockPrisma.review.findUnique.mockResolvedValue(mockReview);
-      mockPrisma.review.update.mockResolvedValue({ ...mockReview, status: ReviewStatus.Approved });
+      mockPrisma.review.update.mockResolvedValue({
+        ...mockReview,
+        status: ReviewStatus.Approved,
+      });
 
-      const result = await service.updateReviewStatus('review-1', { status: 'Approved' });
+      const result = await service.updateReviewStatus('review-1', {
+        status: 'Approved',
+      });
 
       expect(result.status).toBe(ReviewStatus.Approved);
     });
@@ -201,7 +244,9 @@ describe('ReviewsService', () => {
     it('throws NotFoundException when review does not exist', async () => {
       mockPrisma.review.findUnique.mockResolvedValue(null);
 
-      await expect(service.updateReviewStatus('ghost', { status: 'Approved' })).rejects.toThrow(NotFoundException);
+      await expect(
+        service.updateReviewStatus('ghost', { status: 'Approved' }),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });

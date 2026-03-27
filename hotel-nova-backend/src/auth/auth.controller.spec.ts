@@ -112,8 +112,14 @@ describe('AuthController', () => {
         'user-1',
         'token-id.raw-secret',
       );
-      expect(res.clearCookie).toHaveBeenCalledWith('accessToken');
-      expect(res.clearCookie).toHaveBeenCalledWith('refreshToken');
+      expect(res.clearCookie).toHaveBeenCalledWith(
+        'accessToken',
+        expect.any(Object),
+      );
+      expect(res.clearCookie).toHaveBeenCalledWith(
+        'refreshToken',
+        expect.any(Object),
+      );
     });
 
     it('clears cookies even if there is no refresh token cookie', async () => {

@@ -1,4 +1,9 @@
-import { BadRequestException, ConflictException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as argon2 from 'argon2';
@@ -270,7 +275,11 @@ describe('AuthService', () => {
 
   describe('updateProfile', () => {
     it('updates the user fullName and phone without touching the password', async () => {
-      const updated = { ...mockUser, fullName: 'New Name', phone: '+234 800 111 2222' };
+      const updated = {
+        ...mockUser,
+        fullName: 'New Name',
+        phone: '+234 800 111 2222',
+      };
       mockPrisma.user.update.mockResolvedValue(updated);
 
       const result = await service.updateProfile('user-1', {
@@ -294,7 +303,9 @@ describe('AuthService', () => {
       });
 
       // The update should have been called with a hashed password
-      const [callArg] = mockPrisma.user.update.mock.calls[0] as [{ data: { password?: string } }];
+      const [callArg] = mockPrisma.user.update.mock.calls[0] as [
+        { data: { password?: string } },
+      ];
       expect(callArg.data.password).toBe('hashed');
     });
 
@@ -325,7 +336,9 @@ describe('AuthService', () => {
 
       await service.deleteOwnAccount('user-1');
 
-      expect(mockPrisma.user.delete).toHaveBeenCalledWith({ where: { id: 'user-1' } });
+      expect(mockPrisma.user.delete).toHaveBeenCalledWith({
+        where: { id: 'user-1' },
+      });
     });
   });
 
@@ -334,7 +347,10 @@ describe('AuthService', () => {
   describe('listUsers', () => {
     it('returns a paginated list of all users', async () => {
       mockPrisma.user.count.mockResolvedValue(2);
-      mockPrisma.user.findMany.mockResolvedValue([mockUser, { ...mockUser, id: 'user-2' }]);
+      mockPrisma.user.findMany.mockResolvedValue([
+        mockUser,
+        { ...mockUser, id: 'user-2' },
+      ]);
 
       const result = await service.listUsers({});
 
@@ -345,12 +361,16 @@ describe('AuthService', () => {
 
     it('filters by role when provided', async () => {
       mockPrisma.user.count.mockResolvedValue(1);
-      mockPrisma.user.findMany.mockResolvedValue([{ ...mockUser, role: 'ADMIN' }]);
+      mockPrisma.user.findMany.mockResolvedValue([
+        { ...mockUser, role: 'ADMIN' },
+      ]);
 
       const result = await service.listUsers({ role: 'ADMIN' });
 
       // Check that findMany was called with the role filter
-      const [callArg] = mockPrisma.user.findMany.mock.calls[0] as [{ where: object }];
+      const [callArg] = mockPrisma.user.findMany.mock.calls[0] as [
+        { where: object },
+      ];
       expect(callArg.where).toEqual({ role: 'ADMIN' });
       expect(result.data[0].role).toBe('ADMIN');
     });
@@ -359,23 +379,35 @@ describe('AuthService', () => {
   // ─── createAdminUser ───────────────────────────────────────────────────────
 
   describe('createAdminUser', () => {
-    const dto = { fullName: 'New Admin', email: 'admin@test.com', password: 'Secret123' };
+    const dto = {
+      fullName: 'New Admin',
+      email: 'admin@test.com',
+      password: 'Secret123',
+    };
 
     it('creates a new user with role ADMIN', async () => {
       mockPrisma.user.findUnique.mockResolvedValue(null);
-      mockPrisma.user.create.mockResolvedValue({ ...mockUser, role: 'ADMIN', email: dto.email });
+      mockPrisma.user.create.mockResolvedValue({
+        ...mockUser,
+        role: 'ADMIN',
+        email: dto.email,
+      });
 
       const result = await service.createAdminUser(dto);
 
       expect(result.role).toBe('ADMIN');
-      const [callArg] = mockPrisma.user.create.mock.calls[0] as [{ data: { role: string } }];
+      const [callArg] = mockPrisma.user.create.mock.calls[0] as [
+        { data: { role: string } },
+      ];
       expect(callArg.data.role).toBe('ADMIN');
     });
 
     it('throws ConflictException if email is already taken', async () => {
       mockPrisma.user.findUnique.mockResolvedValue(mockUser);
 
-      await expect(service.createAdminUser(dto)).rejects.toThrow(ConflictException);
+      await expect(service.createAdminUser(dto)).rejects.toThrow(
+        ConflictException,
+      );
     });
   });
 
@@ -388,21 +420,23 @@ describe('AuthService', () => {
 
       await service.deleteUser('user-1', 'admin-99');
 
-      expect(mockPrisma.user.delete).toHaveBeenCalledWith({ where: { id: 'user-1' } });
+      expect(mockPrisma.user.delete).toHaveBeenCalledWith({
+        where: { id: 'user-1' },
+      });
     });
 
     it('throws BadRequestException when admin tries to delete themselves', async () => {
-      await expect(
-        service.deleteUser('admin-99', 'admin-99'),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.deleteUser('admin-99', 'admin-99')).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('throws NotFoundException when target user does not exist', async () => {
       mockPrisma.user.findUnique.mockResolvedValue(null);
 
-      await expect(
-        service.deleteUser('ghost-id', 'admin-99'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.deleteUser('ghost-id', 'admin-99')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -417,7 +451,10 @@ describe('AuthService', () => {
         status: 'Inactive',
       });
 
-      const result = await service.updateUser('user-1', { role: 'ADMIN', status: 'Inactive' });
+      const result = await service.updateUser('user-1', {
+        role: 'ADMIN',
+        status: 'Inactive',
+      });
 
       expect(result.role).toBe('ADMIN');
       expect(result.status).toBe('Inactive');

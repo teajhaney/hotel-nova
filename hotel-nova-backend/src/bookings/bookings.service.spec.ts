@@ -132,8 +132,14 @@ describe('BookingsService', () => {
       providers: [
         BookingsService,
         { provide: PrismaService, useValue: mockPrisma },
-        { provide: NotificationsService, useValue: { create: jest.fn().mockResolvedValue({}) } },
-        { provide: NotificationsGateway, useValue: { sendToUser: jest.fn(), sendToAdmins: jest.fn() } },
+        {
+          provide: NotificationsService,
+          useValue: { create: jest.fn().mockResolvedValue({}) },
+        },
+        {
+          provide: NotificationsGateway,
+          useValue: { sendToUser: jest.fn(), sendToAdmins: jest.fn() },
+        },
       ],
     }).compile();
 
