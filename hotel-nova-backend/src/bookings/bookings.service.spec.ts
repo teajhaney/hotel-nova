@@ -138,7 +138,7 @@ describe('BookingsService', () => {
         },
         {
           provide: NotificationsGateway,
-          useValue: { sendToUser: jest.fn(), sendToAdmins: jest.fn() },
+          useValue: { sendToUser: jest.fn() },
         },
       ],
     }).compile();

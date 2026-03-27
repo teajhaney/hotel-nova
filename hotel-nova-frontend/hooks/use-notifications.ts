@@ -62,7 +62,6 @@ export function useGlobalNotificationListener() {
 
 // ─── useNotifications ────────────────────────────────────────────────────────
 // Fetches the user's notifications filtered by tab (all / unread / archived).
-// The socket listener has been moved to useGlobalNotificationListener above,
 // so this hook is now purely a data-fetching hook.
 export function useNotifications(tab: 'all' | 'unread' | 'archived') {
   const user = useAuthStore((s) => s.user);

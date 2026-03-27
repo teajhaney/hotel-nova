@@ -109,13 +109,6 @@ export class NotificationsGateway
     this.server.to(`user:${userId}`).emit('notification', notification);
   }
 
-  // ─── Push a notification to ALL connected admin users ────────────────────
-  // Some events (new booking, new review) should notify every admin who
-  // is currently online. We emit to the "admins" room.
-  sendToAdmins(notification: NotificationRecord): void {
-    this.server.to('admins').emit('notification', notification);
-  }
-
   // ─── Simple cookie parser ────────────────────────────────────────────────
   // Socket.io handshake doesn't go through Express middleware, so we need
   // to parse the raw Cookie header manually. This is a minimal parser —
