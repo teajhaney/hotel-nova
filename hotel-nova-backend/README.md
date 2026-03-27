@@ -51,7 +51,7 @@ JWT_SECRET=your-jwt-secret
 JWT_REFRESH_SECRET=your-refresh-secret
 JWT_EXPIRES_IN=15m
 JWT_REFRESH_EXPIRES_IN=7d
-FRONTEND_URL=http://localhost:3000
+FRONTEND_URL=http://localhost:3000     # Production: comma-separated for CORS, e.g. https://hotel-nova.vercel.app,http://localhost:3000
 PAYSTACK_SECRET_KEY=sk_test_...
 CLOUDINARY_CLOUD_NAME=your-cloud-name
 CLOUDINARY_API_KEY=your-api-key
@@ -352,9 +352,11 @@ The `NotificationsGateway` pushes live notifications to connected users over Web
 
 **Connection details:**
 - Namespace: `/notifications`
-- CORS: same origin as REST API (`FRONTEND_URL` env var)
+- CORS: same origin as REST API (`FRONTEND_URL` env var, supports comma-separated origins)
 - Attaches to the same HTTP server as NestJS (no separate port)
-- Authentication: JWT is read from the `accessToken` cookie in the WebSocket handshake headers
+- Authentication (two strategies, checked in order):
+  1. **Token in handshake** (production) -- the frontend fetches the JWT from a same-origin Route Handler (`/api/auth/ws-token`) and passes it via `socket.auth.token`. This is required when the frontend and backend are on different domains (e.g. Vercel + Render), since cross-origin cookies are not sent with WebSocket handshakes.
+  2. **Cookie fallback** (local dev) -- when both frontend and backend share `localhost`, the HttpOnly `accessToken` cookie is sent automatically with the handshake.
 - Each authenticated user joins a private room named `user:<userId>`
 - Unauthenticated connections are disconnected immediately
 

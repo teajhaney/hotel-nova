@@ -173,7 +173,8 @@ PORT=3001
 **Frontend** -- create `hotel-nova-frontend/.env.local`:
 
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:3001
+BACKEND_URL=http://localhost:3001/api/v1       # Route Handlers (server-side, includes API prefix)
+NEXT_PUBLIC_BACKEND_URL=http://localhost:3001   # Socket.io client (client-side, NO /api/v1)
 ```
 
 ### 3. Set up the database
@@ -224,8 +225,19 @@ Visit `http://localhost:3000`.
 | Service | Platform |
 |---------|----------|
 | Frontend | Vercel |
-| Backend | Railway or Render |
+| Backend | Render (or Railway) |
 | Database | Neon (serverless Postgres) |
+
+**Production environment variables:**
+
+| Platform | Variable | Value |
+|----------|----------|-------|
+| Vercel | `BACKEND_URL` | `https://hotel-nova.onrender.com/api/v1` |
+| Vercel | `NEXT_PUBLIC_BACKEND_URL` | `https://hotel-nova.onrender.com` (no `/api/v1`) |
+| Render | `FRONTEND_URL` | `https://hotel-nova.vercel.app,http://localhost:3000` |
+| Render | All other backend `.env` vars | Same as local, with production values |
+
+> `NEXT_PUBLIC_*` variables are inlined at **build time** -- changing them on Vercel requires a redeploy.
 
 ---
 

@@ -44,8 +44,18 @@ Runs on `http://localhost:3000`.
 Create `.env.local` in this directory:
 
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:3001
+BACKEND_URL=http://localhost:3001/api/v1       # Used by Route Handlers (server-side, includes API prefix)
+NEXT_PUBLIC_BACKEND_URL=http://localhost:3001   # Used by Socket.io client (client-side, NO /api/v1)
 ```
+
+**Production (Vercel):**
+
+```env
+BACKEND_URL=https://hotel-nova.onrender.com/api/v1
+NEXT_PUBLIC_BACKEND_URL=https://hotel-nova.onrender.com
+```
+
+> `NEXT_PUBLIC_*` variables are inlined at **build time** -- changing them requires a redeploy.
 
 ### Available scripts
 
@@ -223,7 +233,7 @@ Booking state is persisted to `sessionStorage` so it survives page refreshes wit
 
 ## Real-Time Features
 
-- **Socket.io** -- `lib/socket.ts` creates a singleton client connected to the NestJS `/notifications` namespace. The `useGlobalNotificationListener` hook (invoked once in `Providers.tsx`) listens for incoming notification events and updates the TanStack Query cache so every page reflects new notifications instantly.
+- **Socket.io** -- `lib/socket.ts` creates a singleton client connected to the NestJS `/notifications` namespace. For cross-domain deployments (Vercel + Render), `connectSocket()` fetches the JWT from the same-origin Route Handler `/api/auth/ws-token` and passes it in the Socket.io handshake auth. The `useGlobalNotificationListener` hook (invoked once in `Providers.tsx`) listens for incoming notification events and updates the TanStack Query cache so every page reflects new notifications instantly.
 - **BroadcastChannel** -- `use-reviews.ts` uses the BroadcastChannel API to synchronize eligible-booking and admin-review caches across browser tabs on the same origin. This keeps the review list consistent when a guest submits a review in one tab while viewing the list in another.
 - **Dynamic unread count badges** -- `AdminDashboardShell.tsx`, `AdminSidebar.tsx`, and `GuestSidebar.tsx` all query the unread notification count and display a live badge (capped at "99+") next to the Notifications link.
 
