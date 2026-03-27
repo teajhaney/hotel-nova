@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { forwardCookies } from '@/lib/forward-cookies';
 
-// Proxies POST /api/auth/logout → NestJS POST /auth/logout
+// POST /api/auth/logout → NestJS POST /api/v1/auth/logout
 // NestJS clears the cookies — we forward the cleared Set-Cookie back to the browser.
 export async function POST(request: NextRequest) {
   const backendRes = await fetch(`${process.env.BACKEND_URL}/auth/logout`, {
@@ -12,17 +13,10 @@ export async function POST(request: NextRequest) {
     },
   });
 
-  const data = await backendRes.json() as Record<string, unknown>;
+  const data = (await backendRes.json()) as Record<string, unknown>;
   const nextRes = NextResponse.json(data, { status: backendRes.status });
 
-  const setCookies = backendRes.headers.getSetCookie?.() ?? [];
-  if (setCookies.length > 0) {
-    setCookies.forEach((cookie) => nextRes.headers.append('set-cookie', cookie));
-  } else {
-    // Fallback for runtimes that don't have getSetCookie()
-    const setCookie = backendRes.headers.get('set-cookie');
-    if (setCookie) nextRes.headers.set('set-cookie', setCookie);
-  }
+  forwardCookies(backendRes, nextRes);
 
   return nextRes;
 }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { forwardCookies } from '@/lib/forward-cookies';
 
 // POST /api/auth/refresh → NestJS POST /api/v1/auth/refresh
 // Forwards the refreshToken cookie to the backend. If valid, the backend
@@ -10,19 +11,10 @@ export async function POST(request: NextRequest) {
     headers: { cookie: request.headers.get('cookie') ?? '' },
   });
 
-  const data = await backendRes.json() as Record<string, unknown>;
+  const data = (await backendRes.json()) as Record<string, unknown>;
   const nextRes = NextResponse.json(data, { status: backendRes.status });
 
-  // Forward every Set-Cookie header so both the new accessToken and
-  // refreshToken cookies land in the browser correctly.
-  const setCookies = backendRes.headers.getSetCookie?.() ?? [];
-  if (setCookies.length > 0) {
-    setCookies.forEach((cookie) => nextRes.headers.append('set-cookie', cookie));
-  } else {
-    // Fallback for runtimes that don't have getSetCookie()
-    const setCookie = backendRes.headers.get('set-cookie');
-    if (setCookie) nextRes.headers.set('set-cookie', setCookie);
-  }
+  forwardCookies(backendRes, nextRes);
 
   return nextRes;
 }

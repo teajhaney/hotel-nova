@@ -52,6 +52,11 @@ function AuthRehydrator({ children }: { children: React.ReactNode }) {
     // No immediate refresh call — by the time isLoggedIn becomes true, useGetMe
     // has already resolved (access token is fresh). Firing immediately would
     // just waste a token rotation for no benefit.
+    //
+    // Refresh every 10 minutes. The access token lives for 15 minutes, so this
+    // fires comfortably before expiry. If the user makes no API calls in the
+    // 5-minute gap between refresh and expiry, the next proactive refresh or
+    // the visibility-change handler will catch it.
     const intervalId = window.setInterval(refresh, 10 * 60 * 1000);
 
     // Also refresh when the user returns to a tab that was in the background.

@@ -57,7 +57,10 @@ export async  function refreshTokens(): Promise<void> {
   // Use raw fetch so this call bypasses the Axios interceptor entirely
   // (otherwise a 401 response from the refresh endpoint would trigger
   // another refresh attempt — infinite loop).
-  return fetch('/api/auth/refresh', { method: 'POST' })
+  // credentials: 'include' ensures the browser sends the HttpOnly
+  // refreshToken cookie with the request — required for the Route Handler
+  // to forward it to the NestJS backend.
+  return fetch('/api/auth/refresh', { method: 'POST', credentials: 'include' })
     .then((res) => {
       if (!res.ok) throw new Error('Refresh failed');
       flushQueue(null);
