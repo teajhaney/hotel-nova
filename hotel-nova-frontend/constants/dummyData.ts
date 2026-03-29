@@ -216,6 +216,8 @@ export const TESTIMONIALS: Testimonial[] = [
     review:
       'The attention to detail is remarkable. From the moment I stepped into the lobby, I felt like royalty. The spa treatments are simply the best in Abuja.',
     avatarColor: 'bg-[#7CA5B8]',
+    profileImage:
+      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&h=120&fit=crop&crop=face',
   },
   {
     id: '2',
@@ -225,6 +227,8 @@ export const TESTIMONIALS: Testimonial[] = [
     review:
       'An incredible stay. The rooftop restaurant offers breathtaking views of the city. Highly recommend the Executive Suite for anyone seeking luxury.',
     avatarColor: 'bg-[#9CA3AF]',
+    profileImage:
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&h=120&fit=crop&crop=face',
   },
   {
     id: '3',
@@ -234,6 +238,8 @@ export const TESTIMONIALS: Testimonial[] = [
     review:
       'Perfect for our corporate retreat. The conference facilities are modern and the team was incredibly helpful throughout our event.',
     avatarColor: 'bg-[#A9DBBB]',
+    profileImage:
+      'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=120&h=120&fit=crop&crop=face',
   },
 ];
 

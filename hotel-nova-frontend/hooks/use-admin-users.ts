@@ -1,9 +1,9 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { isAxiosError } from 'axios';
 import { toast } from 'sonner';
 import apiClient from '@/lib/axios';
+import { extractApiError } from '@/lib/api-error';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -74,10 +74,7 @@ export function useAdminCreateUser() {
       void queryClient.invalidateQueries({ queryKey: ['admin-users'] });
     },
     onError: (err) => {
-      const message = isAxiosError(err)
-        ? (err.response?.data as { message?: string })?.message
-        : undefined;
-      toast.error(message ?? 'Could not create admin account. Please try again.');
+      toast.error(extractApiError(err, 'Could not create admin account. Please try again.'));
     },
   });
 }
@@ -102,10 +99,7 @@ export function useAdminUpdateUser() {
       void queryClient.invalidateQueries({ queryKey: ['admin-users'] });
     },
     onError: (err) => {
-      const message = isAxiosError(err)
-        ? (err.response?.data as { message?: string })?.message
-        : undefined;
-      toast.error(message ?? 'Could not update user. Please try again.');
+      toast.error(extractApiError(err, 'Could not update user. Please try again.'));
     },
   });
 }
@@ -125,10 +119,7 @@ export function useAdminDeleteUser() {
       void queryClient.invalidateQueries({ queryKey: ['admin-users'] });
     },
     onError: (err) => {
-      const message = isAxiosError(err)
-        ? (err.response?.data as { message?: string })?.message
-        : undefined;
-      toast.error(message ?? 'Could not delete user. Please try again.');
+      toast.error(extractApiError(err, 'Could not delete user. Please try again.'));
     },
   });
 }

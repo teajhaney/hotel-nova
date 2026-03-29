@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 import { SkeletonImage as Image } from '@/components/ui/SkeletonImage';
 import { Calendar, Users, BedDouble, Maximize2, Shield } from 'lucide-react';
 import { toast } from 'sonner';
-import { isAxiosError } from 'axios';
 import { useBookingStore } from '@/stores/booking-store';
+import { extractApiError } from '@/lib/api-error';
 import { useCreateBooking } from '@/hooks/use-bookings';
 import { PriceBreakdown } from '@/components/booking/PriceBreakdown';
 import { BOOKING_MESSAGES } from '@/constants/messages';
@@ -52,10 +52,7 @@ export default function BookSummaryPage() {
           window.location.href = data.paymentUrl;
         },
         onError: (err) => {
-          const message = isAxiosError(err)
-            ? (err.response?.data as { message?: string })?.message
-            : undefined;
-          toast.error(message ?? 'Booking failed. Please try again.');
+          toast.error(extractApiError(err, 'Booking failed. Please try again.'));
         },
       },
     );

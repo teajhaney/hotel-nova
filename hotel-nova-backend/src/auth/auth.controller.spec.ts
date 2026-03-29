@@ -95,21 +95,13 @@ describe('AuthController', () => {
   // ─── logout ────────────────────────────────────────────────────────────────
 
   describe('logout', () => {
-    const mockUser = {
-      id: 'user-1',
-      email: 'y@e.com',
-      fullName: 'Y',
-      role: 'GUEST' as const,
-    };
-
     it('calls authService.logout and clears cookies', async () => {
       const req = mockReq({ refreshToken: 'token-id.raw-secret' });
       const res = mockRes();
 
-      await controller.logout(mockUser, req, res);
+      await controller.logout(req, res);
 
       expect(mockAuthService.logout).toHaveBeenCalledWith(
-        'user-1',
         'token-id.raw-secret',
       );
       expect(res.clearCookie).toHaveBeenCalledWith(
@@ -126,7 +118,7 @@ describe('AuthController', () => {
       const req = mockReq({});
       const res = mockRes();
 
-      await controller.logout(mockUser, req, res);
+      await controller.logout(req, res);
 
       expect(mockAuthService.logout).not.toHaveBeenCalled();
       expect(res.clearCookie).toHaveBeenCalled();

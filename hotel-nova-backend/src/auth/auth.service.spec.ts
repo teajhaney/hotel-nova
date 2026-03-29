@@ -168,10 +168,10 @@ describe('AuthService', () => {
 
   describe('logout', () => {
     it('deletes the refresh token when valid', async () => {
-      mockPrisma.refreshToken.findFirst.mockResolvedValue(mockRefreshToken);
+      mockPrisma.refreshToken.findUnique.mockResolvedValue(mockRefreshToken);
       (argon2.verify as jest.Mock).mockResolvedValue(true);
 
-      await service.logout('user-1', 'token-1.rawsecret');
+      await service.logout('token-1.rawsecret');
 
       expect(mockPrisma.refreshToken.delete).toHaveBeenCalledWith({
         where: { id: 'token-1' },
@@ -179,17 +179,17 @@ describe('AuthService', () => {
     });
 
     it('does nothing if token is not found', async () => {
-      mockPrisma.refreshToken.findFirst.mockResolvedValue(null);
+      mockPrisma.refreshToken.findUnique.mockResolvedValue(null);
 
-      await service.logout('user-1', 'token-1.rawsecret');
+      await service.logout('token-1.rawsecret');
 
       expect(mockPrisma.refreshToken.delete).not.toHaveBeenCalled();
     });
 
     it('does nothing for a malformed token string', async () => {
-      await service.logout('user-1', 'no-dot-here');
+      await service.logout('no-dot-here');
 
-      expect(mockPrisma.refreshToken.findFirst).not.toHaveBeenCalled();
+      expect(mockPrisma.refreshToken.findUnique).not.toHaveBeenCalled();
     });
   });
 

@@ -5,6 +5,7 @@ export type Testimonial = {
   rating: number;
   review: string;
   avatarColor: string;
+  profileImage?: string;
 };
 
 export type RoomListing = {

@@ -4,11 +4,11 @@ import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { isAxiosError } from 'axios';
 import { FormInput } from '@/components/auth/FormInput';
 import { PasswordInput } from '@/components/auth/PasswordInput';
 import { LOGIN_MESSAGES, VALIDATION_MESSAGES, ROUTES } from '@/constants/messages';
 import { useLogin } from '@/hooks/use-auth';
+import { extractApiError } from '@/lib/api-error';
 
 const guestLoginSchema = z.object({
   email: z
@@ -33,10 +33,7 @@ export function GuestLoginForm() {
       await login(data);
     } catch (err) {
       // Show the server error message under the password field
-      const message =
-        isAxiosError(err) && typeof err.response?.data?.error?.message === 'string'
-          ? err.response.data.error.message
-          : 'Invalid email or password.';
+      const message = extractApiError(err, 'Invalid email or password.');
       setError('password', { message });
     }
   };

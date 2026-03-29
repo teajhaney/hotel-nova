@@ -7,10 +7,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { X, ChevronDown, UploadCloud, Trash2, Loader2, Plus } from 'lucide-react';
 import { motion } from 'motion/react';
-import { isAxiosError } from 'axios';
 import { RoomFormModalProps } from '@/type/interface';
 import { ADMIN_DASHBOARD_MESSAGES } from '@/constants/messages';
 import { useCreateRoom, useUpdateRoom, useUploadRoomPhoto } from '@/hooks/use-rooms';
+import { extractApiError } from '@/lib/api-error';
 
 const M = ADMIN_DASHBOARD_MESSAGES;
 
@@ -18,7 +18,7 @@ const roomSchema = z.object({
   name: z.string().min(2, 'Room name is required'),
   roomNumber: z.number().int().min(1, 'Room number must be at least 1'),
   type: z.enum(['Standard', 'Deluxe', 'Executive', 'Suite']),
-  price: z.number().min(1000, 'Minimum price is ₦1,000'),
+  price: z.number().min(10, 'Minimum price is ₦10'),
   status: z.enum(['Available', 'Occupied', 'Maintenance']),
   description: z.string().optional(),
   beds: z.string().optional(),
@@ -79,7 +79,8 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
           name: room.name,
           roomNumber: room.roomNumber,
           type: room.type as RoomFormData['type'],
-          price: room.price,
+          // Convert kobo (stored in DB) back to naira for display in the form
+          price: room.price / 100,
           status: room.status as RoomFormData['status'],
           description: room.description ?? '',
           beds: room.beds ?? '',
@@ -126,11 +127,15 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
   const onSubmit = async (data: RoomFormData) => {
     setServerError(null);
     try {
+      // Convert naira (form input) to kobo (backend/DB storage).
+      // Math.round handles floating-point (e.g. 4000.23 × 100 = 400023).
+      const priceInKobo = Math.round(data.price * 100);
+
       const payload = {
         roomNumber: data.roomNumber,
         name: data.name,
         type: data.type,
-        price: data.price,
+        price: priceInKobo,
         status: data.status,
         description: data.description || undefined,
         beds: data.beds || undefined,
@@ -155,11 +160,7 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
 
       onSave();
     } catch (err) {
-      const message =
-        isAxiosError(err) && typeof err.response?.data?.message === 'string'
-          ? err.response.data.message
-          : 'Something went wrong. Please try again.';
-      setServerError(message);
+      setServerError(extractApiError(err));
     }
   };
 
@@ -305,11 +306,15 @@ export function RoomFormModal({ room, onClose, onSave }: RoomFormModalProps) {
                   <input
                     {...register('price', { valueAsNumber: true })}
                     type="number"
-                    placeholder="175,000"
+                    step="0.01"
+                    placeholder="1,750"
                     className={`${inputCls} pl-8`}
                     min={0}
                   />
                 </div>
+                <span className="block text-[11px] text-[#9CA3AF] mt-1.5">
+                  Enter price in naira (e.g. 4000.23 = ₦4,000 and 23 kobo)
+                </span>
                 {errors.price && (
                   <span className={errorCls}>{errors.price.message}</span>
                 )}

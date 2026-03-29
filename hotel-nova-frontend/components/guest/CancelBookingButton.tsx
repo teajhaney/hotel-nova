@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { X, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { isAxiosError } from 'axios';
 import { useCancelBooking } from '@/hooks/use-bookings';
+import { extractApiError } from '@/lib/api-error';
 import type { BookingStatus } from '@/type/type';
 
 // Only Pending and Confirmed bookings can be cancelled.
@@ -31,10 +31,7 @@ export function CancelBookingButton({
         setConfirming(false);
       },
       onError: (err) => {
-        const message = isAxiosError(err)
-          ? (err.response?.data as { message?: string })?.message
-          : undefined;
-        toast.error(message ?? 'Could not cancel booking. Please try again.');
+        toast.error(extractApiError(err, 'Could not cancel booking. Please try again.'));
         setConfirming(false);
       },
     });

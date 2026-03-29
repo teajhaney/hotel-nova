@@ -44,7 +44,7 @@ export function TestimonialsSection() {
         {/* Review cards */}
         <div className="grid  grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {TESTIMONIALS.map(
-            ({ id, name, role, rating, review, avatarColor }) => (
+            ({ id, name, role, rating, review, avatarColor, profileImage }) => (
               <article key={id} className="hotel-card p-7 flex flex-col">
                 <StarRating rating={rating} />
 
@@ -54,10 +54,19 @@ export function TestimonialsSection() {
 
                 {/* Author */}
                 <div className="flex items-center gap-3 mt-5">
-                  <div
-                    className={`w-10 h-10 rounded-[999px] ${avatarColor} shrink-0`}
-                    aria-hidden="true"
-                  />
+                  {profileImage ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={profileImage}
+                      alt={name}
+                      className="w-10 h-10 rounded-full object-cover shrink-0"
+                    />
+                  ) : (
+                    <div
+                      className={`w-10 h-10 rounded-full ${avatarColor} shrink-0`}
+                      aria-hidden="true"
+                    />
+                  )}
                   <div>
                     <p className="text-[15px] font-semibold text-[#0D0F2B] leading-tight">
                       {name}

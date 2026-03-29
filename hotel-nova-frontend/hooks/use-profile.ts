@@ -1,9 +1,9 @@
 'use client';
 
 import { useMutation } from '@tanstack/react-query';
-import { isAxiosError } from 'axios';
 import { toast } from 'sonner';
 import apiClient from '@/lib/axios';
+import { extractApiError } from '@/lib/api-error';
 import type { User } from '@/type/api';
 
 // ─── useUpdateProfile ─────────────────────────────────────────────────────────
@@ -22,10 +22,7 @@ export function useUpdateProfile() {
       return data;
     },
     onError: (err) => {
-      const message = isAxiosError(err)
-        ? (err.response?.data as { message?: string })?.message
-        : undefined;
-      toast.error(message ?? 'Could not save profile. Please try again.');
+      toast.error(extractApiError(err, 'Could not save profile. Please try again.'));
     },
   });
 }
@@ -40,10 +37,7 @@ export function useDeleteAccount() {
       await apiClient.delete('/auth/me');
     },
     onError: (err) => {
-      const message = isAxiosError(err)
-        ? (err.response?.data as { message?: string })?.message
-        : undefined;
-      toast.error(message ?? 'Could not delete account. Please try again.');
+      toast.error(extractApiError(err, 'Could not delete account. Please try again.'));
     },
   });
 }

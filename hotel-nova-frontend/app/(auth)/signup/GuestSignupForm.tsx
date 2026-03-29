@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { ArrowRight } from 'lucide-react';
-import { isAxiosError } from 'axios';
 import { FormInput } from '@/components/auth/FormInput';
 import { PasswordInput } from '@/components/auth/PasswordInput';
 import {
@@ -14,6 +13,7 @@ import {
   ROUTES,
 } from '@/constants/messages';
 import { useSignup } from '@/hooks/use-auth';
+import { extractApiError } from '@/lib/api-error';
 
 const guestSignupSchema = z
   .object({
@@ -57,10 +57,7 @@ export function GuestSignupForm() {
         role: 'GUEST',
       });
     } catch (err) {
-      const message =
-        isAxiosError(err) && typeof err.response?.data?.error?.message === 'string'
-          ? err.response.data.error.message
-          : 'Something went wrong. Please try again.';
+      const message = extractApiError(err);
       setError('email', { message });
     }
   };

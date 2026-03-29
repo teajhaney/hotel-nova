@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { Plus, Search, Pencil, Trash2, ChevronDown, Loader2 } from 'lucide-react';
 import { SkeletonImage as Image } from '@/components/ui/SkeletonImage';
 import { AnimatePresence } from 'motion/react';
-import { isAxiosError } from 'axios';
 import { RoomFormModal } from '@/components/admin/rooms/RoomFormModal';
+import { extractApiError } from '@/lib/api-error';
 import { DeleteRoomModal } from '@/components/admin/rooms/DeleteRoomModal';
 import { useRooms, useDeleteRoom } from '@/hooks/use-rooms';
 import { RoomData } from '@/type/interface';
@@ -110,10 +110,7 @@ export default function AdminRoomsPage() {
     deleteRoom(deleteTarget.id, {
       onSuccess: () => setDeleteTarget(null),
       onError: (err) => {
-        const msg = isAxiosError(err)
-          ? (err.response?.data as { message?: string })?.message
-          : undefined;
-        alert(msg ?? 'Failed to delete room. Please try again.');
+        alert(extractApiError(err, 'Failed to delete room. Please try again.'));
       },
     });
   };

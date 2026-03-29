@@ -4,12 +4,13 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { ArrowRight } from 'lucide-react';
-import { isAxiosError } from 'axios';
 import { FormInput } from '@/components/auth/FormInput';
 import { PasswordInput } from '@/components/auth/PasswordInput';
 import { SIGNUP_MESSAGES, VALIDATION_MESSAGES } from '@/constants/messages';
+import Link from 'next/link';
 import { HotelNovaLogo } from '@/components/auth/HotelNovaLogo';
 import { useSignup } from '@/hooks/use-auth';
+import { extractApiError } from '@/lib/api-error';
 
 const adminSignupSchema = z
   .object({
@@ -51,10 +52,7 @@ export default function AdminSignupPage() {
         role: 'ADMIN',
       });
     } catch (err) {
-      const message =
-        isAxiosError(err) && typeof err.response?.data?.message === 'string'
-          ? err.response.data.message
-          : 'Something went wrong. Please try again.';
+      const message = extractApiError(err);
       setError('email', { message });
     }
   };
@@ -126,6 +124,13 @@ export default function AdminSignupPage() {
             )}
           </button>
         </form>
+
+        <p className="text-center text-[14px] text-[#6B7280] mt-6">
+          Already have an account?{' '}
+          <Link href="/admin/login" className="text-[#020887] font-semibold hover:underline">
+            Log in
+          </Link>
+        </p>
       </div>
     </div>
   );

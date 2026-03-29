@@ -1,9 +1,9 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { isAxiosError } from 'axios';
 import { toast } from 'sonner';
 import apiClient from '@/lib/axios';
+import { extractApiError } from '@/lib/api-error';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -116,10 +116,7 @@ export function useAdminUpdateBookingStatus() {
       void queryClient.invalidateQueries({ queryKey: ['admin-bookings'] });
     },
     onError: (err) => {
-      const message = isAxiosError(err)
-        ? (err.response?.data as { message?: string })?.message
-        : undefined;
-      toast.error(message ?? 'Could not update booking status.');
+      toast.error(extractApiError(err, 'Could not update booking status.'));
     },
   });
 }

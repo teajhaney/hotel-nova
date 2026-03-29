@@ -3,12 +3,13 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { isAxiosError } from 'axios';
 import { FormInput } from '@/components/auth/FormInput';
 import { PasswordInput } from '@/components/auth/PasswordInput';
 import { LOGIN_MESSAGES, VALIDATION_MESSAGES } from '@/constants/messages';
+import Link from 'next/link';
 import { HotelNovaLogo } from '@/components/auth/HotelNovaLogo';
 import { useLogin } from '@/hooks/use-auth';
+import { extractApiError } from '@/lib/api-error';
 
 const adminLoginSchema = z.object({
   email: z
@@ -33,10 +34,7 @@ export default function AdminLoginPage() {
     try {
       await login(data);
     } catch (err) {
-      const message =
-        isAxiosError(err) && typeof err.response?.data?.message === 'string'
-          ? err.response.data.message
-          : 'Invalid email or password.';
+      const message = extractApiError(err, 'Invalid email or password.');
       setError('password', { message });
     }
   };
@@ -88,6 +86,13 @@ export default function AdminLoginPage() {
               : LOGIN_MESSAGES.submitButton}
           </button>
         </form>
+
+        <p className="text-center text-[14px] text-[#6B7280] mt-6">
+          Don&apos;t have an account?{' '}
+          <Link href="/admin/signup" className="text-[#020887] font-semibold hover:underline">
+            Sign up
+          </Link>
+        </p>
       </div>
     </div>
   );
