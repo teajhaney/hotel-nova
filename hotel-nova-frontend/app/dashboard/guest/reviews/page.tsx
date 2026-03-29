@@ -19,7 +19,7 @@ import {
 } from '@/hooks/use-reviews';
 import type { EligibleBooking } from '@/type/api';
 import { formatBookingDate } from '@/utils/format';
-import Image from 'next/image';
+import { SkeletonImage as Image } from '@/components/ui/SkeletonImage';
 
 const TABS = [
   GUEST_DASHBOARD_MESSAGES.reviewTabAll,

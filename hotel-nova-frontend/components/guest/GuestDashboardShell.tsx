@@ -49,10 +49,11 @@ export function GuestDashboardShell({
         transition={{ duration: 0.25 }}
       >
         {/* Backdrop */}
-        <button
-          className="absolute inset-0 w-full h-full bg-black/40 cursor-default"
+        <div
+          className="absolute inset-0 w-full h-full bg-black/40 cursor-pointer"
           onClick={() => setDrawerOpen(false)}
           aria-label="Close menu"
+          role="button"
           tabIndex={drawerOpen ? 0 : -1}
         />
         {/* Drawer panel — springs in from left */}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Image from 'next/image';
+import { SkeletonImage as Image } from '@/components/ui/SkeletonImage';
 import { Calendar, Users, BedDouble, Maximize2, Shield } from 'lucide-react';
 import { toast } from 'sonner';
 import { isAxiosError } from 'axios';

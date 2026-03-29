@@ -154,8 +154,8 @@ export function useLogout() {
       clearUser();
       // Wipe all cached queries so stale data doesn't linger after logout
       queryClient.clear();
-      // Admins go back to the admin login page; guests go home
-      router.push(role === 'ADMIN' ? '/admin/login' : '/');
+      // Perform a hard redirect instead of client-side routing to properly reset UI state
+      window.location.href = role === 'ADMIN' ? '/admin/login' : '/';
     },
   });
 }

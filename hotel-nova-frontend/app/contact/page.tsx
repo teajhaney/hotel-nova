@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { SkeletonImage as Image } from '@/components/ui/SkeletonImage';
 import { MapPin, Phone, Mail } from 'lucide-react';
 import { Navbar } from '@/components/home/Navbar';
 import { Footer } from '@/components/home/Footer';

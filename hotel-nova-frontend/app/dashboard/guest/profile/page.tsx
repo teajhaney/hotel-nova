@@ -201,28 +201,28 @@ export default function ProfileSettingsPage() {
   return (
     <div className="guest-page-container pb-24 lg:pb-8">
       {/* ── Header ─────────────────────────────────────────── */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="sticky top-14 lg:top-0 z-30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-4 mb-2 bg-[#F8FAFC] border-b border-[#E2E8F0] lg:border-none -mx-5 px-5 md:-mx-8 md:px-8 -mt-5 md:-mt-8">
         <h1 className="text-[24px] md:text-[28px] font-bold text-[#0D0F2B]">
           {GUEST_DASHBOARD_MESSAGES.profileTitle}
         </h1>
         <button
           onClick={profileForm.handleSubmit(onProfileSave)}
           disabled={updateProfile.isPending}
-          className="flex items-center gap-2 px-4 h-10 rounded-lg bg-[#020887] text-white text-[13px] font-semibold hover:bg-[#38369A] transition-colors disabled:opacity-60"
+          className="flex items-center justify-center sm:justify-start gap-2 px-6 h-11 sm:h-10 rounded-lg bg-[#020887] text-white text-[14px] sm:text-[13px] font-semibold hover:bg-[#38369A] transition-colors disabled:opacity-60 whitespace-nowrap w-full sm:w-auto shrink-0"
         >
           {updateProfile.isPending ? (
-            <Loader2 size={14} className="animate-spin" />
+            <Loader2 size={16} className="animate-spin" />
           ) : (
-            <Save size={14} />
+            <Save size={16} />
           )}
           {updateProfile.isPending ? 'Saving...' : GUEST_DASHBOARD_MESSAGES.saveChanges}
         </button>
       </div>
 
       {/* ── Avatar Card ─────────────────────────────────────── */}
-      <div className="bg-white rounded-lg border border-[#E2E8F0] p-6 mb-5 flex items-center gap-5">
+      <div className="bg-white rounded-lg border border-[#E2E8F0] p-5 sm:p-6 mb-5 flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4 sm:gap-5">
         {/* Initials avatar — no photo upload yet */}
-        <div className="w-20 h-20 rounded-full bg-[#020887] flex items-center justify-center shrink-0">
+        <div className="w-20 h-20 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-full bg-[#020887] flex items-center justify-center shrink-0">
           <span className="text-white text-[28px] font-bold">{initials}</span>
         </div>
         <div>

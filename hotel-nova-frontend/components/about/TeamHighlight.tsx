@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { SkeletonImage as Image } from '@/components/ui/SkeletonImage';
 import { ArrowRight } from 'lucide-react';
 import { ABOUT_PAGE_MESSAGES } from '@/constants/messages';
 import { TEAM_MEMBERS } from '@/constants/dummyData';

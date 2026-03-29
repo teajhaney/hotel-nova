@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Shield } from 'lucide-react';
 import { toast } from 'sonner';
-import Image from 'next/image';
+import { SkeletonImage as Image } from '@/components/ui/SkeletonImage';
 import { useBookingStore } from '@/stores/booking-store';
 import { BOOKING_MESSAGES } from '@/constants/messages';
 import { formatNgn } from '@/utils/format';

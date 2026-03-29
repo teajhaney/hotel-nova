@@ -75,11 +75,11 @@ export class AuthController {
   }
 
   // LOG OUT
+  @Public()
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   @ApiLogout()
   async logout(
-    @CurrentUser() user: AuthUser,
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
@@ -87,7 +87,7 @@ export class AuthController {
       | string
       | undefined;
     if (rawRefreshToken) {
-      await this.authService.logout(user.id, rawRefreshToken);
+      await this.authService.logout(rawRefreshToken);
     }
     this.clearCookies(res);
     return { message: AUTH_MESSAGES.LOGOUT_SUCCESS };
@@ -192,13 +192,11 @@ export class AuthController {
   ) {
     const isProduction = process.env.NODE_ENV === 'production';
 
-    // In production the frontend (Vercel) and backend (Render) are on different
-    // domains, so cookies need SameSite=None + Secure to be sent cross-origin.
-    // In development both run on localhost so SameSite=Lax works fine.
     const cookieOptions = {
       httpOnly: true,
       secure: isProduction,
       sameSite: isProduction ? ('none' as const) : ('lax' as const),
+      path: '/',
     };
 
     res.cookie(COOKIES.ACCESS_TOKEN, tokens.accessToken, {
@@ -218,6 +216,7 @@ export class AuthController {
       httpOnly: true,
       secure: isProduction,
       sameSite: isProduction ? ('none' as const) : ('lax' as const),
+      path: '/',
     };
 
     res.clearCookie(COOKIES.ACCESS_TOKEN, clearOptions);

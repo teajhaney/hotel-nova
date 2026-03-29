@@ -48,7 +48,7 @@ export function NewsletterSection() {
           ) : (
             <form
               onSubmit={handleSubmit}
-              className="flex sm:flex-col gap-[8px]"
+              className="flex flex-col sm:flex-row gap-[8px] px-4 sm:px-0"
               aria-label="Newsletter subscription"
             >
               <label htmlFor="newsletter-email" className="sr-only">
@@ -75,7 +75,7 @@ export function NewsletterSection() {
                            hover:bg-white/90 active:scale-[0.99]
                            transition-all duration-150
                            flex items-center justify-center gap-[8px]
-                           sm:w-full whitespace-nowrap cursor-pointer"
+                           w-full sm:w-auto whitespace-nowrap cursor-pointer"
               >
                 {NEWSLETTER_MESSAGES.submitButton} <ArrowRight size={16} aria-hidden="true" />
               </button>

@@ -81,7 +81,7 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
 
       {/* Nav */}
       <nav
-        className="flex-1 px-3 py-4 flex flex-col gap-1"
+        className="px-3 py-4 flex flex-col gap-1"
         aria-label={M.adminNavAriaLabel}
       >
         {NAV_ITEMS.map(({ href, label, icon: Icon, exact, badge }) => {
@@ -108,7 +108,7 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
       </nav>
 
       {/* Admin profile + logout */}
-      <div className="px-4 pb-5 border-t border-[#E2E8F0] pt-4">
+      <div className="mt-auto px-4 pb-8 border-t border-[#E2E8F0] pt-4">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-full bg-[#020887] flex items-center justify-center shrink-0">
             <span className="text-white text-[13px] font-bold">{initials}</span>

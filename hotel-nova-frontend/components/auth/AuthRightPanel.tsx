@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import { SkeletonImage as Image } from '@/components/ui/SkeletonImage';
 import { AUTH_PANEL_MESSAGES } from '@/constants/messages';
 import { AUTH_IMAGES } from '@/constants/images';
 

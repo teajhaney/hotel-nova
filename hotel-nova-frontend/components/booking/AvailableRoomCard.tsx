@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import { SkeletonImage as Image } from '@/components/ui/SkeletonImage';
 import { BedDouble, Users, Maximize2, CheckCircle, Wifi, Wind, Coffee, Tv } from 'lucide-react';
 import type { BookingRoom } from '@/type/type';
 import { BOOKING_MESSAGES } from '@/constants/messages';

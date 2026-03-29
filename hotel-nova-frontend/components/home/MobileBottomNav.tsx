@@ -3,14 +3,20 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { BedDouble, Home, User, UtensilsCrossed } from 'lucide-react';
+import { useAuthStore } from '@/stores/auth-store';
 
 export function MobileBottomNav() {
   const pathname = usePathname();
+  const user = useAuthStore((s) => s.user);
+  const isLoggedIn = !!user;
+
   const NAV_ITEMS = [
     { href: '/', label: 'HOME', icon: Home },
     { href: '/rooms', label: 'ROOMS', icon: BedDouble },
     { href: '/offers', label: 'OFFERS', icon: UtensilsCrossed },
-    { href: '/dashboard/guest', label: 'DASHBOARD', icon: User },
+    ...(isLoggedIn
+      ? [{ href: user?.role === 'ADMIN' ? '/admin/overview' : '/dashboard/guest', label: 'DASHBOARD', icon: User }]
+      : []),
   ];
   return (
     <nav

@@ -96,7 +96,7 @@ export const useBookingStore = create<BookingStore>()(
     {
       name: 'hotel-nova-booking',
       storage: createJSONStorage(() =>
-        typeof window !== 'undefined' ? sessionStorage : {
+        typeof window !== 'undefined' ? localStorage : {
           getItem: () => null,
           setItem: () => {},
           removeItem: () => {},

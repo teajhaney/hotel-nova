@@ -95,7 +95,7 @@ export default function GuestBookingsPage() {
       </div>
 
       {/* ── Stat Cards ─────────────────────────────────────── */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         {STATS.map(({ label, value, icon: Icon }) => (
           <div key={label} className="guest-stat-card">
             <div className="flex items-start justify-between mb-3">
