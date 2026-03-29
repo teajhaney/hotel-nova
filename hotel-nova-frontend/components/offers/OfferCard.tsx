@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import { SkeletonImage as Image } from '@/components/ui/SkeletonImage';
 import type { Offer } from '@/type/type';
 import { OFFERS_PAGE_MESSAGES } from '@/constants/messages';
 
@@ -63,10 +63,10 @@ export function OfferCard({
         )}
 
         {/* Price & CTAs */}
-        <div className="flex items-center justify-between gap-3 pt-4 border-t border-[#E2E8F0]">
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-[#E2E8F0]">
           {price > 0 ? (
             <div className="flex items-baseline gap-1">
-              <span className="text-[24px] font-bold text-[#020887]">
+              <span className="text-[22px] sm:text-[24px] font-bold text-[#020887]">
                 ₦{price.toLocaleString()}
               </span>
               {priceLabel && (
@@ -80,15 +80,15 @@ export function OfferCard({
           <div className="flex items-center gap-2">
             <button
               type="button"
-              className="px-5 py-2.5 bg-[#020887] text-white font-semibold text-[14px]
-                         rounded-lg hover:bg-[#030A6F] transition-colors"
+              className="px-4 sm:px-5 py-2.5 bg-[#020887] text-white font-semibold text-[13px] sm:text-[14px]
+                         rounded-lg hover:bg-[#030A6F] transition-colors whitespace-nowrap"
             >
               {OFFERS_PAGE_MESSAGES.bookNow}
             </button>
             <button
               type="button"
-              className="px-4 py-2.5 border border-[#E2E8F0] text-[#0D0F2B] font-medium text-[14px]
-                         rounded-lg hover:border-[#020887] hover:text-[#020887] transition-colors"
+              className="px-3 sm:px-4 py-2.5 border border-[#E2E8F0] text-[#0D0F2B] font-medium text-[13px] sm:text-[14px]
+                         rounded-lg hover:border-[#020887] hover:text-[#020887] transition-colors whitespace-nowrap"
             >
               {OFFERS_PAGE_MESSAGES.details}
             </button>

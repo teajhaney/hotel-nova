@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X, CalendarDays, Users, BedDouble, Receipt, CreditCard } from 'lucide-react';
-import Image from 'next/image';
+import { SkeletonImage as Image } from '@/components/ui/SkeletonImage';
 import { BookingStatusBadge } from '@/components/guest/BookingStatusBadge';
 import { CancelBookingButton } from '@/components/guest/CancelBookingButton';
 import { formatNgn, formatBookingDate } from '@/utils/format';

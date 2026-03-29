@@ -174,7 +174,7 @@ export default function AdminNotificationsPage() {
   return (
     <div className="admin-page-container">
       {/* Header */}
-      <div className="flex items-center justify-between mb-7">
+      <div className="sticky top-14 lg:top-0 z-30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-4 mb-3 bg-[#F8FAFC] border-b border-[#E2E8F0] lg:border-none -mx-5 px-5 md:-mx-8 md:px-8 -mt-5 md:-mt-8">
         <div>
           <h1 className="text-[24px] font-bold text-[#0D0F2B]">
             Notifications Center
@@ -186,7 +186,7 @@ export default function AdminNotificationsPage() {
         <button
           onClick={() => markAllRead.mutate()}
           disabled={markAllRead.isPending}
-          className="text-[13px] font-medium text-[#020887] hover:text-[#38369A] transition-colors disabled:opacity-50"
+          className="shrink-0 px-4 py-2 h-10 w-full sm:w-auto bg-[#EEF0FF] text-[#020887] rounded-lg text-[13px] font-semibold hover:bg-[#DCE1FF] transition-colors whitespace-nowrap disabled:opacity-50"
         >
           Mark all as read
         </button>

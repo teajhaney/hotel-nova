@@ -129,8 +129,8 @@ export function Footer() {
         {/* Bottom bar */}
         <div
           className="mt-[48px] pt-[24px] border-t border-white/10
-                     flex items-center justify-between
-                     sm:flex-col sm:gap-[8px] sm:text-center"
+                     flex flex-col items-center gap-[8px] text-center
+                     sm:flex-row sm:justify-between sm:text-left"
         >
           <p className="text-[13px] text-white/30">
             {FOOTER_MESSAGES.copyright}

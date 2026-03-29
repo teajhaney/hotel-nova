@@ -75,12 +75,12 @@ export class AuthService {
   }
 
   // LOG OUT
-  async logout(userId: string, rawRefreshToken: string): Promise<void> {
+  async logout(rawRefreshToken: string): Promise<void> {
     const [tokenId, rawSecret] = parseRefreshToken(rawRefreshToken);
     if (!tokenId || !rawSecret) return;
 
-    const stored = await this.prisma.refreshToken.findFirst({
-      where: { id: tokenId, userId },
+    const stored = await this.prisma.refreshToken.findUnique({
+      where: { id: tokenId },
     });
     if (!stored) return;
 

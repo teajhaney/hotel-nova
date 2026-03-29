@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Plus, Search, Pencil, Trash2, ChevronDown, Loader2 } from 'lucide-react';
-import Image from 'next/image';
+import { SkeletonImage as Image } from '@/components/ui/SkeletonImage';
 import { AnimatePresence } from 'motion/react';
 import { isAxiosError } from 'axios';
 import { RoomFormModal } from '@/components/admin/rooms/RoomFormModal';

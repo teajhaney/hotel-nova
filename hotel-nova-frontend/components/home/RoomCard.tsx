@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { SkeletonImage as Image } from '@/components/ui/SkeletonImage';
 import Link from 'next/link';
 import { FEATURED_ROOMS_MESSAGES } from '@/constants/messages';
 import { formatNgn } from '@/utils/format';

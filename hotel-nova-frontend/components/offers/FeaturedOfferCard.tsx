@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import { SkeletonImage as Image } from '@/components/ui/SkeletonImage';
 import { Info, Heart } from 'lucide-react';
 import type { Offer } from '@/type/type';
 import { OFFERS_PAGE_MESSAGES } from '@/constants/messages';
@@ -76,15 +76,15 @@ export function FeaturedOfferCard({
         )}
 
         {/* Price & CTA */}
-        <div className="mt-auto flex items-center justify-between gap-4">
-          <div className="flex items-baseline gap-2">
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-wrap items-baseline gap-2">
             {originalPrice && (
               <span className="text-[14px] text-[#94A3B8] line-through">
                 From ₦{originalPrice.toLocaleString()}
               </span>
             )}
             <div className="flex items-baseline gap-1">
-              <span className="text-[32px] md:text-[36px] font-bold text-[#020887]">
+              <span className="text-[26px] sm:text-[32px] md:text-[36px] font-bold text-[#020887]">
                 ₦{price.toLocaleString()}
               </span>
               <span className="text-[15px] text-[#64748B]">{priceLabel}</span>
@@ -94,8 +94,8 @@ export function FeaturedOfferCard({
           <div className="flex items-center gap-3">
             <button
               type="button"
-              className="px-6 py-3.5 bg-[#020887] text-white font-semibold text-[15px]
-                         rounded-lg hover:bg-[#030A6F] transition-colors"
+              className="px-4 sm:px-6 py-3 sm:py-3.5 bg-[#020887] text-white font-semibold text-[14px] sm:text-[15px]
+                         rounded-lg hover:bg-[#030A6F] transition-colors whitespace-nowrap"
             >
               {OFFERS_PAGE_MESSAGES.claimOffer}
             </button>

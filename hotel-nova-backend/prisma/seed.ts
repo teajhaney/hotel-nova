@@ -267,7 +267,7 @@ async function main() {
         'Daily Housekeeping',
       ],
       imageUrl:
-        'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=1200&q=80&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1592229505726-ca121723b8ef?w=1200&q=80&auto=format&fit=crop',
     },
     {
       roomRef: 'RN-106-SD',
@@ -601,7 +601,7 @@ async function main() {
         'Daily Housekeeping',
       ],
       imageUrl:
-        'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1200&q=80&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1592229505726-ca121723b8ef?w=1200&q=80&auto=format&fit=crop',
     },
     {
       roomRef: 'RN-210-DX',
@@ -899,7 +899,7 @@ async function main() {
         'Daily Housekeeping & Turndown Service',
       ],
       imageUrl:
-        'https://images.unsplash.com/photo-1611892440504-42a792e3f1ec?w=1200&q=80&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1592229505726-ca121723b8ef?w=1200&q=80&auto=format&fit=crop',
     },
     {
       roomRef: 'RN-404-SU',

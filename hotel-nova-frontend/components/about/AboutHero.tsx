@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { SkeletonImage as Image } from '@/components/ui/SkeletonImage';
 import { ABOUT_PAGE_MESSAGES } from '@/constants/messages';
 import { ABOUT_IMAGES } from '@/constants/images';
 

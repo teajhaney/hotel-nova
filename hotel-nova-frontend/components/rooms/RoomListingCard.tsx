@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import { SkeletonImage as Image } from '@/components/ui/SkeletonImage';
 import { BedDouble, Users, Maximize2 } from 'lucide-react';
 import { ROOMS_PAGE_MESSAGES } from '@/constants/messages';
 import { formatNgn } from '@/utils/format';

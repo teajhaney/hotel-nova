@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense } from 'react';
-import Image from 'next/image';
+import { SkeletonImage as Image } from '@/components/ui/SkeletonImage';
 import { CheckCircle, Download, Home, ArrowLeft, Loader2 } from 'lucide-react';
 import { useBookingStore } from '@/stores/booking-store';
 import { BOOKING_MESSAGES } from '@/constants/messages';

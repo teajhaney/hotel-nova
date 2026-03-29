@@ -48,10 +48,11 @@ export function AdminDashboardShell({
         transition={{ duration: 0.25 }}
       >
         {/* Backdrop */}
-        <button
-          className="absolute inset-0 w-full h-full bg-black/50 cursor-default"
+        <div
+          className="absolute inset-0 w-full h-full bg-black/50 cursor-pointer"
           onClick={() => setDrawerOpen(false)}
           aria-label={ADMIN_DASHBOARD_MESSAGES.closeMenuAriaLabel}
+          role="button"
           tabIndex={drawerOpen ? 0 : -1}
         />
         {/* Drawer panel — springs in from left */}
