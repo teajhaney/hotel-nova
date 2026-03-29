@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useSyncExternalStore } from 'react';
 import { SkeletonImage as Image } from '@/components/ui/SkeletonImage';
 import { CheckCircle, Download, Home, ArrowLeft, Loader2 } from 'lucide-react';
 import { useBookingStore } from '@/stores/booking-store';
@@ -28,22 +28,41 @@ function ConfirmationContent() {
   const store = useBookingStore();
   const searchParams = useSearchParams();
 
+  // Zustand hydrates from sessionStorage on the client — the server sees
+  // default/empty state, so store-derived values (total, dates, room) differ
+  // between SSR and client. Wait for mount before rendering those values.
+  const subscribe = () => () => {};
+  const hydrated = useSyncExternalStore(subscribe, () => true, () => false);
+
   // Paystack appends ?reference=PAY-{bookingRef}&trxref=PAY-{bookingRef} to the
   // callback URL after payment. We strip the "PAY-" prefix to recover the bookingRef.
   // This is the fallback for when the store is hydrated from sessionStorage but
   // bookingRef is somehow null (e.g. a hard reload after landing on this page).
-  const paystackRef = searchParams.get('reference') ?? searchParams.get('trxref');
+  const paystackRef =
+    searchParams.get('reference') ?? searchParams.get('trxref');
   const bookingRefFromUrl = paystackRef?.startsWith('PAY-')
     ? paystackRef.slice(4)
     : paystackRef;
 
-  const displayRef = store.bookingRef ?? bookingRefFromUrl ?? store.confirmationId ?? '—';
+  const displayRef =
+    store.bookingRef ?? bookingRefFromUrl ?? store.confirmationId ?? '—';
 
+  if (!hydrated) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 size={28} className="animate-spin text-[#020887]" />
+      </div>
+    );
+  }
+
+	
   return (
     <div className="page-container py-10 max-w-2xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-[20px] font-bold text-[#0D0F2B]">Booking Confirmed</h1>
+        <h1 className="text-[20px] font-bold text-[#0D0F2B]">
+          Booking Confirmed
+        </h1>
       </div>
 
       {/* Success icon + title */}
@@ -51,7 +70,9 @@ function ConfirmationContent() {
         <div className="w-20 h-20 rounded-full bg-[#020887] flex items-center justify-center mb-5">
           <CheckCircle size={42} className="text-white" />
         </div>
-        <h2 className="text-[32px] font-bold text-[#0D0F2B] mb-2">{BOOKING_MESSAGES.confirmationTitle}</h2>
+        <h2 className="text-[32px] font-bold text-[#0D0F2B] mb-2">
+          {BOOKING_MESSAGES.confirmationTitle}
+        </h2>
         <p className="text-[15px] text-[#64748B] max-w-md leading-relaxed">
           {BOOKING_MESSAGES.confirmationSubtitle}
         </p>
@@ -63,9 +84,7 @@ function ConfirmationContent() {
           <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#64748B]">
             {BOOKING_MESSAGES.confirmationId}
           </p>
-          <p className="text-[15px] font-bold text-[#020887]">
-            {displayRef}
-          </p>
+          <p className="text-[15px] font-bold text-[#020887]">{displayRef}</p>
         </div>
 
         {store.selectedRoom && (
@@ -80,8 +99,12 @@ function ConfirmationContent() {
               />
             </div>
             <div>
-              <p className="text-[15px] font-bold text-[#0D0F2B]">The Grand Oasis Abuja</p>
-              <p className="text-[13px] text-[#64748B]">{store.selectedRoom.name}</p>
+              <p className="text-[15px] font-bold text-[#0D0F2B]">
+                The Grand Oasis Abuja
+              </p>
+              <p className="text-[13px] text-[#64748B]">
+                {store.selectedRoom.name}
+              </p>
             </div>
           </div>
         )}
@@ -91,19 +114,27 @@ function ConfirmationContent() {
             <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#64748B] mb-1">
               {BOOKING_MESSAGES.checkInLabel}
             </p>
-            <p className="text-[15px] font-bold text-[#0D0F2B]">{formatBookingDate(store.checkIn)}</p>
+            <p className="text-[15px] font-bold text-[#0D0F2B]">
+              {formatBookingDate(store.checkIn)}
+            </p>
           </div>
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#64748B] mb-1">
               {BOOKING_MESSAGES.checkOutLabel}
             </p>
-            <p className="text-[15px] font-bold text-[#0D0F2B]">{formatBookingDate(store.checkOut)}</p>
+            <p className="text-[15px] font-bold text-[#0D0F2B]">
+              {formatBookingDate(store.checkOut)}
+            </p>
           </div>
         </div>
 
         <div className="flex items-center justify-between pt-4 border-t border-[#F1F5F9]">
-          <span className="text-[14px] text-[#64748B]">{BOOKING_MESSAGES.totalPaid}</span>
-          <span className="text-[18px] font-bold text-[#0D0F2B]">{formatNgn(store.getTotal())}</span>
+          <span className="text-[14px] text-[#64748B]">
+            {BOOKING_MESSAGES.totalPaid}
+          </span>
+          <span className="text-[18px] font-bold text-[#0D0F2B]">
+            {formatNgn(store.getTotal())}
+          </span>
         </div>
       </div>
 
@@ -118,7 +149,9 @@ function ConfirmationContent() {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
         <div className="absolute bottom-3 left-0 right-0 text-center">
-          <p className="text-white text-[12px] font-medium">123 Maitama District, Abuja, Nigeria</p>
+          <p className="text-white text-[12px] font-medium">
+            123 Maitama District, Abuja, Nigeria
+          </p>
         </div>
       </div>
 
@@ -150,7 +183,10 @@ function ConfirmationContent() {
 
       <div className="text-center mt-8 text-[13px] text-[#94A3B8]">
         {BOOKING_MESSAGES.needHelpConfirmation}{' '}
-        <a href="/contact" className="text-[#020887] font-medium hover:underline">
+        <a
+          href="/contact"
+          className="text-[#020887] font-medium hover:underline"
+        >
           {BOOKING_MESSAGES.contactSupport}
         </a>
       </div>
