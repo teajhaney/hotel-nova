@@ -1,28 +1,58 @@
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { HOME_IMAGES } from '@/constants/images';
 import { HERO_MESSAGES } from '@/constants/messages';
 
+const SLIDES = HOME_IMAGES.heroCarousel;
+const INTERVAL_MS = 3000;
+const FADE_MS = 800;
+
 export function HeroSection() {
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const goTo = useCallback((index: number) => {
+    setActiveIndex(index);
+  }, []);
+
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % SLIDES.length);
+    }, INTERVAL_MS);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <section aria-label={HERO_MESSAGES.ariaLabel}>
-      {/* Full-bleed hero image */}
+      {/* Full-bleed hero image carousel */}
       <div className="relative h-[620px] md:h-[540px] sm:h-[480px] overflow-hidden">
-        <Image
-          src={HOME_IMAGES.hero}
-          fill
-          alt=""
-          className="object-cover object-center"
-          priority
-        />
+        {/* Stacked images with crossfade */}
+        {SLIDES.map((src, index) => (
+          <Image
+            key={src}
+            src={src}
+            fill
+            alt=""
+            className="object-cover object-center"
+            priority={index === 0}
+            style={{
+              opacity: index === activeIndex ? 1 : 0,
+              transition: `opacity ${FADE_MS}ms ease-in-out`,
+              zIndex: index === activeIndex ? 1 : 0,
+            }}
+          />
+        ))}
 
         {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/35 to-black/70" />
+        <div className="absolute inset-0 z-[2] bg-gradient-to-b from-black/25 via-black/35 to-black/70" />
 
         {/* Hero content */}
         <div
-          className="relative z-10 h-full flex flex-col items-center justify-center text-center
+          className="relative z-[3] h-full flex flex-col items-center justify-center text-center
                      page-container pb-[60px]"
         >
           <h1 className="text-white leading-none">
@@ -59,16 +89,27 @@ export function HeroSection() {
               {HERO_MESSAGES.ctaSecondary}
             </Link>
           </div>
+
+          {/* Dot indicators */}
+          <div className="flex items-center gap-2 mt-8">
+            {SLIDES.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => goTo(index)}
+                aria-label={`Go to slide ${index + 1}`}
+                className="group p-1"
+              >
+                <span
+                  className={`block rounded-full transition-all duration-300 ${index === activeIndex
+                    ? 'w-6 h-2 bg-white'
+                    : 'w-2 h-2 bg-white/40 group-hover:bg-white/70'
+                    }`}
+                />
+              </button>
+            ))}
+          </div>
         </div>
       </div>
-
-      {/* Booking bar — overlaps hero bottom on desktop */}
-      {/* <div
-        id="booking"
-        className="relative z-20 lg:-mt-[56px] page-container"
-      >
-        <BookingBar />
-      </div> */}
     </section>
   );
 }

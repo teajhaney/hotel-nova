@@ -118,7 +118,7 @@ export default function AdminRoomsPage() {
   return (
     <div className="admin-page-container">
       {/* Header */}
-      <div className="flex items-center justify-between mb-7">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-7">
         <div>
           <h1 className="text-[24px] font-bold text-[#0D0F2B]">{M.roomsTitle}</h1>
           <p className="text-[14px] text-[#64748B] mt-1">
@@ -127,7 +127,7 @@ export default function AdminRoomsPage() {
         </div>
         <button
           onClick={handleOpenAdd}
-          className="flex items-center gap-1.5 h-10 px-4 rounded-lg bg-[#020887] text-white text-[13px] font-medium hover:bg-[#38369A] transition-colors"
+          className="flex items-center justify-center gap-1.5 h-10 px-4 rounded-lg bg-[#020887] text-white text-[13px] font-medium hover:bg-[#38369A] transition-colors self-start sm:self-auto shrink-0 whitespace-nowrap"
         >
           <Plus size={16} />
           {M.addNewRoom}
@@ -143,42 +143,45 @@ export default function AdminRoomsPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={M.searchRoomsPlaceholder}
-            className="flex-1 text-[14px] bg-transparent border-none outline-none text-[#0D0F2B] placeholder:text-[#94A3B8]"
+            className="flex-1 text-[14px] w-full bg-transparent border-none outline-none text-[#0D0F2B] placeholder:text-[#94A3B8]"
           />
         </div>
-        <div className="relative">
-          <select
-            value={typeFilter}
-            onChange={(e) => { setTypeFilter(e.target.value); setPage(1); }}
-            className="h-10 pl-3 pr-8 rounded-lg border border-[#E2E8F0] bg-white text-[13px] text-[#0D0F2B] outline-none appearance-none cursor-pointer"
-          >
-            <option>{M.allTypes}</option>
-            <option>{M.typeDeluxe}</option>
-            <option>{M.typeSuite}</option>
-            <option>{M.typeStandard}</option>
-            <option>{M.typeExecutive}</option>
-          </select>
-          <ChevronDown size={14} className="hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 text-[#94A3B8] pointer-events-none" />
-        </div>
-        <div className="relative">
-          <select
-            value={statusFilter}
-            onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-            className="h-10 pl-3 pr-8 rounded-lg border border-[#E2E8F0] bg-white text-[13px] text-[#0D0F2B] outline-none appearance-none cursor-pointer"
-          >
-            <option>{M.allStatuses}</option>
-            <option>{M.statusAvailable}</option>
-            <option>{M.statusOccupied}</option>
-            <option>{M.statusMaintenance}</option>
-          </select>
-          <ChevronDown size={14} className="hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 text-[#94A3B8] pointer-events-none" />
+        
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="relative flex-1 sm:flex-none">
+            <select
+              value={typeFilter}
+              onChange={(e) => { setTypeFilter(e.target.value); setPage(1); }}
+              className="h-10 pl-3 pr-8 w-full rounded-lg border border-[#E2E8F0] bg-white text-[13px] text-[#0D0F2B] outline-none appearance-none cursor-pointer"
+            >
+              <option>{M.allTypes}</option>
+              <option>{M.typeDeluxe}</option>
+              <option>{M.typeSuite}</option>
+              <option>{M.typeStandard}</option>
+              <option>{M.typeExecutive}</option>
+            </select>
+            <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#94A3B8] pointer-events-none" />
+          </div>
+          <div className="relative flex-1 sm:flex-none">
+            <select
+              value={statusFilter}
+              onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+              className="h-10 pl-3 pr-8 w-full rounded-lg border border-[#E2E8F0] bg-white text-[13px] text-[#0D0F2B] outline-none appearance-none cursor-pointer"
+            >
+              <option>{M.allStatuses}</option>
+              <option>{M.statusAvailable}</option>
+              <option>{M.statusOccupied}</option>
+              <option>{M.statusMaintenance}</option>
+            </select>
+            <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-[#94A3B8] pointer-events-none" />
+          </div>
         </div>
       </div>
 
       {/* Table */}
       <div className="admin-card overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-[800px]">
             <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0]">
               <tr>
                 <th className="admin-table-th">{M.roomsColRoomInfo}</th>
@@ -190,11 +193,33 @@ export default function AdminRoomsPage() {
             </thead>
             <tbody className="divide-y divide-[#F1F5F9]">
               {isLoading && (
-                <tr>
-                  <td colSpan={5} className="px-5 py-10 text-center">
-                    <Loader2 className="mx-auto animate-spin text-[#94A3B8]" size={24} />
-                  </td>
-                </tr>
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} className="animate-pulse border-b border-[#E2E8F0] last:border-0">
+                    <td className="admin-table-td">
+                      <div className="flex items-center gap-3">
+                        <div className="w-16 h-12 rounded-lg bg-[#E2E8F0] shrink-0"></div>
+                        <div>
+                          <div className="h-4 bg-[#E2E8F0] rounded w-32 mb-1.5"></div>
+                          <div className="h-3 bg-[#E2E8F0] rounded w-20"></div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="admin-table-td"><div className="h-4 bg-[#E2E8F0] rounded w-24"></div></td>
+                    <td className="admin-table-td"><div className="h-4 bg-[#E2E8F0] rounded w-20"></div></td>
+                    <td className="admin-table-td">
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-2 h-2 rounded-full bg-[#E2E8F0]"></div>
+                        <div className="h-4 bg-[#E2E8F0] rounded w-16"></div>
+                      </div>
+                    </td>
+                    <td className="admin-table-td">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-[#E2E8F0]"></div>
+                        <div className="w-8 h-8 rounded-lg bg-[#E2E8F0]"></div>
+                      </div>
+                    </td>
+                  </tr>
+                ))
               )}
 
               {isError && (

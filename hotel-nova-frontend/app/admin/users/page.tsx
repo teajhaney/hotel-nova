@@ -110,14 +110,14 @@ export default function AdminUsersPage() {
   return (
     <div className="admin-page-container">
       {/* Header */}
-      <div className="flex items-center justify-between mb-7">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-7">
         <div>
           <h1 className="text-[24px] font-bold text-[#0D0F2B]">{M.usersTitle}</h1>
           <p className="text-[14px] text-[#64748B] mt-1">{M.usersSubtitle}</p>
         </div>
         <button
           onClick={handleOpenAdd}
-          className="flex items-center gap-1.5 h-10 px-4 rounded-lg bg-[#020887] text-white text-[13px] font-medium hover:bg-[#38369A] transition-colors"
+          className="flex items-center justify-center gap-1.5 h-10 px-4 rounded-lg bg-[#020887] text-white text-[13px] font-medium hover:bg-[#38369A] transition-colors self-start sm:self-auto shrink-0 whitespace-nowrap"
         >
           <Plus size={16} />
           {M.addAdmin}
@@ -125,7 +125,7 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         {STATS.map(({ label, value, icon: Icon }) => (
           <div key={label} className="admin-stat-card flex flex-col items-center text-center sm:flex-row sm:items-center sm:text-left gap-2 sm:gap-4">
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-[#EEF0FF] flex items-center justify-center shrink-0">
@@ -145,12 +145,12 @@ export default function AdminUsersPage() {
         <div className="px-5 py-4 border-b border-[#E2E8F0] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <h2 className="text-[15px] font-semibold text-[#0D0F2B]">{M.userDirectoryTitle}</h2>
 
-          <div className="flex items-center gap-1 bg-[#F1F5F9] p-1 rounded-lg">
+          <div className="flex items-center gap-1 bg-[#F1F5F9] p-1 rounded-lg self-start sm:self-auto overflow-x-auto max-w-full">
             {ROLE_TABS.map(({ key, label }) => (
               <button
                 key={key}
                 onClick={() => { setRoleFilter(key); setPage(1); }}
-                className={`px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors ${
+                className={`px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors whitespace-nowrap ${
                   roleFilter === key
                     ? 'bg-[#020887] text-white'
                     : 'text-[#64748B] hover:text-[#0D0F2B]'
@@ -162,25 +162,48 @@ export default function AdminUsersPage() {
           </div>
         </div>
 
-        {isLoading ? (
-          <div className="flex justify-center py-16">
-            <Loader2 size={28} className="animate-spin text-[#020887]" />
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0]">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[800px]">
+            <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0]">
+              <tr>
+                <th className="admin-table-th">{M.usersColUser}</th>
+                <th className="admin-table-th">{M.usersColEmail}</th>
+                <th className="admin-table-th">{M.usersColRole}</th>
+                <th className="admin-table-th">{M.usersColStatus}</th>
+                <th className="admin-table-th">{M.usersColJoined}</th>
+                <th className="admin-table-th">{M.usersColActions}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#F1F5F9]">
+              {isLoading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} className="animate-pulse">
+                    <td className="admin-table-td">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-full bg-[#E2E8F0]"></div>
+                        <div className="h-4 bg-[#E2E8F0] rounded w-32"></div>
+                      </div>
+                    </td>
+                    <td className="admin-table-td"><div className="h-4 bg-[#E2E8F0] rounded w-40"></div></td>
+                    <td className="admin-table-td"><div className="h-5 bg-[#E2E8F0] rounded w-16"></div></td>
+                    <td className="admin-table-td"><div className="h-5 bg-[#E2E8F0] rounded w-16"></div></td>
+                    <td className="admin-table-td"><div className="h-4 bg-[#E2E8F0] rounded w-24"></div></td>
+                    <td className="admin-table-td">
+                      <div className="flex gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-[#E2E8F0]"></div>
+                        <div className="w-8 h-8 rounded-lg bg-[#E2E8F0]"></div>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : users.length === 0 ? (
                 <tr>
-                  <th className="admin-table-th">{M.usersColUser}</th>
-                  <th className="admin-table-th">{M.usersColEmail}</th>
-                  <th className="admin-table-th">{M.usersColRole}</th>
-                  <th className="admin-table-th">{M.usersColStatus}</th>
-                  <th className="admin-table-th">{M.usersColJoined}</th>
-                  <th className="admin-table-th">{M.usersColActions}</th>
+                  <td colSpan={6} className="px-5 py-10 text-center text-[14px] text-[#94A3B8]">
+                    No {roleFilter === 'All' ? '' : roleFilter.toLowerCase()} found
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-[#F1F5F9]">
-                {users.map((user, i) => (
+              ) : (
+                users.map((user, i) => (
                   <tr key={user.id} className="hover:bg-[#F8FAFC] transition-colors">
                     <td className="admin-table-td">
                       <div className="flex items-center gap-2.5">
@@ -250,18 +273,11 @@ export default function AdminUsersPage() {
                       </div>
                     </td>
                   </tr>
-                ))}
-                {users.length === 0 && (
-                  <tr>
-                    <td colSpan={6} className="px-5 py-10 text-center text-[14px] text-[#94A3B8]">
-                      No {roleFilter === 'All' ? '' : roleFilter.toLowerCase()} found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                ))
+              )}
+            </tbody>
+          </table>
           </div>
-        )}
 
         {/* Pagination */}
         {meta && meta.totalPages > 1 && (

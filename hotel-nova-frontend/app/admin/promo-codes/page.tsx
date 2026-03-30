@@ -129,14 +129,14 @@ export default function AdminPromoCodesPage() {
   return (
     <div className="admin-page-container">
       {/* Header */}
-      <div className="flex items-center justify-between mb-7">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-7">
         <div>
           <h1 className="text-[24px] font-bold text-[#0D0F2B]">{M.promoTitle}</h1>
           <p className="text-[14px] text-[#64748B] mt-1">{M.promoSubtitle}</p>
         </div>
         <button
           onClick={() => setAddOpen(true)}
-          className="flex items-center gap-1.5 h-10 px-4 rounded-lg bg-[#020887] text-white text-[13px] font-medium hover:bg-[#38369A] transition-colors"
+          className="flex items-center justify-center gap-1.5 h-10 px-4 rounded-lg bg-[#020887] text-white text-[13px] font-medium hover:bg-[#38369A] transition-colors self-start sm:self-auto shrink-0 whitespace-nowrap"
         >
           <Plus size={16} />
           {M.addNewCode}
@@ -144,12 +144,12 @@ export default function AdminPromoCodesPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 border-b border-[#E2E8F0] mb-6">
+      <div className="flex items-center gap-1 border-b border-[#E2E8F0] mb-6 overflow-x-auto">
         {TABS.map((tab) => (
           <button
             key={tab}
             onClick={() => handleTabChange(tab)}
-            className={`px-4 py-2.5 text-[13px] font-medium transition-colors border-b-2 -mb-px ${
+            className={`px-4 py-2.5 text-[13px] font-medium transition-colors border-b-2 -mb-px whitespace-nowrap ${
               activeTab === tab
                 ? 'border-[#020887] text-[#020887]'
                 : 'border-transparent text-[#64748B] hover:text-[#0D0F2B]'
@@ -163,7 +163,7 @@ export default function AdminPromoCodesPage() {
       {/* Table */}
       <div className="admin-card overflow-hidden mb-6">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-[900px]">
             <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0]">
               <tr>
                 <th className="admin-table-th">{M.promoColCodeName}</th>
@@ -176,11 +176,40 @@ export default function AdminPromoCodesPage() {
             </thead>
             <tbody className="divide-y divide-[#F1F5F9]">
               {isLoading ? (
-                <tr>
-                  <td colSpan={6} className="px-5 py-10 text-center">
-                    <Loader2 size={24} className="animate-spin text-[#020887] mx-auto" />
-                  </td>
-                </tr>
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} className="animate-pulse border-b border-[#E2E8F0] last:border-0">
+                    <td className="admin-table-td">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-md bg-[#E2E8F0]"></div>
+                        <div>
+                          <div className="h-4 bg-[#E2E8F0] rounded w-24 mb-1.5"></div>
+                          <div className="h-3 bg-[#E2E8F0] rounded w-32"></div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="admin-table-td"><div className="h-5 bg-[#E2E8F0] rounded w-16"></div></td>
+                    <td className="admin-table-td">
+                      <div className="w-28">
+                        <div className="flex justify-between mb-1.5">
+                          <div className="h-3 bg-[#E2E8F0] rounded w-8"></div>
+                          <div className="h-3 bg-[#E2E8F0] rounded w-6"></div>
+                        </div>
+                        <div className="h-1.5 bg-[#E2E8F0] rounded-full w-full"></div>
+                      </div>
+                    </td>
+                    <td className="admin-table-td">
+                      <div className="h-3.5 bg-[#E2E8F0] rounded w-24 mb-1"></div>
+                      <div className="h-3.5 bg-[#E2E8F0] rounded w-32"></div>
+                    </td>
+                    <td className="admin-table-td"><div className="h-5 bg-[#E2E8F0] rounded-md w-16"></div></td>
+                    <td className="admin-table-td">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-[#E2E8F0]"></div>
+                        <div className="w-8 h-8 rounded-lg bg-[#E2E8F0]"></div>
+                      </div>
+                    </td>
+                  </tr>
+                ))
               ) : promos.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-5 py-10 text-center text-[14px] text-[#94A3B8]">
