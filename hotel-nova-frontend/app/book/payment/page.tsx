@@ -45,10 +45,11 @@ export default function BookPaymentPage() {
         }),
       });
 
-      const data = await res.json() as CreateBookingApiResponse & { message?: string };
+      const data = await res.json() as CreateBookingApiResponse & { error?: { message?: string }; message?: string };
 
       if (!res.ok) {
-        toast.error(data.message ?? 'Booking failed. Please try again.');
+        const msg = data.error?.message ?? data.message ?? 'Booking failed. Please try again.';
+        toast.error(msg);
         return;
       }
 

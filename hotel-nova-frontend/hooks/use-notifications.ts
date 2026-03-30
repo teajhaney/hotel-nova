@@ -62,25 +62,32 @@ export function useGlobalNotificationListener() {
 
 // ─── useNotifications ────────────────────────────────────────────────────────
 // Fetches the user's notifications filtered by tab (all / unread / archived).
-// so this hook is now purely a data-fetching hook.
-export function useNotifications(tab: 'all' | 'unread' | 'archived') {
+// Supports pagination — pass `page` (1-based) and optional `limit`.
+export function useNotifications(
+  tab: 'all' | 'unread' | 'archived',
+  page = 1,
+  limit = 20,
+) {
   const user = useAuthStore((s) => s.user);
 
-  // Build the query string based on the active tab
+  // Build the query string based on the active tab + pagination
   const params = new URLSearchParams();
   if (tab === 'unread') params.set('read', 'false');
   if (tab === 'archived') params.set('archived', 'true');
+  params.set('page', String(page));
+  params.set('limit', String(limit));
   const qs = params.toString();
 
   return useQuery<NotificationsPage>({
-    queryKey: KEYS.list(tab),
+    queryKey: [...KEYS.list(tab), page, limit],
     queryFn: async () => {
       const { data } = await apiClient.get<NotificationsPage>(
-        `/notifications${qs ? `?${qs}` : ''}`,
+        `/notifications?${qs}`,
       );
       return data;
     },
     enabled: !!user,
+    placeholderData: (prev) => prev,
   });
 }
 

@@ -11,6 +11,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { extractApiError } from '@/lib/api-error';
 import { GUEST_DASHBOARD_MESSAGES } from '@/constants/messages';
 import {
   useEligibleBookings,
@@ -85,8 +86,8 @@ function ReviewModal({
             toast.success('Review updated.');
             onClose();
           },
-          onError: () => {
-            toast.error('Could not update review. Please try again.');
+          onError: (err) => {
+            toast.error(extractApiError(err, 'Could not update review. Please try again.'));
           },
         },
       );
@@ -98,8 +99,8 @@ function ReviewModal({
             toast.success('Review submitted! It will appear after moderation.');
             onClose();
           },
-          onError: () => {
-            toast.error('Could not submit review. Please try again.');
+          onError: (err) => {
+            toast.error(extractApiError(err, 'Could not submit review. Please try again.'));
           },
         },
       );
