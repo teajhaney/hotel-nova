@@ -40,13 +40,7 @@ export default function AdminOverviewPage() {
   const revenueData = stats?.monthlyRevenue ?? [];
   const upcomingCheckIns = stats?.upcomingCheckIns ?? [];
 
-  if (isLoading) {
-    return (
-      <div className="admin-page-container flex items-center justify-center py-24">
-        <Loader2 size={32} className="animate-spin text-[#020887]" />
-      </div>
-    );
-  }
+
 
   const statCards = [
     {
@@ -88,7 +82,7 @@ export default function AdminOverviewPage() {
       </div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-7">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-7">
         {statCards.map(({ label, value, icon: Icon, iconBg, iconColor }) => (
           <div key={label} className="admin-stat-card">
             <div className="flex items-start justify-between mb-3">
@@ -156,13 +150,13 @@ export default function AdminOverviewPage() {
         <div className="px-5 py-4 border-b border-[#E2E8F0]">
           <h2 className="text-[15px] font-semibold text-[#0D0F2B]">{M.upcomingCheckinsTitle}</h2>
         </div>
-        {upcomingCheckIns.length === 0 ? (
+        {upcomingCheckIns.length === 0 && !isLoading ? (
           <p className="px-5 py-8 text-center text-[14px] text-[#94A3B8]">
             No upcoming check-ins today.
           </p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[800px]">
               <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0]">
                 <tr>
                   <th className="admin-table-th">{M.overviewColGuestName}</th>
@@ -173,44 +167,61 @@ export default function AdminOverviewPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#F1F5F9]">
-                {upcomingCheckIns.map((row, i) => (
-                  <tr key={row.bookingId} className="hover:bg-[#F8FAFC] transition-colors">
-                    <td className="admin-table-td">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-                          style={{ backgroundColor: ['#EEF0FF', '#D1FAE5', '#FFEDD5', '#DBEAFE', '#FEE2E2'][i % 5] }}
-                        >
-                          <span
-                            className="text-[11px] font-bold"
-                            style={{ color: ['#020887', '#10B981', '#F97316', '#1D4ED8', '#DC2626'][i % 5] }}
-                          >
-                            {row.guestName.split(' ').map((n) => n[0]).join('').slice(0, 2)}
-                          </span>
+                {isLoading ? (
+                  Array.from({ length: 3 }).map((_, i) => (
+                    <tr key={i} className="animate-pulse border-b border-[#E2E8F0] last:border-0">
+                      <td className="admin-table-td">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-[#E2E8F0]"></div>
+                          <div className="h-4 bg-[#E2E8F0] rounded w-24"></div>
                         </div>
-                        <span className="text-[13px] font-medium text-[#0D0F2B]">{row.guestName}</span>
-                      </div>
-                    </td>
-                    <td className="admin-table-td text-[13px] text-[#64748B]">{row.roomName}</td>
-                    <td className="admin-table-td text-[13px] text-[#64748B]">{formatBookingDate(row.checkIn)}</td>
-                    <td className="admin-table-td">
-                      <span className={row.status === 'Confirmed' ? 'admin-badge-confirmed' : 'admin-badge-pending'}>
-                        {row.status}
-                      </span>
-                    </td>
-                    <td className="admin-table-td">
-                      <button
-                        className={`h-8 px-3 rounded-lg text-[12px] font-medium transition-colors ${
-                          row.status === 'Confirmed'
-                            ? 'bg-[#020887] text-white hover:bg-[#38369A]'
-                            : 'bg-[#FEF3C7] text-[#B45309] hover:bg-[#FDE68A]'
-                        }`}
-                      >
-                        {row.status === 'Confirmed' ? M.actionCheckin : M.actionApprove}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="admin-table-td"><div className="h-4 bg-[#E2E8F0] rounded w-20"></div></td>
+                      <td className="admin-table-td"><div className="h-4 bg-[#E2E8F0] rounded w-24"></div></td>
+                      <td className="admin-table-td"><div className="h-4 bg-[#E2E8F0] rounded w-16"></div></td>
+                      <td className="admin-table-td"><div className="h-8 bg-[#E2E8F0] rounded-lg w-16"></div></td>
+                    </tr>
+                  ))
+                ) : (
+                  upcomingCheckIns.map((row, i) => (
+                    <tr key={row.bookingId} className="hover:bg-[#F8FAFC] transition-colors">
+                      <td className="admin-table-td">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+                            style={{ backgroundColor: ['#EEF0FF', '#D1FAE5', '#FFEDD5', '#DBEAFE', '#FEE2E2'][i % 5] }}
+                          >
+                            <span
+                              className="text-[11px] font-bold"
+                              style={{ color: ['#020887', '#10B981', '#F97316', '#1D4ED8', '#DC2626'][i % 5] }}
+                            >
+                              {row.guestName.split(' ').map((n) => n[0]).join('').slice(0, 2)}
+                            </span>
+                          </div>
+                          <span className="text-[13px] font-medium text-[#0D0F2B]">{row.guestName}</span>
+                        </div>
+                      </td>
+                      <td className="admin-table-td text-[13px] text-[#64748B]">{row.roomName}</td>
+                      <td className="admin-table-td text-[13px] text-[#64748B]">{formatBookingDate(row.checkIn)}</td>
+                      <td className="admin-table-td">
+                        <span className={row.status === 'Confirmed' ? 'admin-badge-confirmed' : 'admin-badge-pending'}>
+                          {row.status}
+                        </span>
+                      </td>
+                      <td className="admin-table-td">
+                        <button
+                          className={`h-8 px-3 rounded-lg text-[12px] font-medium transition-colors ${
+                            row.status === 'Confirmed'
+                              ? 'bg-[#020887] text-white hover:bg-[#38369A]'
+                              : 'bg-[#FEF3C7] text-[#B45309] hover:bg-[#FDE68A]'
+                          }`}
+                        >
+                          {row.status === 'Confirmed' ? M.actionCheckin : M.actionApprove}
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

@@ -10,6 +10,18 @@ export const HOME_IMAGES = {
   /** Hero — grand hotel exterior with pool and palm trees */
   hero: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1920&q=90',
 
+  /** Hero carousel — rotating images for the landing page */
+  heroCarousel: [
+    /** Grand hotel exterior with pool and palm trees */
+    'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1920&q=90',
+    /** Luxurious hotel room with warm golden lighting */
+    'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=1920&q=90',
+    /** Elegant hotel lobby with grand chandelier */
+    'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1920&q=90',
+    /** Stunning hotel infinity pool at sunset */
+    'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=1920&q=90',
+  ] as const,
+
   rooms: {
     /** Presidential Oasis Suite — expansive luxury suite interior */
     presidentialSuite:

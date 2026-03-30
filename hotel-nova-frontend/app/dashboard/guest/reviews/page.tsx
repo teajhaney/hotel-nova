@@ -227,9 +227,9 @@ function ReviewCard({
 
   return (
     <div className="bg-white rounded-lg border border-[#E2E8F0] overflow-hidden">
-      <div className="flex gap-4 p-4">
+      <div className="flex gap-3 sm:gap-4 p-3 sm:p-4 pb-2 sm:pb-3">
         {/* Room image */}
-        <div className="w-20 h-20 rounded-lg overflow-hidden shrink-0">
+        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden shrink-0">
           <Image
             src={imgSrc}
             alt={booking.roomName}
@@ -239,76 +239,83 @@ function ReviewCard({
           />
         </div>
 
-        {/* Info */}
+         {/* Info */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-3 flex-wrap mb-1">
-            <div>
-              <p className="text-[15px] font-semibold text-[#0D0F2B]">
-                {booking.roomName}
-              </p>
-              <p className="text-[12px] text-[#64748B]">{booking.roomType}</p>
-            </div>
+          <p className="text-[15px] font-semibold text-[#0D0F2B]">
+            {booking.roomName}
+          </p>
+          <p className="text-[12px] text-[#64748B]">{booking.roomType}</p>
+        </div>
+      </div>
 
-            {/* Badge — reflects the real review status, not just whether a review exists */}
-            {reviewStatus === 'Approved' ? (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#D1FAE5] text-[11px] font-semibold text-[#10B981] uppercase tracking-wide">
-                <CheckCircle2 size={12} />
-                {GUEST_DASHBOARD_MESSAGES.reviewSubmittedLabel}
-              </span>
-            ) : reviewStatus === 'Pending' ? (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#EEF0FF] text-[11px] font-semibold text-[#020887] uppercase tracking-wide">
-                Pending Review
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#FEF3C7] text-[11px] font-semibold text-[#B45309] uppercase tracking-wide">
-                {GUEST_DASHBOARD_MESSAGES.reviewPendingLabel}
-              </span>
-            )}
-          </div>
+  
+      <div className="px-3 sm:px-4 pb-3 sm:pb-4 flex flex-col gap-2">
+        {/* Badge */}
+        <div>
+          {reviewStatus === 'Approved' ? (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#D1FAE5] text-[10px] sm:text-[11px] font-semibold text-[#10B981] uppercase tracking-wide">
+              <CheckCircle2 size={12} />
+              {GUEST_DASHBOARD_MESSAGES.reviewSubmittedLabel}
+            </span>
+          ) : reviewStatus === 'Pending' ? (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#EEF0FF] text-[10px] sm:text-[11px] font-semibold text-[#020887] uppercase tracking-wide">
+              Pending Review
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#FEF3C7] text-[10px] sm:text-[11px] font-semibold text-[#B45309] uppercase tracking-wide">
+              {GUEST_DASHBOARD_MESSAGES.reviewPendingLabel}
+            </span>
+          )}
+        </div>
 
-          <div className="flex items-center gap-1.5 text-[12px] text-[#64748B] mb-2">
-            <CalendarDays size={13} />
-            <span>
+        {/* Stars */}
+        {booking.review && <StarRating rating={booking.review.rating} />}
+
+        {/* Date and Booking info */}
+        <div className="flex flex-col gap-0.5 sm:flex-row sm:items-center sm:gap-1.5 text-[11px] sm:text-[12px] text-[#64748B]">
+          <div className="flex items-center gap-1.5">
+            <CalendarDays size={13} className="shrink-0" />
+            <span className="whitespace-nowrap">
               {formatBookingDate(booking.checkIn)} –{' '}
               {formatBookingDate(booking.checkOut)}
             </span>
-            <span className="text-[#CBD5E1]">·</span>
-            <span className="font-medium text-[#94A3B8]">
+          </div>
+          <div className="flex items-center gap-1.5 sm:gap-0 pl-5 sm:pl-0 mt-0.5 sm:mt-0">
+            <span className="hidden sm:inline text-[#CBD5E1] mr-1.5">·</span>
+            <span className="font-medium text-[#94A3B8] whitespace-nowrap">
               #{booking.bookingRef}
             </span>
           </div>
-
-          {booking.review && <StarRating rating={booking.review.rating} />}
         </div>
       </div>
 
       {/* Bottom section — depends on review state */}
       {booking.review ? (
-        <div className="px-4 pb-4 border-t border-[#F1F5F9] pt-3">
-          <p className="text-[13px] text-[#64748B] leading-relaxed line-clamp-3">
+        <div className="px-3 sm:px-4 pb-3 sm:pb-4 border-t border-[#F1F5F9] pt-3">
+          <p className="text-[12px] sm:text-[13px] text-[#64748B] leading-relaxed line-clamp-3">
             {booking.review.reviewText}
           </p>
-          <p className="text-[11px] text-[#94A3B8] mt-1.5">
+          <p className="text-[10px] sm:text-[11px] text-[#94A3B8] mt-1.5">
             Submitted {formatBookingDate(booking.review.submittedAt)}
           </p>
           {/* Only Pending reviews can be edited — once approved the admin owns it */}
           {reviewStatus === 'Pending' && (
             <button
               onClick={() => onReview(booking)}
-              className="mt-2.5 text-[13px] font-semibold text-[#020887] hover:underline"
+              className="mt-2 text-[12px] sm:text-[13px] font-semibold text-[#020887] hover:underline"
             >
               {GUEST_DASHBOARD_MESSAGES.editReview}
             </button>
           )}
         </div>
       ) : (
-        <div className="px-4 pb-4 border-t border-[#F1F5F9] pt-3 flex items-center justify-between">
-          <p className="text-[13px] text-[#94A3B8]">
+        <div className="px-3 sm:px-4 pb-3 sm:pb-4 border-t border-[#F1F5F9] pt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
+          <p className="text-[12px] sm:text-[13px] text-[#94A3B8]">
             Share your thoughts about this stay
           </p>
           <button
             onClick={() => onReview(booking)}
-            className="px-4 py-2 rounded-lg bg-[#020887] text-white text-[13px] font-semibold hover:bg-[#38369A] transition-colors"
+            className="w-full sm:w-auto px-4 py-2 rounded-lg bg-[#020887] text-white text-[13px] font-semibold hover:bg-[#38369A] transition-colors whitespace-nowrap"
           >
             {GUEST_DASHBOARD_MESSAGES.leaveReview}
           </button>

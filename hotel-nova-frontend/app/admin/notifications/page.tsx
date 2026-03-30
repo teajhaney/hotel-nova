@@ -101,12 +101,12 @@ function NotifCard({
 
   return (
     <div className={`admin-card border-l-4 ${border} ${notif.read ? 'opacity-70' : ''}`}>
-      <div className="p-5">
-        <div className="flex items-start gap-4">
+      <div className="p-3 sm:p-5">
+        <div className="flex items-start gap-3 sm:gap-4">
           <div
-            className={`w-10 h-10 rounded-full ${iconBg} flex items-center justify-center shrink-0`}
+            className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full ${iconBg} flex items-center justify-center shrink-0`}
           >
-            <Icon size={18} className={iconColor} strokeWidth={1.8} />
+            <Icon size={16} className={`${iconColor} sm:w-[18px] sm:h-[18px]`} strokeWidth={1.8} />
           </div>
 
           <div className="flex-1 min-w-0">
@@ -128,11 +128,11 @@ function NotifCard({
               {notif.message}
             </p>
 
-            <div className="flex items-center gap-2 mt-4">
+            <div className="flex items-center gap-1.5 sm:gap-2 mt-4 w-full">
               {notif.actionLabel && notif.actionHref && (
                 <Link
                   href={notif.actionHref}
-                  className="h-8 px-4 rounded-lg bg-[#020887] text-white text-[12px] font-medium hover:bg-[#38369A] transition-colors inline-flex items-center"
+                  className="h-7 sm:h-8 px-1.5 sm:px-4 rounded-md sm:rounded-lg bg-[#020887] text-white text-[10px] sm:text-[12px] font-medium hover:bg-[#38369A] transition-colors inline-flex items-center justify-center flex-1 sm:flex-none whitespace-nowrap"
                 >
                   {notif.actionLabel}
                 </Link>
@@ -140,7 +140,7 @@ function NotifCard({
               {!notif.read && (
                 <button
                   onClick={() => onMarkRead(notif.id)}
-                  className="h-8 px-4 rounded-lg border border-[#E2E8F0] text-[12px] font-medium text-[#64748B] hover:border-[#020887] hover:text-[#020887] transition-colors"
+                  className="h-7 sm:h-8 px-1.5 sm:px-4 rounded-md sm:rounded-lg border border-[#E2E8F0] text-[10px] sm:text-[12px] font-medium text-[#64748B] hover:border-[#020887] hover:text-[#020887] transition-colors inline-flex items-center justify-center flex-1 sm:flex-none whitespace-nowrap"
                 >
                   Mark Read
                 </button>
@@ -148,7 +148,7 @@ function NotifCard({
               {!notif.archived && (
                 <button
                   onClick={() => onArchive(notif.id)}
-                  className="h-8 px-4 rounded-lg border border-[#E2E8F0] text-[12px] font-medium text-[#64748B] hover:border-[#EF4444] hover:text-[#EF4444] transition-colors"
+                  className="h-7 sm:h-8 px-1.5 sm:px-4 rounded-md sm:rounded-lg border border-[#E2E8F0] text-[10px] sm:text-[12px] font-medium text-[#64748B] hover:border-[#EF4444] hover:text-[#EF4444] transition-colors inline-flex items-center justify-center flex-1 sm:flex-none whitespace-nowrap"
                 >
                   Dismiss
                 </button>

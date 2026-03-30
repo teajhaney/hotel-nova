@@ -102,7 +102,7 @@ export default function AdminBookingsPage() {
       </div>
 
       {/* Mini stat cards */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         {MINI_STATS.map(({ label, value, positive }) => (
           <div key={label} className="admin-stat-card text-center sm:text-left">
             <p className="text-[12px] sm:text-[13px] text-[#64748B] mb-1 leading-tight">{label}</p>
@@ -147,7 +147,7 @@ export default function AdminBookingsPage() {
       {/* Table */}
       <div className="admin-card overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-[1000px]">
             <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0]">
               <tr>
                 <th className="admin-table-th">{M.bookingsColBookingId}</th>
@@ -161,11 +161,36 @@ export default function AdminBookingsPage() {
             </thead>
             <tbody className="divide-y divide-[#F1F5F9]">
               {isLoading ? (
-                <tr>
-                  <td colSpan={7} className="px-5 py-12 text-center">
-                    <Loader2 size={24} className="animate-spin text-[#020887] mx-auto" />
-                  </td>
-                </tr>
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} className="animate-pulse border-b border-[#E2E8F0] last:border-0">
+                    <td className="admin-table-td"><div className="h-4 bg-[#E2E8F0] rounded w-20"></div></td>
+                    <td className="admin-table-td">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-full bg-[#E2E8F0] shrink-0"></div>
+                        <div>
+                          <div className="h-4 bg-[#E2E8F0] rounded w-28 mb-1"></div>
+                          <div className="h-3 bg-[#E2E8F0] rounded w-36"></div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="admin-table-td">
+                      <div className="h-4 bg-[#E2E8F0] rounded w-24 mb-1"></div>
+                      <div className="h-3 bg-[#E2E8F0] rounded w-16"></div>
+                    </td>
+                    <td className="admin-table-td">
+                      <div className="h-3 bg-[#E2E8F0] rounded w-24 mb-1"></div>
+                      <div className="h-3 bg-[#E2E8F0] rounded w-24"></div>
+                    </td>
+                    <td className="admin-table-td"><div className="h-4 bg-[#E2E8F0] rounded w-16"></div></td>
+                    <td className="admin-table-td"><div className="w-20 h-6 rounded-md bg-[#E2E8F0]"></div></td>
+                    <td className="admin-table-td">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-[#E2E8F0]"></div>
+                        <div className="w-8 h-8 rounded-lg bg-[#E2E8F0]"></div>
+                      </div>
+                    </td>
+                  </tr>
+                ))
               ) : bookings.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-5 py-10 text-center text-[14px] text-[#94A3B8]">
