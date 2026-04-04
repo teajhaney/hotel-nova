@@ -9,6 +9,7 @@ import {
   MessageSquare,
   AlertTriangle,
   Bell,
+  ChevronLeft,
   ChevronRight,
   BellOff,
   Loader2,
@@ -145,14 +146,25 @@ function NotifCard({
 }
 
 // ─── Page ──────────────────────────────────────────────────────────────────
+const PAGE_SIZE = 20;
+
 export default function NotificationsPage() {
   const [activeTab, setActiveTab] = useState<Tab>('All');
-  const { data, isLoading } = useNotifications(TAB_FILTER[activeTab]);
+  const [page, setPage] = useState(1);
+  const { data, isLoading } = useNotifications(TAB_FILTER[activeTab], page, PAGE_SIZE);
   const markRead = useMarkRead();
   const markAllRead = useMarkAllRead();
   const archive = useArchiveNotification();
 
   const notifications = data?.data ?? [];
+  const meta = data?.meta;
+  const totalPages = meta?.totalPages ?? 1;
+
+  // Reset to page 1 when switching tabs
+  function handleTabChange(tab: Tab) {
+    setActiveTab(tab);
+    setPage(1);
+  }
 
   return (
     <div className="guest-page-container">
@@ -182,7 +194,7 @@ export default function NotificationsPage() {
           {TABS.map(tab => (
             <button
               key={tab}
-              onClick={() => setActiveTab(tab)}
+              onClick={() => handleTabChange(tab)}
               className={`px-4 py-3.5 text-[14px] font-medium border-b-2 -mb-px transition-colors ${
                 activeTab === tab
                   ? 'border-[#020887] text-[#020887]'
@@ -224,7 +236,7 @@ export default function NotificationsPage() {
         {activeTab !== 'Archived' && (
           <div className="border-t border-[#E2E8F0] px-4 py-3.5 flex items-center justify-center">
             <button
-              onClick={() => setActiveTab('Archived')}
+              onClick={() => handleTabChange('Archived')}
               className="flex items-center gap-1.5 text-[14px] font-medium text-[#64748B] hover:text-[#020887] transition-colors"
             >
               {GUEST_DASHBOARD_MESSAGES.viewArchive}
@@ -233,6 +245,31 @@ export default function NotificationsPage() {
           </div>
         )}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-5">
+          <p className="text-[13px] text-[#64748B]">
+            Page {page} of {totalPages} ({meta?.total ?? 0} notifications)
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page <= 1}
+              className="h-9 w-9 rounded-lg border border-[#E2E8F0] flex items-center justify-center text-[#64748B] hover:border-[#020887] hover:text-[#020887] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <button
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page >= totalPages}
+              className="h-9 w-9 rounded-lg border border-[#E2E8F0] flex items-center justify-center text-[#64748B] hover:border-[#020887] hover:text-[#020887] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

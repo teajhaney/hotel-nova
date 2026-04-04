@@ -8,6 +8,8 @@ import {
   CalendarDays,
   X,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   Loader2,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -326,10 +328,13 @@ function ReviewCard({
   );
 }
 
+const PAGE_SIZE = 10;
+
 export default function ReviewsPage() {
   const [activeTab, setActiveTab] = useState<Tab>(
     GUEST_DASHBOARD_MESSAGES.reviewTabAll
   );
+  const [page, setPage] = useState(1);
   const [modalBooking, setModalBooking] = useState<EligibleBooking | null>(
     null
   );
@@ -350,6 +355,16 @@ export default function ReviewsPage() {
     // admin changed the status to CheckedOut, so today's checkout appears on top
     .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
 
+  // Client-side pagination over the filtered list
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  // Reset to page 1 when switching tabs
+  function handleTabChange(tab: Tab) {
+    setActiveTab(tab);
+    setPage(1);
+  }
+
   return (
     <div className="guest-page-container">
       {/* Header */}
@@ -367,7 +382,7 @@ export default function ReviewsPage() {
         {TABS.map(tab => (
           <button
             key={tab}
-            onClick={() => setActiveTab(tab)}
+            onClick={() => handleTabChange(tab)}
             className={`px-4 py-3 text-[14px] font-medium border-b-2 -mb-px transition-colors ${
               activeTab === tab
                 ? 'border-[#020887] text-[#020887]'
@@ -393,13 +408,38 @@ export default function ReviewsPage() {
         </div>
       ) : (
         <div className="flex flex-col gap-4">
-          {filtered.map(booking => (
+          {paged.map(booking => (
             <ReviewCard
               key={booking.bookingId}
               booking={booking}
               onReview={setModalBooking}
             />
           ))}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-5">
+          <p className="text-[13px] text-[#64748B]">
+            Page {page} of {totalPages} ({filtered.length} reviews)
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page <= 1}
+              className="h-9 w-9 rounded-lg border border-[#E2E8F0] flex items-center justify-center text-[#64748B] hover:border-[#020887] hover:text-[#020887] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <button
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page >= totalPages}
+              className="h-9 w-9 rounded-lg border border-[#E2E8F0] flex items-center justify-center text-[#64748B] hover:border-[#020887] hover:text-[#020887] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
         </div>
       )}
 

@@ -19,15 +19,21 @@ function shuffle<T>(items: T[]) {
 async function getFeaturedRooms(): Promise<Room[]> {
   if (!process.env.BACKEND_URL) return [];
 
-  const res = await fetch(`${process.env.BACKEND_URL}/rooms?limit=50`, {
-    cache: 'no-store',
-  });
+  try {
+    const res = await fetch(`${process.env.BACKEND_URL}/rooms?limit=50`, {
+      cache: 'no-store',
+    });
 
-  if (!res.ok) return [];
+    if (!res.ok) return [];
 
-  const payload = (await res.json()) as RoomsPage;
-  const rooms = payload.data ?? [];
-  return shuffle(rooms).slice(0, 3);
+    const payload = (await res.json()) as RoomsPage;
+    const rooms = payload.data ?? [];
+    return shuffle(rooms).slice(0, 3);
+  } catch {
+    // If the backend is unreachable, render the section with no cards
+    // instead of crashing the entire page.
+    return [];
+  }
 }
 
 export async function FeaturedRoomsSection() {
